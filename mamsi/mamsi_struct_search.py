@@ -28,15 +28,18 @@ class MamsiStructSearch:
 
     def load_lcms(self, df):
         """
-        The method imports LC-MS intensity data and extracts feature metadata from column names.
-        :param df: Pandas DataFrame
-            Data frame with lc-ms intensity data.
+        Imports LC-MS intensity data and extracts feature metadata from column names.
 
-            Column names in format
-                <Assay Name>_<RT in sec>_<m/z>m/z
-                e.g.
-                HPOS_233.25_149.111m/z
+        Args:
+            df (pandas.DataFrame): Data frame with LC-MS intensity data.
+                - rows: samples
+                - columns: features (LC-MS peaks)
+                    Column names in the format:
+                        <Assay Name>_<RT in sec>_<m/z>m/z
+                    For example:
+                        HPOS_233.25_149.111m/z
         """
+
         _df = df.copy()
 
         # Extract column names
@@ -81,7 +84,6 @@ class MamsiStructSearch:
         pass
 
     def _get_adduct_groups(self, adducts='all'):
-
 
         for index, frame in enumerate(self.assay_metadata):
 
@@ -178,12 +180,14 @@ class MamsiStructSearch:
 
     def get_neutral_mass(self, features, adducts='all'):
         """
-        Method calculates potential neutral masses for all m/z features
-        :param features: obejct
-            dataframe with m/z
-        :param adducts: str (default 'all')
-            dataframe with ion masses and names
-        :return: dataframe with m/z and hypothetical neutral masses for given adducts
+        Calculate potential neutral masses for all m/z features.
+
+        Args:
+            features (pandas.DataFrame): DataFrame containing m/z features.
+            adducts (str, optional): DataFrame with ion masses and names. Defaults to 'all'.
+
+        Returns:
+            pandas.DataFrame: DataFrame with m/z and hypothetical neutral masses for given adducts.
         """
         
         # Load all filess with "all" adducts
@@ -244,16 +248,19 @@ class MamsiStructSearch:
         return matches
 
     def _find_adduct_matches(self, frame_, row_, clust_flag, main_adduct=True):
-        '''
-        Method searches for adducts within a given ppm window
-        :param frame_: object
-            dataframe with m/z
-        :param row_: object
-            row of the dataframe
-        :param clust_flag: cluster flag
-        :param main_adduct: boolean flag for main adducts
-        :return: dataframe with adducts
-        '''
+        """
+        Method searches for adducts within a given ppm window.
+
+        Args:
+            frame_ (pandas.DataFrame): DataFrame containing m/z values.
+            row_ (pandas.Series): Row of the DataFrame.
+            clust_flag (bool): Cluster flag.
+            main_adduct (bool): Flag for main adducts.
+
+        Returns:
+            pandas.DataFrame: DataFrame with adducts.
+        """
+
         frame = frame_.copy()
         group = pd.DataFrame(columns=['Feature', 'm/z', 'Expected neutral mass',
                                       'Observed neutral mass', 'Neutral mass |difference ppm|',
@@ -303,7 +310,7 @@ class MamsiStructSearch:
 
     def _get_unified_struct_groups(self):
         """
-        Metdhod unifies 'Isotopologue group' and 'Adduct group' into single 'Structural group'
+        Unifies 'Isotopologue group' and 'Adduct group' into a single 'Structural group'.
         """
         for index, frame in enumerate(self.assay_metadata):
 
@@ -335,15 +342,16 @@ class MamsiStructSearch:
 
     def _get_annotation(self, roi=None):
         """
-        Method annotates hypothetical features using the RIO files of the National Phenome Centre
+        Annotates hypothetical features using the RIO files from the National Phenome Centre.
 
-        :param roi: object (default None)
-            Region of Interest (RIO) file from the National Phenome Centre.
-        :return: Dataframe with structural clusters and feature annotations.
+        Args:
+            roi (pandas.DataFrame, optional): Region of Interest (RIO) file from the National Phenome Centre. Defaults to None.
+
+        Returns:
+            pandas.DataFrame: DataFrame with structural clusters and feature annotations.
         """
-        
-        # Load RIO files
 
+        # Load RIO files
         for index, frame in enumerate(self.assay_metadata):
 
             frame = frame.copy()
@@ -427,8 +435,7 @@ class MamsiStructSearch:
 
     def _get_isotopologue_groups(self):
         """
-        Private Method.
-        Searches for isotopologue signature in individual assay data frames.
+        Search for isotopologue signature in individual assay data frames.
         """
 
         for index, frame in enumerate(self.assay_metadata):
@@ -474,10 +481,14 @@ class MamsiStructSearch:
     @staticmethod
     def _mean_ppm_diff(x, y):
         """
-        Calculates mean PPM difference between two numbers
-        :param x: float x
-        :param y: float y
-        :return: mean PPM difference between x and y
+        Calculates the mean PPM difference between two numbers.
+
+        Args:
+            x (float): The first number.
+            y (float): The second number.
+
+        Returns:
+            float: Mean PPM difference between `x` and `y`.
         """
         diff1 = abs((x - y) / x * 1000000)
         diff2 = abs((y - x) / y * 1000000)
