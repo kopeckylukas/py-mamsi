@@ -27,51 +27,43 @@ class MamsiPls(MBPLS):
         based on MB-PLS package: Baum et al., (2019). Multiblock PLS: Block dependent prediction modeling for Python.
         This wrapper has some extra methods convenient in Chemometrics and Metabolomics research.
 
-        :param n_components: int Number
-            (:math:`k`) of Latent Variables (LV)
-        :param full_svd: bool (default True)
-            Using full singular value decomposition when performing SVD method.
-            Set to 'False' when using very large quadratic matrices :math:`X`.
-        :param method: string (default 'NIPALS')
-            The method being used to derive the model attributes, possible are 'UNIPALS', 'NIPALS', 'SIMPLS' and
-            'KERNEL'
-        :param standardize: bool (default True)
-            Standardising the data (Unit-variance scaling)
-        :param max_tol: non-negative float (default 1e-14)
-            Maximum tolerance allowed when using the iterative NIPALS algorithm
+        Args:
+            n_components (int, optional): Number of Latent Variables (LV). Defaults to 2.
+            full_svd (bool, optional): Whether to use full singular value decomposition when performing the SVD method. 
+                Set to False when using very large quadratic matrices (X). Defaults to False.
+            method (str, optional): The method used to derive the model attributes. Options are 'UNIPALS', 'NIPALS', 'SIMPLS', 
+                and 'KERNEL'. Defaults to 'NIPALS'.
+            standardize (bool, optional): Whether to standardize the data (Unit-variance scaling). Defaults to True.
+            max_tol (float, optional): Maximum tolerance allowed when using the iterative NIPALS algorithm. Defaults to 1e-14.
+                nipals_convergence_norm (int, optional): Order of the norm that is used to calculate the difference of 
+                the super-score vectors between subsequentiterations of the NIPALS algorithm. 
+                Following orders are available:
 
-        :param nipals_convergence_norm: {non-zero int, inf, -inf, 'fro', 'nuc'} (default 2)
-            Order of the norm that is used to calculate the difference of the super-score vectors between subsequent
-            iterations of the NIPALS algorithm. Following orders are available:
-
-            =====  ============================  ==========================
-            ord    norm for matrices             norm for vectors
-            =====  ============================  ==========================
-            None   Frobenius norm                2-norm
-            'fro'  Frobenius norm                --
-            'nuc'  nuclear norm                  --
-            inf    max(sum(abs(x), axis=1))      max(abs(x))
-            -inf   min(sum(abs(x), axis=1))      min(abs(x))
-            0      --                            sum(x != 0)
-            1      max(sum(abs(x), axis=0))      as below
-            -1     min(sum(abs(x), axis=0))      as below
-            2      2-norm (largest sing. value)  as below
-            -2     smallest singular value       as below
-            other  --                            sum(abs(x)**ord)**(1./ord)
-            =====  ============================  ==========================
-        :param calc_all: bool (default True)
-            Calculate all internal attributes for the used method. Some methods do not need to calculate all attributes,
-            i.e. scores, weights etc., to obtain the regression coefficients used for prediction. Setting this parameter
-            to false will omit these calculations for efficiency and speed.
-        :param sparse_data: bool (default False)
-            NIPALS is the only algorithm that can handle sparse data using the method of H. Martens and Martens (2001)
-            (p. 381). If this parameter is set to 'True', the method will be forced to NIPALS and sparse data is
-            allowed.
-            Without setting this parameter to 'True', sparse data will not be accepted.
-        :param copy: bool (default True)
-            Whether the deflation should be done on a copy. Not using a copy might alter the input data and have
-            unforeseeable consequences.
-        """
+                =====  ============================  ==========================
+                ord    norm for matrices             norm for vectors
+                =====  ============================  ==========================
+                None   Frobenius norm                2-norm
+                'fro'  Frobenius norm                --
+                'nuc'  nuclear norm                  --
+                inf    max(sum(abs(x), axis=1))      max(abs(x))
+                -inf   min(sum(abs(x), axis=1))      min(abs(x))
+                0      --                            sum(x != 0)
+                1      max(sum(abs(x), axis=0))      as below
+                -1     min(sum(abs(x), axis=0))      as below
+                2      2-norm (largest sing. value)  as below
+                -2     smallest singular value       as below
+                other  --                            sum(abs(x)**ord)**(1./ord)
+                =====  ============================  ==========================. 
+                Defaults to 2.
+            calc_all (bool, optional): Whether to calculate all internal attributes for the used method. Some methods do not need
+                to calculate all attributes (i.e., scores, weights) to obtain the regression coefficients used for prediction.
+                Setting this parameter to False will omit these calculations for efficiency and speed. Defaults to True.
+            sparse_data (bool, optional): NIPALS is the only algorithm that can handle sparse data using the method of H. Martens
+                and Martens (2001) (p. 381). If this parameter is set to True, the method will be forced to NIPALS and sparse data
+                is allowed. Without setting this parameter to True, sparse data will not be accepted. Defaults to False.
+            copy (bool, optional): Whether the deflation should be done on a copy. Not using a copy might alter the input data
+                and have unforeseeable consequences. Defaults to True.
+            """
         super().__init__(n_components, full_svd, method, standardize, max_tol, nipals_convergence_norm,
                          calc_all, sparse_data, copy)
 
@@ -79,25 +71,20 @@ class MamsiPls(MBPLS):
                     plateau_threshold=0.01, increase_threshold=0.05, get_scores=False):
         """
         Method to estimate the number of latent variables (components) for MAMSI MB-PLS model.
-        :param x: array, list[array]
-            of all blocks of predictors x1, x2, ..., xn. Rows are observations, columns are features/variables.
-        :param y: array
-            1-dim or 2-dim array of reference values, either continuous or categorical variable.
-        :param n_components: int (default 10)
-            Number of components / latent variables.
-        :param no_fold: int (default 5)
-            Number of folds for k-fold cross-validation.
-        :param y_continuous: boolean (default False)
-            Is outcome a continuous variable.
-        :param metric: string (default 'AUC')
-            metric: Metric to use to estimate the number of LVs; available:['AUC', q2, 'precision', 'recall', 'f1'].
-        :param plateau_threshold: non-negative float (default 0.01)
-            Maximum increase for a sequence of LVs to be considered plateau.
-        :param increase_threshold: non-negative float (default 0.05)
-            Minimum increase to be considered a bend.
-        :param get_scores: boolean (default False)
-            Return measured scores as a dataframe; default False.
-        :return: Measured scores as Pandas dataframe.
+
+        Args:
+            x (array or list[array]): All blocks of predictors x1, x2, ..., xn. Rows are observations, columns are features/variables.
+            y (array): 1-dim or 2-dim array of reference values, either continuous or categorical variable.
+            n_components (int, optional): Number of components / latent variables. Defaults to 10.
+            no_fold (int, optional): Number of folds for k-fold cross-validation. Defaults to 5.
+            y_continuous (bool, optional): Whether the outcome is a continuous variable. Defaults to False.
+            metric (str, optional): Metric to use to estimate the number of LVs; available options: ['AUC', 'q2', 'precision', 'recall', 'f1']. Defaults to 'AUC'.
+            plateau_threshold (float, optional): Maximum increase for a sequence of LVs to be considered a plateau. Must be non-negative. Defaults to 0.01.
+            increase_threshold (float, optional): Minimum increase to be considered a bend. Must be non-negative. Defaults to 0.05.
+            get_scores (bool, optional): Whether to return measured scores as a dataframe. Defaults to False.
+
+        Returns:
+            pandas.DataFrame: Measured scores as a Pandas dataframe.
         """
 
         # Validation of data inputs
@@ -282,11 +269,13 @@ class MamsiPls(MBPLS):
     def evaluate_class_model(self, x, y):
         """
         Evaluate MB-PLS model using a **testing** dataset.
-        :param x: array, list[array]
-            of all blocks of predictors x1, x2, ..., xn. Rows are observations, columns are features/variables.
-        :param y: array
-            1-dim or 2-dim array of reference values, either continuous or categorical variable.
-        :return: predicted y variable based on training set predictors
+
+        Args:
+            x (array or list[array]): All blocks of predictors x1, x2, ..., xn. Rows are observations, columns are features/variables.
+            y (array): 1-dim or 2-dim array of reference values, either continuous or categorical variable.
+
+        Returns:
+            array: Predicted y variable based on training set predictors.
         """
 
         # Check if PLS model is fitted
@@ -320,12 +309,17 @@ class MamsiPls(MBPLS):
 
     def mb_vip(self, plot=False):
         """
-        Multi-block Variable importance in projection (MB-VIP) for multiblock PLS model.
+        Multi-block Variable Importance in Projection (MB-VIP) for multiblock PLS model.
+
         Adaptation of C. Wieder et al., (2024). PathIntegrate, doi: 10.1371/journal.pcbi.1011814.
-        :param plot: boolean (default False)
-            Plot MB-VIP scores.
-        :return: MB-VIP scores
+
+        Args:
+            plot (bool, optional): Whether to plot MB-VIP scores. Defaults to False.
+
+        Returns:
+            array: MB-VIP scores.
         """
+
         # Check is model is fitted
         check_is_fitted(self, 'beta_')
 
@@ -350,29 +344,29 @@ class MamsiPls(MBPLS):
 
     def mb_vip_permtest(self, x, y, n_permutations=1000, return_scores=False):
         """
-        Calculate empirical p-values for each feature by permuting the Y outcome variable "n_permutations" times and
-        refitting the model; the p-values for each feature were then calculated by counting the number of trials with
-        MB-VIP greater than or equal to the observed test statistic, and dividing this by "n_permutations".
+        Calculate empirical p-values for each feature by permuting the Y outcome variable `n_permutations` times and
+        refitting the model. The p-values for each feature are then calculated by counting the number of trials with
+        MB-VIP greater than or equal to the observed test statistic, and dividing this by `n_permutations`.
 
         N.B. This method uses OpenMP to parallelise the code, relying on multi-threading exclusively. By default,
         the implementations using OpenMP will use as many threads as possible, i.e. as many threads as logical cores.
         This is available by default on systems with macOS and MS Windows.
-        Running this method on a High Performance Computing (HPC), including Imperial College London HPC, requires
-        additional Joblib parallelisation. Such parallelised permtest function can be found ./Extras directory
-        as parallel_mb_vip_permtest.py. If you are Imperial colleague, do not hesitate to contact me for support on how
-        to set up PBS file.
+        Running this method on a High Performance Computing (HPC) system, including Imperial College London HPC, requires
+        additional Joblib parallelisation. A parallelised permtest function can be found in the ./Extras directory
+        as `parallel_mb_vip_permtest.py`. If you are an Imperial colleague, do not hesitate to contact me for support on how
+        to set up a PBS file.
 
-        :param x: array, list[array]
-            of all blocks of predictors x1, x2, ..., xn. Rows are observations, columns are features/variables.
-        :param y: array
-            1-dim or 2-dim array of reference values, either continuous or categorical variable.
-        :param n_permutations: int (default 1000)
-            Number of permutation tests.
-        :param return_scores: boolean (default False)
-            Should method return
-        :return: Returns array of p-values for each feature. If 'n_permutations' == True, then a matrix of MB-VIP scores
+        Args:
+            x (array or list[array]): All blocks of predictors x1, x2, ..., xn. Rows are observations, columns are features/variables.
+            y (array): 1-dim or 2-dim array of reference values, either continuous or categorical variable.
+            n_permutations (int, optional): Number of permutation tests. Defaults to 1000.
+            return_scores (bool, optional): Whether to return MB-VIP scores for each permuted null model. Defaults to False.
+
+        Returns:
+            array: Returns an array of p-values for each feature. If `return_scores` is True, then a matrix of MB-VIP scores
             for each permuted null model is returned as well.
         """
+
 
         # Check is model is fitted
         check_is_fitted(self, 'beta_')
@@ -413,12 +407,17 @@ class MamsiPls(MBPLS):
     @staticmethod
     def _find_plateau(scores, range_threshold=0.01, consecutive_elements=3):
         """
-        Function to assist find a plateau in sequence of LVs.
-        :param scores: List of scores.
-        :param range_threshold: Maximum increase for a sequence of LVs to be considered plateau; default 0.01.
-        :param consecutive_elements: Number of elements that need to be in a plateau; default 3.
-        :return: Beginning and end of the plateau.
+        Function to assist in finding a plateau in a sequence of LVs.
+
+        Args:
+            scores (list[float]): List of scores.
+            range_threshold (float, optional): Maximum increase for a sequence of LVs to be considered a plateau. Defaults to 0.01.
+            consecutive_elements (int, optional): Number of elements that need to be in a plateau. Defaults to 3.
+
+        Returns:
+            tuple: Beginning and end indices of the plateau.
         """
+
         n = len(scores)
         for i in range(1, n - consecutive_elements + 1):
             plateau = True
