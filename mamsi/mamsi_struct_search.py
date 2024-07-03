@@ -75,6 +75,14 @@ class MamsiStructSearch:
         self.intensities = np.array(_df)
 
     def get_correlation_clusters(self, visualise=True):
+        """
+        Find correlation clusters for MB-PLS features. 
+
+        METHOD TO BE IMPLEMENTED
+
+        Args:
+            visualise (bool, optional): If true, dendrogram and correlation heatmap is displayed. Defaults to True.
+        """
 
         # Check if metadata have been loaded
         if self.feature_metadata is None:
@@ -84,6 +92,12 @@ class MamsiStructSearch:
         pass
 
     def _get_adduct_groups(self, adducts='all'):
+        """
+        Search for adduct grouping signatures within significant features. The methods finds 
+
+        Args:
+            adducts (str, optional): _description_. Defaults to 'all'.
+        """
 
         for index, frame in enumerate(self.assay_metadata):
 
@@ -94,10 +108,10 @@ class MamsiStructSearch:
             # Get neutral masses for all adducts
             frame__ = self.get_neutral_mass(features=frame_, adducts=adducts)
 
-            # Search for adducts in current dataframe
+            # Search for adducts in current DataFrame
             data_clusters_frame = self._search_main_adduct(frame__)
 
-            # Combine isotopologue and adduct clusters into one dataframe
+            # Combine isotopologue and adduct clusters into one DataFrame
             frame_2 = frame__.iloc[:, :5]
             working_frame = frame_2.merge(data_clusters_frame.iloc[:, [0, 7, 2, 3, 4, 5]], on='Feature', how='left')
 
@@ -129,8 +143,31 @@ class MamsiStructSearch:
             # now load data below in the main loop as nothing is returned
 
 
-    def get_structural_clusters(self, detect_iso=True, adducts='all', unify_overlap=True, annotate=True,
-                                unify_clusters=True, return_as_single_frame=False):
+    def get_structural_clusters(self, adducts='all', annotate=True, return_as_single_frame=False):
+        """
+        Searches structural signatures in LC-MS data based on their m/z and RT. These structural signatures include 
+        isotopologues and adduct patterns.
+
+        Args:
+            adducts (str, optional): Define what type of adducts to . 
+                Possible values are:
+                    - 'all': All adducts combinations (based on Fiehn Lab adduct calculator).
+                    - 'most-common': Most common adducts for ESI (based on Waters documentation).
+                Defaults to 'all'.
+            annotate (bool, optional): Annotate significant features based on National Phenome Centre RIO data.
+                Uses semi-targeted annotations for selected compounds
+                Should be used only with assays analysed by the National Phenome Centre. For more information 
+                visit National Phenome Centre's website: https://phenomecentre.org.
+                Defaults to True.
+            return_as_single_frame (bool, optional): Option to return all significant features in a single DataFrame. 
+                Options are:
+                    - True: Return all features in a single DataFrame.
+                    - False: Return all features in a list of DataFrames.
+                Defaults to False.
+
+        Returns:
+            pandas.DataFrame or list(pandas.DataFrame): DataFrame of significant features with structural clusters.
+        """
 
         # Check if metadata have been loaded
         if self.feature_metadata is None:
@@ -190,7 +227,7 @@ class MamsiStructSearch:
             pandas.DataFrame: DataFrame with m/z and hypothetical neutral masses for given adducts.
         """
         
-        # Load all filess with "all" adducts
+        # Load all files with "all" adducts
         if adducts == 'all':
             stream_all_adducts_pos = pkg_resources.resource_stream(__name__, 'Data/Adducts/all_adducts_pos.csv')
 
@@ -230,6 +267,15 @@ class MamsiStructSearch:
         return df
 
     def _search_main_adduct(self, x):
+        """
+        Search for main adducts ([M+H]+ / [M-H]-) in the given input.
+
+        Args:
+            x (DataFrame): The input DataFrame containing the data to search.
+
+        Returns:
+            DataFrame: A DataFrame containing the matches found for the main adducts.
+        """
         
         frame_ = x.copy()
 
@@ -394,7 +440,7 @@ class MamsiStructSearch:
             else:
                 roi = roi
 
-            # Create copies of dataframes
+            # Create copies of = DataFrames
             frame_ = frame.copy()
             frame_.reset_index(inplace=True, drop=True)
             roi_ = roi.copy()
