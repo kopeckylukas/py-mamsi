@@ -82,6 +82,7 @@ class MamsiStructSearch:
 
     def _get_adduct_groups(self, adducts='all'):
 
+
         for index, frame in enumerate(self.assay_metadata):
 
             frame_ = frame.copy()
@@ -125,93 +126,6 @@ class MamsiStructSearch:
             self.assay_metadata[index] = working_frame
             # now load data below in the main loop as nothing is returned
 
-    def get_structural_clusters_original(self, detect_iso=True, adducts='all', unify_overlap=True, annotate=True,
-                                unify_clusters=True, return_as_single_frame=False):
-
-        # Check if metadata have been loaded
-        if self.feature_metadata is None:
-            warnings.simplefilter('error', RuntimeWarning)
-            warnings.warn("No data loaded. Use 'load_lcms()' to load data.",
-                          RuntimeWarning)
-
-        self._get_isotopologue_groups()
-        self._get_adduct_groups()
-
-        data = self.assay_metadata
-
-        # PROCESS ASSAYS
-        data_ = []
-        data_clusters = []
-        data_both = []
-        iso_offset = 0
-        adduct_offset = 0
-        cluster_offset = 0
-        for frame in data:
-
-            # Detect isotopologues within one loop
-            #
-            # # Get neutral masses for all adducts
-            # frame_ = self.get_neutral_mass(features = frame, adducts=adducts)
-            #
-            # # Search for adducts in current dataframe
-            # data_clusters_frame = self._search_main_adduct(frame_)
-            #
-            # # Combine isotopologue and adduct clusters into one dataframe
-            # frame_2 = frame_.iloc[:, :5]
-            # working_frame = frame_2.merge(data_clusters_frame.iloc[:, [0, 7, 2, 3, 4, 5]], on='Feature', how='left')
-            #
-            # # Merge overlapping adduct clusters
-            # if unify_overlap:
-            #     non_unique_features = working_frame['Feature'][working_frame['Feature'].duplicated(keep=False)].unique()
-            #     for item in non_unique_features:
-            #         # For all non-unique features, find all clusters they belong too
-            #         fr_ = working_frame[working_frame['Feature'] == item].loc[:, ['Feature', 'Adduct group', 'Adduct']]
-            #         combined_adduct = '/'.join(fr_['Adduct'])
-            #         fr_['Adduct'] = combined_adduct
-            #
-            #         #
-            #         working_frame.reset_index(inplace=True, drop=True)
-            #         fr_.reset_index(inplace=True, drop=True)
-            #         for i in range(len(fr_)):
-            #             working_frame.loc[working_frame['Feature'] ==
-            #                               fr_.loc[i, 'Feature'], 'Adduct'] = fr_.loc[i, 'Adduct']
-            #
-            #         # unify all overlapping cluster by assigning the lowest cluster values to all clusters
-            #         for i in range(len(fr_) - 1):
-            #             working_frame['Adduct group'].replace({fr_.iloc[i + 1, 1]: fr_.iloc[0, 1]}, inplace=True)
-            #             # working_frame.reset_index(inplace=True, drop=True)
-            #             # working_frame['Adduct'].replace({fr_.iloc[i, 2]: fr_.iloc[0, 2]}, inplace=True)
-            #
-            #     working_frame = working_frame.drop_duplicates(subset='Feature')  # Delete non unique Features
-
-            working_frame = frame
-            # Combine Isotopologue Clusters and Adduct Clusters to Structural Cluster
-            if unify_clusters:
-                working_frame = self._get_unified_struct_groups(working_frame)
-
-            # Run automatic feature annotation for
-            if annotate:
-                working_frame = self._get_annotation(working_frame)
-
-            # Append data to lists of data_frames
-            # data_.append(frame_)
-            # data_clusters.append(data_clusters_frame)  # Append clusters to the list
-            data_both.append(working_frame)
-
-            # Update offsets for isotopologue and adduct clusters
-            if return_as_single_frame:
-                working_frame['Isotopologue group'] = working_frame['Isotopologue group'].apply(lambda x: x + iso_offset)
-                working_frame['Adduct group'] = working_frame['Adduct group'].apply(lambda x: x + adduct_offset)
-                working_frame['Structural cluster'] = working_frame['Structural cluster'].apply(lambda x: x + cluster_offset)
-                iso_offset = working_frame['Isotopologue group'].max()  # Update offset
-                adduct_offset = working_frame['Adduct group'].max()  # Update offset
-                cluster_offset = working_frame['Structural cluster'].max()  # Update offset
-
-        # Return data as a single frame
-        if return_as_single_frame:
-            data_both = pd.DataFrame(np.vstack(data_both), columns=data_both[1].columns)
-
-        return data_, data_clusters, data_both
 
     def get_structural_clusters(self, detect_iso=True, adducts='all', unify_overlap=True, annotate=True,
                                 unify_clusters=True, return_as_single_frame=False):
@@ -274,22 +188,21 @@ class MamsiStructSearch:
         
         # Load all filess with "all" adducts
         if adducts == 'all':
-            stream_all_adducts = pkg_resources.resource_stream(__name__, 'Data/Adducts/adduct_all.xlsx')
+            stream_all_adducts_pos = pkg_resources.resource_stream(__name__, 'Data/Adducts/all_adducts_pos.csv')
 
-            adducts_positive = pd.read_excel(stream_all_adducts,
-                                             sheet_name='Positive ion mode')
-            adducts_negative = pd.read_excel(stream_all_adducts,
-                                             sheet_name='Negative mode')
+            adducts_positive = pd.read_csv(stream_all_adducts_pos)
+            
+            stream_all_adducts_neg = pkg_resources.resource_stream(__name__, 'Data/Adducts/all_adducts_neg.csv')
+            adducts_negative = pd.read_csv(stream_all_adducts_neg)
 
         # Load files with the "most common" adducts
         else:
             # Load external adduct files
-            stream_common_adducts = pkg_resources.resource_stream(__name__, 'Data/Adducts/adduct_most_common.xlsx')
-
-            adducts_positive = pd.read_excel(stream_common_adducts,
-                                             sheet_name='Positive ion mode')
-            adducts_negative = pd.read_excel(stream_common_adducts,
-                                             sheet_name='Negative mode')
+            stream_common_adducts_pos = pkg_resources.resource_stream(__name__, 'Data/Adducts/common_adducts_pos.csv')
+            adducts_positive = pd.read_csv(stream_common_adducts_pos)
+            
+            stream_common_adducts_neg = pkg_resources.resource_stream(__name__, 'Data/Adducts/common_adducts_neg.csv')
+            adducts_negative = pd.read_csv(stream_common_adducts_neg)
 
         df = features.copy()  # Copy features data frame
         df.reset_index(inplace=True, drop=True)
