@@ -362,7 +362,7 @@ class MamsiStructSearch:
 
             frame_ = frame.copy()  # Copy the input dataframe
 
-            # Stack Isotopologue and adduct clusters into a single variable 'Struc
+            # Stack Isotopologue and adduct clusters into a single variable 'Structural cluster'
             offset = frame_['Isotopologue group'].max()  # Get the highest number of iso group
             frame_['Adduct group'] = frame_['Adduct group'].apply(lambda x: x+offset)  # adduct clusters above iso
             adduct_frame = frame_.dropna(subset=['Adduct group'])  # Get only rows with non 0 clusters
@@ -384,7 +384,9 @@ class MamsiStructSearch:
                     frame_['Structural cluster'].replace({fr_.iloc[i + 1, 1]: fr_.iloc[0, 1]}, inplace=True)
             unified_frame = frame_.drop_duplicates(subset='Feature')  # Delete non unique Features
 
-        self.assay_metadata[index] = unified_frame
+            # Update the current assay metadata with the unified structural clusters
+            self.assay_metadata[index] = unified_frame
+
 
     def _get_annotation(self, roi=None):
         """
