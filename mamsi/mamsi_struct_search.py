@@ -158,9 +158,11 @@ class MamsiStructSearch:
             frame.sort_values(by='m/z', inplace=True)
             frame.reset_index(inplace=True, drop=True)
             frame['Isotopologue group'] = [np.NaN] * len(frame)
+            frame['M+'] = [np.NaN] * len(frame)
 
             # Group ID for new cluster
             iso_group = 1
+            m_plus = 0
 
             # Loop through data frame. Add neutron mass to current value
             for i in range(len(frame)):
@@ -168,6 +170,7 @@ class MamsiStructSearch:
                 current_mz += 1.003355
                 current_rt = frame.loc[i, 'RT']
     
+                
                 # Loop through data frame to find expected MZ
                 for j in range(len(frame)):
                     expected_mz = frame.loc[j, 'm/z']
@@ -184,10 +187,16 @@ class MamsiStructSearch:
                             frame.at[i, 'Isotopologue group'] = iso_group
                             frame.at[j, 'Isotopologue group'] = iso_group
                             iso_group += 1
+                            m_plus = 0  # Reset M+ counter if new isotopologue group is found
+
                         # If NOT NaN use current cluster ID
                         if not np.isnan(frame.loc[i, 'Isotopologue group']):
                             frame.at[j, 'Isotopologue group'] = frame.loc[i, 'Isotopologue group']
-         
+                            # Assign M and M+ values
+                            frame.at[i, 'M+'] = m_plus
+                            m_plus += 1
+                            frame.at[j, 'M+'] = m_plus
+            
             # Update Current DataFrame
             self.assay_metadata[index] = frame
 
@@ -212,7 +221,7 @@ class MamsiStructSearch:
             data_clusters_frame = self._search_main_adduct(frame__)
 
             # Combine isotopologue and adduct clusters into one DataFrame
-            frame_2 = frame__.iloc[:, :5]
+            frame_2 = frame__.iloc[:, :6]
             working_frame = frame_2.merge(data_clusters_frame.iloc[:, [0, 7, 2, 3, 4, 5]], on='Feature', how='left')
 
             # Merge overlapping adduct clusters
@@ -336,10 +345,12 @@ class MamsiStructSearch:
             pandas.DataFrame: DataFrame with adducts.
         """
 
+        main_adduct_index = 6  # This is a default column, needs to be updated if default adduct changes
+
         frame = frame_.copy()
         group = pd.DataFrame(columns=['Feature', 'm/z', 'Expected neutral mass',
                                       'Observed neutral mass', 'Neutral mass |difference ppm|',
-                                      'Adduct', 'RT', 'Adduct group'
+                                      'Adduct', 'RT', 'Adduct group', 'M+'
                                       ])  # Add groups one by one and see what the result looks like
 
         frame = frame[~(frame['Feature'] == row_['Feature'])]  # Delete current row from frame
@@ -347,11 +358,11 @@ class MamsiStructSearch:
         frame = frame.loc[(frame['RT'] >= rt_now - self.rt_win) & (frame['RT'] <= rt_now + self.rt_win)]  # RT WINDOW
         if row_['Isotopologue group'] > 0:  # Filter out all suspected isotopologues identical to current row
             frame = frame[~(frame['Isotopologue group'] == row_['Isotopologue group'])]
-        val_current = row_[5]
+        val_current = row_[main_adduct_index]
 
         # Loop through what remained from frame
         for i in range(frame.shape[0]):  # Search in rows
-            for j in range(5, frame.shape[1]):  # Search in columns  MUST BE UPDATED FOR FLEXIBILITY OF COLUMNS!
+            for j in range(main_adduct_index, frame.shape[1]):  # Search in columns  MUST BE UPDATED FOR FLEXIBILITY OF COLUMNS!
                 ppm_diff1 = self._mean_ppm_diff(frame.iloc[i, j], val_current)
                 if ppm_diff1 <= self.ppm:
                     line = pd.DataFrame({
