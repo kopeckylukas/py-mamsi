@@ -74,75 +74,6 @@ class MamsiStructSearch:
         self.assay_metadata = data
         self.intensities = np.array(_df)
 
-    def get_correlation_clusters(self, visualise=True):
-        """
-        Find correlation clusters for MB-PLS features. 
-
-        METHOD TO BE IMPLEMENTED
-
-        Args:
-            visualise (bool, optional): If true, dendrogram and correlation heatmap is displayed. Defaults to True.
-        """
-
-        # Check if metadata have been loaded
-        if self.feature_metadata is None:
-            warnings.simplefilter('error', RuntimeWarning)
-            warnings.warn("No data loaded. Use 'load_lcms()' to load data.",
-                          RuntimeWarning)
-        pass
-
-    def _get_adduct_groups(self, adducts='all'):
-        """
-        Search for adduct grouping signatures within significant features. The methods finds 
-
-        Args:
-            adducts (str, optional): _description_. Defaults to 'all'.
-        """
-
-        for index, frame in enumerate(self.assay_metadata):
-
-            frame_ = frame.copy()
-
-            # Detect isotopologues within one loop
-
-            # Get neutral masses for all adducts
-            frame__ = self.get_neutral_mass(features=frame_, adducts=adducts)
-
-            # Search for adducts in current DataFrame
-            data_clusters_frame = self._search_main_adduct(frame__)
-
-            # Combine isotopologue and adduct clusters into one DataFrame
-            frame_2 = frame__.iloc[:, :5]
-            working_frame = frame_2.merge(data_clusters_frame.iloc[:, [0, 7, 2, 3, 4, 5]], on='Feature', how='left')
-
-            # Merge overlapping adduct clusters
-
-            non_unique_features = working_frame['Feature'][working_frame['Feature'].duplicated(keep=False)].unique()
-            for item in non_unique_features:
-                # For all non-unique features, find all clusters they belong too
-                fr_ = working_frame[working_frame['Feature'] == item].loc[:, ['Feature', 'Adduct group', 'Adduct']]
-                combined_adduct = '/'.join(fr_['Adduct'])
-                fr_['Adduct'] = combined_adduct
-
-                #
-                working_frame.reset_index(inplace=True, drop=True)
-                fr_.reset_index(inplace=True, drop=True)
-                for i in range(len(fr_)):
-                    working_frame.loc[working_frame['Feature'] ==
-                                      fr_.loc[i, 'Feature'], 'Adduct'] = fr_.loc[i, 'Adduct']
-
-                # unify all overlapping cluster by assigning the lowest cluster values to all clusters
-                for i in range(len(fr_) - 1):
-                    working_frame['Adduct group'].replace({fr_.iloc[i + 1, 1]: fr_.iloc[0, 1]}, inplace=True)
-                    # working_frame.reset_index(inplace=True, drop=True)
-                    # working_frame['Adduct'].replace({fr_.iloc[i, 2]: fr_.iloc[0, 2]}, inplace=True)
-
-                working_frame = working_frame.drop_duplicates(subset='Feature')  # Delete non unique Features
-
-            self.assay_metadata[index] = working_frame
-            # now load data below in the main loop as nothing is returned
-
-
     def get_structural_clusters(self, adducts='all', annotate=True, return_as_single_frame=False):
         """
         Searches structural signatures in LC-MS data based on their m/z and RT. These structural signatures include 
@@ -213,7 +144,105 @@ class MamsiStructSearch:
         if return_as_single_frame:
             data_both = pd.DataFrame(np.vstack(data_both), columns=data_both[1].columns)
 
-        return data_both
+        return data_both    
+
+    def _get_isotopologue_groups(self):
+        """
+        Search for isotopologue signature in individual assay data frames.
+        """
+
+        for index, frame in enumerate(self.assay_metadata):
+            # Create a copy of data frame
+            frame = frame.copy()
+            # Sort copied data frame and create new column
+            frame.sort_values(by='m/z', inplace=True)
+            frame.reset_index(inplace=True, drop=True)
+            frame['Isotopologue group'] = [np.NaN] * len(frame)
+
+            # Group ID for new cluster
+            iso_group = 1
+
+            # Loop through data frame. Add neutron mass to current value
+            for i in range(len(frame)):
+                current_mz = frame.loc[i, 'm/z']
+                current_mz += 1.003355
+                current_rt = frame.loc[i, 'RT']
+    
+                # Loop through data frame to find expected MZ
+                for j in range(len(frame)):
+                    expected_mz = frame.loc[j, 'm/z']
+                    expected_rt = frame.loc[j, 'RT']
+
+                    # Get RT and PPM differences between the peaks
+                    ppm_diff = self._mean_ppm_diff(expected_mz, current_mz)
+                    rt_diff = abs(current_rt - expected_rt)
+
+                    # Check if RT and PPM are within tolerance and add group ID
+                    if ppm_diff <= self.ppm and rt_diff <= self.rt_win:
+                        # If NaN use a new cluster ID
+                        if np.isnan(frame.loc[i, 'Isotopologue group']):
+                            frame.at[i, 'Isotopologue group'] = iso_group
+                            frame.at[j, 'Isotopologue group'] = iso_group
+                            iso_group += 1
+                        # If NOT NaN use current cluster ID
+                        if not np.isnan(frame.loc[i, 'Isotopologue group']):
+                            frame.at[j, 'Isotopologue group'] = frame.loc[i, 'Isotopologue group']
+         
+            # Update Current DataFrame
+            self.assay_metadata[index] = frame
+
+    def _get_adduct_groups(self, adducts='all'):
+        """
+        Search for adduct grouping signatures within significant features. The methods finds 
+
+        Args:
+            adducts (str, optional): _description_. Defaults to 'all'.
+        """
+
+        for index, frame in enumerate(self.assay_metadata):
+
+            frame_ = frame.copy()
+
+            # Detect isotopologues within one loop
+
+            # Get neutral masses for all adducts
+            frame__ = self.get_neutral_mass(features=frame_, adducts=adducts)
+
+            # Search for adducts in current DataFrame
+            data_clusters_frame = self._search_main_adduct(frame__)
+
+            # Combine isotopologue and adduct clusters into one DataFrame
+            frame_2 = frame__.iloc[:, :5]
+            working_frame = frame_2.merge(data_clusters_frame.iloc[:, [0, 7, 2, 3, 4, 5]], on='Feature', how='left')
+
+            # Merge overlapping adduct clusters
+
+            non_unique_features = working_frame['Feature'][working_frame['Feature'].duplicated(keep=False)].unique()
+            for item in non_unique_features:
+                # For all non-unique features, find all clusters they belong too
+                fr_ = working_frame[working_frame['Feature'] == item].loc[:, ['Feature', 'Adduct group', 'Adduct']]
+                combined_adduct = '/'.join(fr_['Adduct'])
+                fr_['Adduct'] = combined_adduct
+
+                #
+                working_frame.reset_index(inplace=True, drop=True)
+                fr_.reset_index(inplace=True, drop=True)
+                for i in range(len(fr_)):
+                    working_frame.loc[working_frame['Feature'] ==
+                                      fr_.loc[i, 'Feature'], 'Adduct'] = fr_.loc[i, 'Adduct']
+
+                # unify all overlapping cluster by assigning the lowest cluster values to all clusters
+                for i in range(len(fr_) - 1):
+                    working_frame['Adduct group'].replace({fr_.iloc[i + 1, 1]: fr_.iloc[0, 1]}, inplace=True)
+                    # working_frame.reset_index(inplace=True, drop=True)
+                    # working_frame['Adduct'].replace({fr_.iloc[i, 2]: fr_.iloc[0, 2]}, inplace=True)
+
+                working_frame = working_frame.drop_duplicates(subset='Feature')  # Delete non unique Features
+
+            self.assay_metadata[index] = working_frame
+            # now load data below in the main loop as nothing is returned
+
+    
 
     def get_neutral_mass(self, features, adducts='all'):
         """
@@ -481,51 +510,6 @@ class MamsiStructSearch:
         self.assay_metadata[index] = frame_annotation
         # return frame_annotation
 
-    def _get_isotopologue_groups(self):
-        """
-        Search for isotopologue signature in individual assay data frames.
-        """
-
-        for index, frame in enumerate(self.assay_metadata):
-            # Create a copy of data frame
-            frame = frame.copy()
-            # Sort copied data frame and create new column
-            frame.sort_values(by='m/z', inplace=True)
-            frame.reset_index(inplace=True, drop=True)
-            frame['Isotopologue group'] = [np.NaN] * len(frame)
-
-            # Group ID for new cluster
-            iso_group = 1
-
-            # Loop through data frame. Add neutron mass to current value
-            for i in range(len(frame)):
-                current_mz = frame.loc[i, 'm/z']
-                current_mz += 1.003355
-                current_rt = frame.loc[i, 'RT']
-
-                # Loop through data frame to find expected MZ
-                for j in range(len(frame)):
-                    expected_mz = frame.loc[j, 'm/z']
-                    expected_rt = frame.loc[j, 'RT']
-
-                    # Get RT and PPM differences between the peaks
-                    ppm_diff = self._mean_ppm_diff(expected_mz, current_mz)
-                    rt_diff = abs(current_rt - expected_rt)
-
-                    # Check if RT and PPM are within tolerance and add group ID
-                    if ppm_diff <= self.ppm and rt_diff <= self.rt_win:
-                        # If NaN use a new cluster ID
-                        if np.isnan(frame.loc[i, 'Isotopologue group']):
-                            frame.at[i, 'Isotopologue group'] = iso_group
-                            frame.at[j, 'Isotopologue group'] = iso_group
-                            iso_group += 1
-                        # If NOT NaN use current cluster ID
-                        if not np.isnan(frame.loc[i, 'Isotopologue group']):
-                            frame.at[j, 'Isotopologue group'] = frame.loc[i, 'Isotopologue group']
-
-            # Update Current DataFrame
-            self.assay_metadata[index] = frame
-
     @staticmethod
     def _mean_ppm_diff(x, y):
         """
@@ -541,6 +525,23 @@ class MamsiStructSearch:
         diff1 = abs((x - y) / x * 1000000)
         diff2 = abs((y - x) / y * 1000000)
         return (diff1 + diff2) / 2
+    
+    def get_correlation_clusters(self, visualise=True):
+        """
+        Find correlation clusters for MB-PLS features. 
+
+        METHOD TO BE IMPLEMENTED
+
+        Args:
+            visualise (bool, optional): If true, dendrogram and correlation heatmap is displayed. Defaults to True.
+        """
+
+        # Check if metadata have been loaded
+        if self.feature_metadata is None:
+            warnings.simplefilter('error', RuntimeWarning)
+            warnings.warn("No data loaded. Use 'load_lcms()' to load data.",
+                          RuntimeWarning)
+        pass
 
 
 
