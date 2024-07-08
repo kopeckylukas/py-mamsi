@@ -100,7 +100,7 @@ class MamsiStructSearch:
         # Save data
         self.feature_metadata = deconstructed
         self.assay_links = data
-        self.intensities = np.array(_df)
+        self.intensities = _df
 
     def get_structural_clusters(self, adducts='all', annotate=True, return_as_single_frame=False):
         """
@@ -567,15 +567,10 @@ class MamsiStructSearch:
         diff2 = abs((y - x) / y * 1000000)
         return (diff1 + diff2) / 2
     
-    def get_correlation_clusters(self, visualise=True):
-        """
-        Find correlation clusters for MB-PLS features. 
-
-        METHOD TO BE IMPLEMENTED
-
-        Args:
-            visualise (bool, optional): If true, dendrogram and correlation heatmap is displayed. Defaults to True.
-        """
+    def get_correlation_clusters(self, get_data=True, get_charts=True, chart_anot=False,corr_method='pearson',
+                             linkage_method='complete', linkage_metric='euclidian', cluster_threshold=0.7,
+                             max_depth=100, criterion='distance', truncate_mode=None, p=30, **kwargs):
+       
 
         # Check if metadata have been loaded
         if self.feature_metadata is None:
@@ -583,9 +578,29 @@ class MamsiStructSearch:
             warnings.warn("No data loaded. Use 'load_lcms()' to load data.",
                           RuntimeWarning)
         
-            pass
+        df = self.intensities
+        # Calculate correlation between variables
+        correlation = df.corr(method=corr_method)
+        # Calculate dissimilarity
+        dissimilarity = 1 - abs(correlation)
+        z = linkage(squareform(dissimilarity), method=linkage_method, metric=linkage_metric)
+        # Get flat clusters
+        f_clust = fcluster(z, t=cluster_threshold, criterion=criterion, depth=max_depth)
+        correlation_clusters = pd.DataFrame({ 'Feature': df.columns, 'Correlation cluster':f_clust})
 
-        # METHOD TO BE IMPLEMENTED
+        # Plot correlation heatmap and dendrogram
+        if get_charts:
+            plt.subplots(figsize=(17, 10))
+            sns.heatmap( data=correlation, annot=chart_anot, annot_kws={"fontsize":6})
+            plt.show()
+            plt.figure(figsize=(17.3, 5))
+            dendrogram( Z=z, labels=df.columns, orientation='top', leaf_rotation=90, truncate_mode=truncate_mode, p=p, color_threshold=cluster_threshold, **kwargs)
+            plt.show()
+
+        self.correlation_clusters = correlation_clusters
+        # return flat clusters
+        if get_data: return correlation_clusters
+
 
 
 
