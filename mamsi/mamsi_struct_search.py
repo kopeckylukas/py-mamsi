@@ -12,19 +12,47 @@ import re
 import os
 import warnings
 import matplotlib.pyplot as plt
-import pkg_resources 
+import pkg_resources
+from scipy.cluster.hierarchy import dendrogram, linkage, fcluster
+from scipy.spatial.distance import squareform
+import seaborn as sns
 
 plt.rc('font', family='Verdana')
 
 
 class MamsiStructSearch:
+    """
+    A class for performing structural search on LC-MS data using.
+
+    Attributes:
+        assay_links (list): List of data frames containing links for each assay.
+        intensities (numpy.ndarray): Array of LC-MS intensity data.
+        rt_win (int): Retention time tolerance window.
+        ppm (int): Mass-to-charge ratio (m/z) tolerance in ppm.
+        feature_metadata (pandas.DataFrame): Data frame containing feature metadata extracted from column names.
+
+    Methods:
+        load_lcms(df): Imports LC-MS intensity data and extracts feature metadata from column names.
+        get_structural_clusters(adducts='all', annotate=True, return_as_single_frame=False): Searches structural
+            signatures in LC-MS data based on their m/z and RT.
+        get_correlation_clusters(visualise=True): Find correlation clusters for MB-PLS features.
+    """
 
     def __init__(self, rt_win=5, ppm=15):
-        self.assay_metadata = None
+        """
+        Initialise MAMSI structural search class.
+
+        Args:
+            rt_win (int, optional): Retention time tolerance window. Defaults to 5.
+            ppm (int, optional): Mass-to-charge ratio (m/z) tolerance in ppm. Defaults to 15.
+        """
+        
+        self.assay_links = None
         self.intensities = None
         self.rt_win = rt_win
         self.ppm = ppm
         self.feature_metadata = None
+
 
     def load_lcms(self, df):
         """
@@ -71,7 +99,7 @@ class MamsiStructSearch:
 
         # Save data
         self.feature_metadata = deconstructed
-        self.assay_metadata = data
+        self.assay_links = data
         self.intensities = np.array(_df)
 
     def get_structural_clusters(self, adducts='all', annotate=True, return_as_single_frame=False):
@@ -117,7 +145,7 @@ class MamsiStructSearch:
             print('Annotation done')
 
 
-        data = self.assay_metadata
+        data = self.assay_links
 
         # PROCESS ASSAYS
         data_both = []
@@ -143,6 +171,8 @@ class MamsiStructSearch:
         # Return data as a single frame
         if return_as_single_frame:
             data_both = pd.DataFrame(np.vstack(data_both), columns=data_both[1].columns)
+        
+        self.structural_links = data_both
 
         return data_both    
 
@@ -151,7 +181,7 @@ class MamsiStructSearch:
         Search for isotopologue signature in individual assay data frames.
         """
 
-        for index, frame in enumerate(self.assay_metadata):
+        for index, frame in enumerate(self.assay_links):
             # Create a copy of data frame
             frame = frame.copy()
             # Sort copied data frame and create new column
@@ -198,7 +228,7 @@ class MamsiStructSearch:
                             frame.at[j, 'M+'] = m_plus
             
             # Update Current DataFrame
-            self.assay_metadata[index] = frame
+            self.assay_links[index] = frame
 
     def _get_adduct_groups(self, adducts='all'):
         """
@@ -208,7 +238,7 @@ class MamsiStructSearch:
             adducts (str, optional): _description_. Defaults to 'all'.
         """
 
-        for index, frame in enumerate(self.assay_metadata):
+        for index, frame in enumerate(self.assay_links):
 
             frame_ = frame.copy()
 
@@ -248,10 +278,8 @@ class MamsiStructSearch:
 
                 working_frame = working_frame.drop_duplicates(subset='Feature')  # Delete non unique Features
 
-            self.assay_metadata[index] = working_frame
+            self.assay_links[index] = working_frame
             # now load data below in the main loop as nothing is returned
-
-    
 
     def get_neutral_mass(self, features, adducts='all'):
         """
@@ -299,7 +327,7 @@ class MamsiStructSearch:
         for j in range(adducts.shape[0]):  # Calculate hypothetical neutral masses for all given adduct ...
             column = []
             for i in range(len(df)):  # ... and repeat for all peaks
-                column.append((df.loc[i, 'm/z'] - adducts.loc[j, 'Mass']) / adducts.loc[j, '1/Charge'])  # Calculate mass
+                column.append((df.loc[i, 'm/z'] - adducts.loc[j, 'Mass']) / adducts.loc[j, '1/Charge'])  # Calculate U
             name = adducts.loc[j, 'Ion name']  # Get the column name from adduct name in the adduct file
             df.insert(features.shape[1] + j, name, column)  # Append column of neutral masses for given adduct to the DF
         return df
@@ -398,7 +426,8 @@ class MamsiStructSearch:
         """
         Unifies 'Isotopologue group' and 'Adduct group' into a single 'Structural group'.
         """
-        for index, frame in enumerate(self.assay_metadata):
+
+        for index, frame in enumerate(self.assay_links):
 
             frame_ = frame.copy()  # Copy the input dataframe
 
@@ -407,8 +436,8 @@ class MamsiStructSearch:
             frame_['Adduct group'] = frame_['Adduct group'].apply(lambda x: x+offset)  # adduct clusters above iso
             adduct_frame = frame_.dropna(subset=['Adduct group'])  # Get only rows with non 0 clusters
             iso_frame = frame_.dropna(subset=['Isotopologue group'])  # Get only rows with non 0 clusters
-            adduct_frame.insert(0, 'Structural cluster', adduct_frame['Adduct group'])  # Create structural cluster column
-            iso_frame.insert(0, 'Structural cluster', iso_frame['Isotopologue group'])  # Create structural cluster column
+            adduct_frame.insert(0, 'Structural cluster', adduct_frame['Adduct group'])  # Create structural cluster col
+            iso_frame.insert(0, 'Structural cluster', iso_frame['Isotopologue group'])  # Create structural cluster col
             adduct_frame = adduct_frame.loc[:, ['Feature', 'Structural cluster']]
             iso_frame = iso_frame.loc[:, ['Feature', 'Structural cluster']]
             stacked_frames = pd.DataFrame(np.vstack([adduct_frame, iso_frame]), columns=iso_frame.columns)
@@ -425,7 +454,7 @@ class MamsiStructSearch:
             unified_frame = frame_.drop_duplicates(subset='Feature')  # Delete non unique Features
 
             # Update the current assay metadata with the unified structural clusters
-            self.assay_metadata[index] = unified_frame
+            self.assay_links[index] = unified_frame
 
 
     def _get_annotation(self, roi=None):
@@ -440,7 +469,7 @@ class MamsiStructSearch:
         """
 
         # Load RIO files
-        for index, frame in enumerate(self.assay_metadata):
+        for index, frame in enumerate(self.assay_links):
 
             frame = frame.copy()
                 
@@ -518,7 +547,7 @@ class MamsiStructSearch:
                 frame_annotation = frame_.reindex(frame_.columns.union(_annotations.columns), axis=1)
                 frame_annotation = frame_annotation.reindex(frame_.columns.tolist() + _annotations.columns.tolist(), axis=1)
 
-        self.assay_metadata[index] = frame_annotation
+        self.assay_links[index] = frame_annotation
         # return frame_annotation
 
     @staticmethod
@@ -533,6 +562,7 @@ class MamsiStructSearch:
         Returns:
             float: Mean PPM difference between `x` and `y`.
         """
+
         diff1 = abs((x - y) / x * 1000000)
         diff2 = abs((y - x) / y * 1000000)
         return (diff1 + diff2) / 2
@@ -552,7 +582,10 @@ class MamsiStructSearch:
             warnings.simplefilter('error', RuntimeWarning)
             warnings.warn("No data loaded. Use 'load_lcms()' to load data.",
                           RuntimeWarning)
-        pass
+        
+            pass
+
+        # METHOD TO BE IMPLEMENTED
 
 
 
