@@ -16,6 +16,11 @@ import pkg_resources
 from scipy.cluster.hierarchy import dendrogram, linkage, fcluster
 from scipy.spatial.distance import squareform
 import seaborn as sns
+import networkx as nx
+from pyvis.network import Network
+from IPython.core.display import display, HTML
+from IPython.display import IFrame
+
 
 plt.rc('font', family='Verdana')
 
@@ -52,6 +57,7 @@ class MamsiStructSearch:
         self.rt_win = rt_win
         self.ppm = ppm
         self.feature_metadata = None
+        self.structural_links = None
 
 
     def load_lcms(self, df):
@@ -602,7 +608,148 @@ class MamsiStructSearch:
         if get_data: return correlation_clusters
 
 
+    def get_structural_network(self, include_all=False, interactive=False, 
+                               return_nx_object=False,  output_file='interactive.html', labels=False, master_file=None):
+        """
+        Generates a structural network graph based on the provided master file or the loaded structural links data.
 
+        Args:
+            include_all (bool, optional): Whether to include all features in the network, even if they are not structurally linked to other features.
+                                          Defaults to False.
+            interactive (bool, optional): Whether to display the network graph interactively using pyvis.network.
+                                          If False, the network graph is displayed using NetworkX and Matplotlib.
+                                          Defaults to False.
+            return_nx_object (bool, optional): Whether to return the NetworkX object representing the network graph edited in CytoScape. 
+                                                Defaults to False.
+            output_file (str, optional): The name of the output file when displaying the network graph interactively using pyvis.network.
+                                            Only applicable when interactive is True. 
+                                            Defaults to 'interactive.html'.
+            labels (bool, optional): Whether to display labels for the nodes in the network graph.
+                                        Only applicable when interactive is False. 
+                                        Defaults to False.
+            master_file (pd.DataFrame, optional): The master file containing necessary columns for generating the network.
+                                                    If not provided, the function uses the loaded structural links data.
+                                                    Required columns: 
+                                                        - Feature: Feature ID (e.g. HPOS_233.25_149.111m/z)
+                                                        - Assay: Assay name (e.g. HPOS)
+                                                        - Isotopologue group (groups features with similar isotopologue patterns)
+                                                        - Isotopologue pattern (e.g. 0, 1, 2 ... N representing M+0, M+1, M+2 ... M+N)
+                                                        - Adduct group (groups features with similar adduct patterns)
+                                                        - Adduct (adduct label, e.g. [M+H]+, [M-H]-)
+                                                        - Structural cluster (groups features with similar isotopologue and adduct patterns)
+                                                        - Correlation cluster (flattedned hierarchical cluster from get_correlation_clusters()
+                                                        - Cross-assay link (links features across different assays)
+                                                        - cpdName (compound name, optional)
+                                                    Defaults to None.
 
+        Returns:
+            NetworkX.Graph or None: The NetworkX object representing the network graph, if return_nx_object is True.
+                                    Otherwise, None.
 
+        Raises:
+            RuntimeWarning: If no data is loaded and no master file is provided.
+            RuntimeWarning: If the provided master file is missing necessary columns.
 
+        Notes:
+            - The function creates a network graph based on the provided master file or the loaded structural links data.
+            - The network graph includes nodes representing features and edges representing different types of links.
+            - The graph can be displayed interactively using pyvis.network or using networkx and matplotlib.
+            - The graph can be saved as a NetworkX object if return_nx_object is True.
+        """
+        
+        # Check if data have been loaded
+        if master_file is None and self.structural_links is None:
+            warnings.simplefilter('error', RuntimeWarning)
+            warnings.warn("No data loaded. Use 'get_structural_clusters()' to create structural links file or load a " 
+                          "master file using the 'master_file' parameter.",
+                          RuntimeWarning)
+        
+        # Import master if 
+        if master_file is not None:
+            # Define necessary colums for generating the network
+            required_columns = ['Feature',
+                                 'Assay',
+                                 'Isotopologue group',
+                                 'Isotopologue pattern',
+                                 'Adduct group',
+                                 'Adduct',
+                                 'Structural cluster',
+                                 'Correlation cluster', 
+                                 'Cross-assay link']
+            missing_columns = [col for col in required_columns if col not in master_file.columns]
+            if not missing_columns:
+                master = master_file.copy()
+            else:
+                print(f"Missing columns: {missing_columns}")
+                warnings.simplefilter('error', RuntimeWarning)
+                warnings.warn(f"Missing columns in the master file: {missing_columns}",
+                          RuntimeWarning)
+        else:
+            master = self.structural_links.copy()
+
+        # Drop all features that are not structurally linked to any other feature
+        if not include_all:
+            master.dropna(subset=['Structural cluster'], inplace=True)
+
+       # Optional Columns for the network
+        if 'cpdName' not in master.columns:
+            master['cpdName'] = np.nan 
+
+        # Create a network graph
+        G = nx.Graph()
+        for index, row in master.iterrows():
+            G.add_node(row['Node'], 
+                       Assay=row['Assay'], 
+                       Isotopologue_group=row['Isotopologue group'],
+                       Isotopologue_pattern=row['Isotopologue pattern'], 
+                       Adduct_group=row['Adduct group'],
+                       Adduct=row['Adduct'], 
+                       Structural_cluster=row['Structural cluster'],
+                       Correlation_cluster=row['Correlation cluster'], 
+                       Cross_assay_link=row['Cross-assay link'],
+                       Annotation=row['cpdName']
+                       )
+
+        # Add edges to the graph
+        for u in G.nodes():
+            for v in G.nodes():
+                if (
+                    u != v and G.nodes[u]['Structural_cluster'] == G.nodes[v]['Structural_cluster'] and 
+                    ( G.nodes[u]['Adduct_group'] == G.nodes[v]['Adduct_group'] )
+                ):
+                    G.add_edge(u, v, weight = 5, type= 5)  # Adduct weight = 5
+
+                if u != v and G.nodes[u]['Cross_assay_link'] == G.nodes[v]['Cross_assay_link']:
+                    G.add_edge(u, v, weight = 10, type= 10)  # Cross assay link weight = 10
+
+                if (u != v and 
+                    G.nodes[u]['Structural_cluster'] == G.nodes[v]['Structural_cluster'] and 
+                    (G.nodes[u]['Isotopologue_group'] == G.nodes[v]['Isotopologue_group'] and 
+                    G.nodes[u]['Isotopologue_pattern'] == G.nodes[v]['Isotopologue_pattern']+1 )
+                ):
+                    G.add_edge(u, v, weight = 1, type= 1)  # Isotopologue weight = 1
+
+        # Define colours
+        correlation_clusters = set(nx.get_node_attributes(G, 'Correlation_cluster').values())
+        colour_map = {cluster: plt.cm.tab10(i) for i, cluster in enumerate(correlation_clusters)}
+
+        # Chose plot option btween networkx and pyvis.network 
+        if  interactive:
+            iG = G.copy()
+            # create vis network
+            net = Network(notebook=True, cdn_resources='remote')
+            # load the networkx graph
+            net.from_nx(iG)
+            net.show(output_file)
+            display(IFrame(output_file, width="100%", height="600px"))
+
+        else:
+            pos = nx.spring_layout(G,  threshold=0.015)
+            node_colors = [colour_map[G.nodes[node]['Correlation_cluster']] for node in G.nodes()]
+            nx.draw(G, pos, with_labels=labels, font_size=6, node_color=node_colors, node_size=300, edge_color='gray')
+            plt.title("Structural Network")
+            plt.show()
+        
+        # Save NetworkX object
+        if return_nx_object:
+            return G
