@@ -18,7 +18,7 @@ from scipy.spatial.distance import squareform
 import seaborn as sns
 import networkx as nx
 from pyvis.network import Network
-from IPython.core.display import display, HTML
+from IPython.core.display import display
 from IPython.display import IFrame
 
 
@@ -38,7 +38,7 @@ class MamsiStructSearch:
 
     Methods:
         load_lcms(df): Imports LC-MS intensity data and extracts feature metadata from column names.
-        get_structural_clusters(adducts='all', annotate=True, return_as_single_frame=False): Searches structural
+        get_structural_clusters(adducts='all', annotate=True): Searches structural
             signatures in LC-MS data based on their m/z and RT.
         get_correlation_clusters(visualise=True): Find correlation clusters for MB-PLS features.
     """
@@ -108,7 +108,7 @@ class MamsiStructSearch:
         self.assay_links = data
         self.intensities = _df
 
-    def get_structural_clusters(self, adducts='all', annotate=True, return_as_single_frame=False):
+    def get_structural_clusters(self, adducts='all', annotate=True):
         """
         Searches structural signatures in LC-MS data based on their m/z and RT. These structural signatures include 
         isotopologues and adduct patterns.
@@ -120,15 +120,11 @@ class MamsiStructSearch:
                     - 'most-common': Most common adducts for ESI (based on Waters documentation).
                 Defaults to 'all'.
             annotate (bool, optional): Annotate significant features based on National Phenome Centre RIO data.
-                Uses semi-targeted annotations for selected compounds
-                Should be used only with assays analysed by the National Phenome Centre. For more information 
-                visit National Phenome Centre's website: https://phenomecentre.org.
+                Only to be run if the data was analysed by the National Phenome Centre or analysis followed their
+                conventions and protocls. For more infomrmation see https://doi.org/10.1021/acs.analchem.6b01481 
+                or https://phenomecentre.org.
+                Uses semi-targeted annotations for selected compounds.
                 Defaults to True.
-            return_as_single_frame (bool, optional): Option to return all significant features in a single DataFrame. 
-                Options are:
-                    - True: Return all features in a single DataFrame.
-                    - False: Return all features in a list of DataFrames.
-                Defaults to False.
 
         Returns:
             pandas.DataFrame or list(pandas.DataFrame): DataFrame of significant features with structural clusters.
@@ -166,21 +162,16 @@ class MamsiStructSearch:
 
 
             # Update offsets for isotopologue and adduct clusters
-            if return_as_single_frame:
-                working_frame['Isotopologue group'] = working_frame['Isotopologue group'].apply(lambda x: x + iso_offset)
-                working_frame['Adduct group'] = working_frame['Adduct group'].apply(lambda x: x + adduct_offset)
-                working_frame['Structural cluster'] = working_frame['Structural cluster'].apply(lambda x: x + cluster_offset)
-                iso_offset = working_frame['Isotopologue group'].max()  # Update offset
-                adduct_offset = working_frame['Adduct group'].max()  # Update offset
-                cluster_offset = working_frame['Structural cluster'].max()  # Update offset
+            working_frame['Isotopologue group'] = working_frame['Isotopologue group'].apply(lambda x: x + iso_offset)
+            working_frame['Adduct group'] = working_frame['Adduct group'].apply(lambda x: x + adduct_offset)
+            working_frame['Structural cluster'] = working_frame['Structural cluster'].apply(lambda x: x + cluster_offset)
+            iso_offset = working_frame['Isotopologue group'].max()  # Update offset
+            adduct_offset = working_frame['Adduct group'].max()  # Update offset
+            cluster_offset = working_frame['Structural cluster'].max()  # Update offset
 
-        # Return data as a single frame
-        if return_as_single_frame:
-            data_both = pd.DataFrame(np.vstack(data_both), columns=data_both[1].columns)
-        
+        data_both = pd.DataFrame(np.vstack(data_both), columns=data_both[1].columns)
         self.structural_links = data_both
-
-        return data_both    
+        return  self.structural_links    
 
     def _get_isotopologue_groups(self):
         """
@@ -553,8 +544,8 @@ class MamsiStructSearch:
                 frame_annotation = frame_.reindex(frame_.columns.union(_annotations.columns), axis=1)
                 frame_annotation = frame_annotation.reindex(frame_.columns.tolist() + _annotations.columns.tolist(), axis=1)
 
-        self.assay_links[index] = frame_annotation
-        # return frame_annotation
+            self.assay_links[index] = frame_annotation
+            # return frame_annotation
 
     @staticmethod
     def _mean_ppm_diff(x, y):
@@ -615,32 +606,32 @@ class MamsiStructSearch:
 
         Args:
             include_all (bool, optional): Whether to include all features in the network, even if they are not structurally linked to other features.
-                                          Defaults to False.
+                Defaults to False.
             interactive (bool, optional): Whether to display the network graph interactively using pyvis.network.
-                                          If False, the network graph is displayed using NetworkX and Matplotlib.
-                                          Defaults to False.
+                If False, the network graph is displayed using NetworkX and Matplotlib.
+                Defaults to False.
             return_nx_object (bool, optional): Whether to return the NetworkX object representing the network graph edited in CytoScape. 
-                                                Defaults to False.
+                Defaults to False.
             output_file (str, optional): The name of the output file when displaying the network graph interactively using pyvis.network.
-                                            Only applicable when interactive is True. 
-                                            Defaults to 'interactive.html'.
+                Only applicable when interactive is True. 
+                Defaults to 'interactive.html'.
             labels (bool, optional): Whether to display labels for the nodes in the network graph.
-                                        Only applicable when interactive is False. 
-                                        Defaults to False.
+                Only applicable when interactive is False. 
+                Defaults to False.
             master_file (pd.DataFrame, optional): The master file containing necessary columns for generating the network.
-                                                    If not provided, the function uses the loaded structural links data.
-                                                    Required columns: 
-                                                        - Feature: Feature ID (e.g. HPOS_233.25_149.111m/z)
-                                                        - Assay: Assay name (e.g. HPOS)
-                                                        - Isotopologue group (groups features with similar isotopologue patterns)
-                                                        - Isotopologue pattern (e.g. 0, 1, 2 ... N representing M+0, M+1, M+2 ... M+N)
-                                                        - Adduct group (groups features with similar adduct patterns)
-                                                        - Adduct (adduct label, e.g. [M+H]+, [M-H]-)
-                                                        - Structural cluster (groups features with similar isotopologue and adduct patterns)
-                                                        - Correlation cluster (flattedned hierarchical cluster from get_correlation_clusters()
-                                                        - Cross-assay link (links features across different assays)
-                                                        - cpdName (compound name, optional)
-                                                    Defaults to None.
+                If not provided, the function uses the loaded structural links data.
+                Required columns: 
+                    - Feature: Feature ID (e.g. HPOS_233.25_149.111m/z)
+                    - Assay: Assay name (e.g. HPOS)
+                    - Isotopologue group (groups features with similar isotopologue patterns)
+                    - Isotopologue pattern (e.g. 0, 1, 2 ... N representing M+0, M+1, M+2 ... M+N)
+                    - Adduct group (groups features with similar adduct patterns)
+                    - Adduct (adduct label, e.g. [M+H]+, [M-H]-)
+                    - Structural cluster (groups features with similar isotopologue and adduct patterns)
+                    - Correlation cluster (flattedned hierarchical cluster from get_correlation_clusters()
+                    - Cross-assay link (links features across different assays)
+                    - cpdName (compound name, optional)
+                Defaults to None.
 
         Returns:
             NetworkX.Graph or None: The NetworkX object representing the network graph, if return_nx_object is True.
