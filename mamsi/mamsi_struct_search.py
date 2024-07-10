@@ -171,6 +171,9 @@ class MamsiStructSearch:
 
         data_both = pd.DataFrame(np.vstack(data_both), columns=data_both[1].columns)
         self.structural_links = data_both
+        # Get cross-assay links
+        self._get_cross_assay_links()
+        
         return  self.structural_links    
 
     def _get_isotopologue_groups(self):
@@ -547,6 +550,14 @@ class MamsiStructSearch:
             self.assay_links[index] = frame_annotation
             # return frame_annotation
 
+    def _get_cross_assay_links(self):
+        pass
+        data = self.structural_links.copy()
+
+        # create a copy 
+
+        self.structural_links = data
+
     @staticmethod
     def _mean_ppm_diff(x, y):
         """
@@ -619,6 +630,7 @@ class MamsiStructSearch:
                 Only applicable when interactive is False. 
                 Defaults to False.
             master_file (pd.DataFrame, optional): The master file containing necessary columns for generating the network.
+                This is intended for cases when strucutural links required manual curation (e.g. manualy assigned isotopologue groups, adduct groups, etc.)
                 If not provided, the function uses the loaded structural links data.
                 Required columns: 
                     - Feature: Feature ID (e.g. HPOS_233.25_149.111m/z)
@@ -685,6 +697,8 @@ class MamsiStructSearch:
        # Optional Columns for the network
         if 'cpdName' not in master.columns:
             master['cpdName'] = np.nan 
+
+        master['Node'] = master['Feature']  # Create a node column
 
         # Create a network graph
         G = nx.Graph()
