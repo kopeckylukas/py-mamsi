@@ -144,8 +144,6 @@ class MamsiStructSearch:
         # Get annotation from ROI files (NPC)
         if annotate:
             self._get_annotation()
-            print('Annotation done')
-
 
         data = self.assay_links
 
@@ -350,7 +348,6 @@ class MamsiStructSearch:
         cluster_flag = 1
         for index, row in frame_.iterrows():
             group = self._find_adduct_matches(frame_, row, cluster_flag)
-            # print(group.shape)
             if len(group) > 0:
                 matches = pd.concat([matches, group])
                 cluster_flag = cluster_flag + 1
@@ -551,10 +548,91 @@ class MamsiStructSearch:
             # return frame_annotation
 
     def _get_cross_assay_links(self):
-        pass
-        data = self.structural_links.copy()
+        """
+        Search for cross-assay links between features based on their m/z and RT. 
+        Features that are part of sturctural cluster are linked only on their M+H and M-H adducts.
+        For singletons nutral mass estimated from M+H and M-H is used for cross-assay linking.
+        """
+        
+        # Load datea
+        struct_data = self.structural_links
+        signletons_data = self.structural_links
+        data_original = self.structural_links
 
-        # create a copy 
+        # Adduct groups
+        # selecto only the rows where the structural cluster is not NaN
+        struct_data = struct_data.dropna(subset=['Structural cluster'])
+        # get only rows where adduct is like M+H or M-H
+        struct_data = struct_data[struct_data['Adduct'].str.contains(r'\[M\+H\]|\[M-H\]', regex=True, na=False)]
+        # delete duplicates of Expected neutral mass
+        struct_data = struct_data.drop_duplicates(subset='Expected neutral mass')
+        struct_data.reset_index(inplace=True, drop=True)
+
+        # Singletons and Isoptopologues
+        # calculate expected neutral mass for singletons
+        signletons_data = signletons_data.copy()
+        # frome signletons_data get only rows where the structural cluster is NaN
+        signletons_data = signletons_data[signletons_data['Expected neutral mass'].isna()]
+        # For column 'Isotopologue group' keep only rows where the values is 0 or NaN
+        signletons_data = signletons_data[((signletons_data['Isotopologue pattern'] == 0) 
+                                         | (pd.isna(signletons_data['Isotopologue pattern'])))]
+        signletons_data.reset_index(inplace=True, drop=True)
+        # if assay is like POS then add 1.007276466812 to the m/z value
+        expected = signletons_data.apply(lambda x: x['m/z'] - 1.007276466812 if re.search(r'POS', x['Assay'], re.IGNORECASE) 
+                                         else x['m/z'] + 1.007276466812, axis=1)
+        expected.reset_index(inplace=True, drop=True)
+        signletons_data.loc[:, 'Expected neutral mass'] = expected
+
+        # Merge Adduct and Singletons data
+        data = pd.concat([struct_data, signletons_data])
+        data.reset_index(inplace=True, drop=True)
+
+        # Create an empty column and isotopolouge group flag
+        data['Cross-assay link'] = [np.NaN] * data.shape[0]
+        cross_assay_flag = 1
+
+        # loop through all rows and check if the expcted neutral mass for i the same as for j
+        for i in range(len(data)):
+            for j in range(len(data)):
+
+                # check if the Assay is different
+                if data.iloc[i, 1] != data.iloc[j, 1]:
+                    PPM_diff = self._mean_ppm_diff(data.loc[i, 'Expected neutral mass'], data.loc[j, 'Expected neutral mass'])
+                    RT_diff = abs(data.loc[i, 'RT'] - data.loc[j, 'RT'])
+
+                    # check if the two is LPOS and LNEG or RPOS and RNEG
+                    if ((re.search(r'LPOS', data.iloc[i, 1], re.IGNORECASE) and
+                        re.search(r'LNEG', data.iloc[j, 1], re.IGNORECASE)) or
+                        (re.search(r'RPOS', data.iloc[i, 1], re.IGNORECASE) and 
+                         re.search(r'RNEG', data.iloc[j, 1], re.IGNORECASE))
+                    ):
+                        if PPM_diff <= self.ppm and RT_diff <= self.rt_win:
+                            if np.isnan(data.loc[i, 'Cross-assay link']) and np.isnan(data.loc[j, 'Cross-assay link']):
+                                data.loc[i, 'Cross-assay link'] = cross_assay_flag
+                                data.loc[j, 'Cross-assay link'] = cross_assay_flag
+                                cross_assay_flag += 1
+                            elif np.isnan(data.loc[i, 'Cross-assay link']):
+                                    data.loc[i, 'Cross-assay link'] = data.loc[j, 'Cross-assay link']
+                            elif np.isnan(data.loc[j, 'Cross-assay link']):
+                                    data.loc[j, 'Cross-assay link'] = data.loc[i, 'Cross-assay link']
+                    
+                    # If for pair with different LC
+                    else:
+                        if PPM_diff <= self.ppm:
+                            if np.isnan(data.loc[i, 'Cross-assay link']) and np.isnan(data.loc[j, 'Cross-assay link']):
+                                data.loc[i, 'Cross-assay link'] = cross_assay_flag
+                                data.loc[j, 'Cross-assay link'] = cross_assay_flag
+                                cross_assay_flag += 1
+                            elif np.isnan(data.loc[i, 'Cross-assay link']):
+                                    data.loc[i, 'Cross-assay link'] = data.loc[j, 'Cross-assay link']
+                            elif np.isnan(data.loc[j, 'Cross-assay link']):
+                                    data.loc[j, 'Cross-assay link'] = data.loc[i, 'Cross-assay link']
+
+        # create new dataframe that only contains 'Feature' and 'Cross-assay link'
+        cross_assay_links = data.loc[:, ['Feature', 'Cross-assay link']]
+
+        # add cross-assay links to the original dataframe
+        data = data_original.merge(cross_assay_links, on='Feature', how='left')
 
         self.structural_links = data
 
@@ -647,7 +725,12 @@ class MamsiStructSearch:
 
         Returns:
             NetworkX.Graph or None: The NetworkX object representing the network graph, if return_nx_object is True.
-                                    Otherwise, None.
+                Edge weights represent the type of link between features:
+                    - Isotopologue: 1
+                    - Adduct: 5
+                    - Cross-assay link: 10
+                Otherwise, None.
+                                    
 
         Raises:
             RuntimeWarning: If no data is loaded and no master file is provided.
@@ -683,7 +766,6 @@ class MamsiStructSearch:
             if not missing_columns:
                 master = master_file.copy()
             else:
-                print(f"Missing columns: {missing_columns}")
                 warnings.simplefilter('error', RuntimeWarning)
                 warnings.warn(f"Missing columns in the master file: {missing_columns}",
                           RuntimeWarning)
