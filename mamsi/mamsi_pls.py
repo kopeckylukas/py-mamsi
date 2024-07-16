@@ -12,7 +12,7 @@ import statistics
 from sklearn.metrics import (precision_score, recall_score, f1_score, roc_auc_score, accuracy_score, confusion_matrix,
                              ConfusionMatrixDisplay)
 from sklearn.model_selection import KFold
-from sklearn.metrics import r2_score
+from sklearn.metrics import r2_score, mean_squared_error
 from mbpls.mbpls import MBPLS
 from sklearn.utils.validation import check_array, check_is_fitted
 import matplotlib.pyplot as plt
@@ -272,11 +272,11 @@ class MamsiPls(MBPLS):
 
     def evaluate_class_model(self, x, y):
         """
-        Evaluate MB-PLS model using a **testing** dataset.
+        Evaluate classfication MB-PLS model using a **testing** dataset.
 
         Args:
             x (array or list[array]): All blocks of predictors x1, x2, ..., xn. Rows are observations, columns are features/variables.
-            y (array): 1-dim or 2-dim array of reference values, either continuous or categorical variable.
+            y (array): 1-dim or 2-dim array of reference values - categorical variable.
 
         Returns:
             array: Predicted y variable based on training set predictors.
@@ -309,6 +309,48 @@ class MamsiPls(MBPLS):
         print('Specificity', round(tn/(tn+fp), 3))
         print('F1 Score', round(f1_score(_y, np.where(y_predicted > 0.5, 1, 0)), 3))
         print('AUC', round(roc_auc_score(_y, y_predicted), 3))
+        return y_predicted
+    
+    def evaluate_regression_model(self, x, y):
+        """
+        Evaulate regression MB-PLS model using a **testing** dataset.
+
+        Args:
+            x (array or list[array]): All blocks of predictors x1, x2, ..., xn. Rows are observations, columns are features/variables.
+            y (array): 1-dim or 2-dim array of reference values - continuous variable.
+
+        Returns:
+            array: Predicted y variable based on training set predictors.
+        """
+
+         # Check if PLS model is fitted
+        check_is_fitted(self, 'beta_')
+
+        # Validate inputs
+        _x = x.copy()
+        if isinstance(_x, list) and not isinstance(_x[0], list):
+            pass
+        else:
+            _x = [x]
+        _y = y.copy()
+        _y = check_array(_y, ensure_2d=False)
+
+        # Predict test data
+        y_predicted = self.predict(_x)
+
+        # Evaluation metrics
+        mse = mean_squared_error(_y, y_predicted)
+        print(f'Mean Squared Error: {mse}')
+        q2 = r2_score(_y, y_predicted)
+        print(f'Q-squared: {q2}')
+
+        # Plotting Regresseion model evaluation
+        plt.figure(dpi=600, figsize=(10, 6))
+        plt.scatter(y_predicted, _y)
+        plt.ylabel('Ground Truth')
+        plt.xlabel('Predicted')
+        plt.title('Regression Model Evaluation')
+
         return y_predicted
 
     def mb_vip(self, plot=False):
