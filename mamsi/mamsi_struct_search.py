@@ -186,7 +186,7 @@ class MamsiStructSearch:
             frame.sort_values(by='m/z', inplace=True)
             frame.reset_index(inplace=True, drop=True)
             frame['Isotopologue group'] = [np.NaN] * len(frame)
-            frame['M+'] = [np.NaN] * len(frame)
+            frame['Isotopologue pattern'] = [np.NaN] * len(frame)
 
             # Group ID for new cluster
             iso_group = 1
@@ -221,9 +221,9 @@ class MamsiStructSearch:
                         if not np.isnan(frame.loc[i, 'Isotopologue group']):
                             frame.at[j, 'Isotopologue group'] = frame.loc[i, 'Isotopologue group']
                             # Assign M and M+ values
-                            frame.at[i, 'M+'] = m_plus
+                            frame.at[i, 'Isotopologue pattern'] = m_plus
                             m_plus += 1
-                            frame.at[j, 'M+'] = m_plus
+                            frame.at[j, 'Isotopologue pattern'] = m_plus
             
             # Update Current DataFrame
             self.assay_links[index] = frame
@@ -375,7 +375,7 @@ class MamsiStructSearch:
         frame = frame_.copy()
         group = pd.DataFrame(columns=['Feature', 'm/z', 'Expected neutral mass',
                                       'Observed neutral mass', 'Neutral mass |difference ppm|',
-                                      'Adduct', 'RT', 'Adduct group', 'M+'
+                                      'Adduct', 'RT', 'Adduct group'
                                       ])  # Add groups one by one and see what the result looks like
 
         frame = frame[~(frame['Feature'] == row_['Feature'])]  # Delete current row from frame
@@ -410,7 +410,7 @@ class MamsiStructSearch:
                 'Expected neutral mass': val_current,
                 'Observed neutral mass': val_current,
                 'Neutral mass |difference ppm|': 0,
-                'Adduct': frame.columns[5],  # This is a default column, needs to be updated if default adduct changes
+                'Adduct': frame.columns[6],  # This is a default column, needs to be updated if default adduct changes
                 'RT': row_['RT'],
                 'Adduct group': clust_flag
             }, index=[0])
@@ -684,6 +684,7 @@ class MamsiStructSearch:
             plt.show()
 
         self.correlation_clusters = correlation_clusters
+        self.structural_links.insert(0, 'Correlation cluster', f_clust)
         # return flat clusters
         if get_data: return correlation_clusters
 
@@ -774,7 +775,7 @@ class MamsiStructSearch:
 
         # Drop all features that are not structurally linked to any other feature
         if not include_all:
-            master.dropna(subset=['Structural cluster'], inplace=True)
+            master.dropna(subset=['Structural cluster', 'Cross-assay link'], how='all', inplace=True)
 
        # Optional Columns for the network
         if 'cpdName' not in master.columns:
