@@ -60,6 +60,50 @@ class MamsiStructSearch:
         self.structural_links = None
 
 
+    def load_msi(self, df):
+        """
+        Imports MSI intensity data and extracts feature metadata from column names.
+
+        Args:
+            df (pandas.DataFrame): Data frame with MSI intensity data.
+                - rows: samples
+                - columns: features (m/z peaks)
+                    Column names in the format:
+                        <m/z>
+                    For example:
+                        149.111
+        """
+
+        _df = df.copy()
+
+        # Extract column names
+        names = _df.columns
+        deconstructed = pd.DataFrame()
+        for name in names:
+            assay = name.split('_')[0]
+            mz = float(name.split('_')[1])
+            line = pd.DataFrame({
+                'Feature': name,
+                'Assay': assay,
+                'RT': 1,
+                'm/z': mz
+            }, index=[0]
+            )
+            deconstructed = pd.concat([deconstructed, line])
+        deconstructed.reset_index(inplace=True, drop=True)
+
+        # Split metadata into assays
+        data = []
+        unique_assays = deconstructed['Assay'].unique()
+        for assay in unique_assays:
+            data.append(deconstructed[deconstructed['Assay'] == assay])
+
+        # Save data
+        self.feature_metadata = deconstructed
+        self.assay_links = data
+        self.intensities = _df
+
+
     def load_lcms(self, df):
         """
         Imports LC-MS intensity data and extracts feature metadata from column names.
@@ -684,7 +728,8 @@ class MamsiStructSearch:
             plt.show()
 
         self.correlation_clusters = correlation_clusters
-        self.structural_links.insert(0, 'Correlation cluster', f_clust)
+
+        self.structural_links['Correlation cluster'] = f_clust
         # return flat clusters
         if get_data: return correlation_clusters
 
