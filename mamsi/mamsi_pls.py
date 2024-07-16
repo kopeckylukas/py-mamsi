@@ -231,7 +231,11 @@ class MamsiPls(MBPLS):
             data = q2_accuracy
 
         # Estimate number of LVs
-        bend = np.min(np.where(np.diff(data) / data[0] < increase_threshold)[0]) + 1
+        try:
+            bend = np.min(np.where(np.diff(data) / data[0] < increase_threshold)[0]) + 1
+        except ValueError:
+            # Handle the case where np.min() fails due to an empty array
+            bend = 1
         plateau_range_start, plateau_range_end = self._find_plateau(data, range_threshold=plateau_threshold)
 
         # Percentage for printed statements below
