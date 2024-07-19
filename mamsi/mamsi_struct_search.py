@@ -9,7 +9,6 @@
 import pandas as pd
 import numpy as np
 import re
-import os
 import warnings
 import matplotlib.pyplot as plt
 import pkg_resources
@@ -20,6 +19,9 @@ import networkx as nx
 from pyvis.network import Network
 from IPython.core.display import display
 from IPython.display import IFrame
+from typing import Literal
+from sklearn.cluster import AgglomerativeClustering
+from sklearn.metrics import silhouette_score, silhouette_samples
 
 
 plt.rc('font', family='Verdana')
@@ -697,7 +699,38 @@ class MamsiStructSearch:
         diff2 = abs((y - x) / y * 1000000)
         return (diff1 + diff2) / 2
     
-    def get_correlation_clusters(self, cluster_threshold=0.7, method='pearson', linkage_method='complete', metric='euclidian', **kwargs):
+    def get_correlation_clusters(self, flat_method ='constant', cut_threshold=0.7, max_clusters=5, cor_method='pearson' ,
+                                 linkage_method='complete', metric='euclidian', **kwargs):
+        """
+        Clusters features based on their correlation. The method uses hierarchical clustering to create clusters.
+
+        Args:
+            flat_method (str {'constant', 'silhouette'}, optional):
+                Method for cluster flattening:
+                - 'constant': Flattens clusters based on a constant threshold (cut_threshold).
+                - 'silhouette': Flattens clusters based on most optimal silhouette score.
+                Defaults to 'constant'.
+            cut_threshold (float, optional): Constant threshold for flattening clusters. Defaults to 0.7.
+            max_clusters (int, optional): Maximum number of clusters for silhouete method. Defaults to 5.
+            cor_method (str {'pearson', 'kendall', 'spearman'}, optional): Mehthod for calculation correlations. Defaults to 'pearson'.
+            linkage_method (str, optional): Which linkage criterion to use. The linkage criterion determines which distance to use between sets of observation.
+                The algorithm will merge the pairs of cluster that minimize this criterion.
+                - 'single': Single linkage minimises the maximum distance between observations of pairs of clusters.
+                - 'complete': Complete linkage minimises the maximum distance between observations of pairs of clusters.
+                - 'average': Average linkage minimises the average of the distances between all observations of pairs of clusters.
+                - 'ward': Ward minimises the variance of the clusters being merged.
+                - 'weighted': Weighted linkage minimises the sum of the product of the distances and the number of observations in pairs of clusters.
+                    Only available for 'constant' flatting method.
+                - 'centroid': Centroid linkage minimises the distance between the centroids of clusters.
+                    Only available for 'constant' flatting method.
+                - 'median': Median linkage minimises the distance between the medians of clusters.
+                    Only available for 'constant' flatting method.
+                Defaults to 'complete'.
+            metric (str, optional): The distance metric to use. The metric to use when calculating distance between instances in a feature array.
+                Metric used to compute the linkage. Can be “euclidean”, “l1”, “l2”, “manhattan”, “cosine”, or “precomputed”.
+                If linkage is “ward”, only “euclidean” is accepted. If “precomputed”, a distance matrix is needed as input for the fit method.
+                Defaults to 'euclidian'.
+        """
        
         # Check if data were loaded
         if self.feature_metadata is None:
@@ -705,16 +738,25 @@ class MamsiStructSearch:
             warnings.warn("No data loaded. Use 'load_lcms()' to load data.",
                           RuntimeWarning)
 
-        if cluster_threshold is not None:
+        # Validate the input method
+        # List of acceptable arguments
+        acceptable_flat_methods = ['constant', 'silhouette']
+
+        if flat_method not in acceptable_flat_methods:
+            raise ValueError(f"Invalid flatting method '{flat_method}'. Choose from {acceptable_flat_methods}.")
+
+        # Calculate correaltion and sissimilarity
+        df = self.intensities
+        # Calculate correlation between variables
+        correlation = df.corr(method=cor_method)
+        # Calculate dissimilarity
+        dissimilarity = 1 - abs(correlation)
+
+        if flat_method == 'constant':
         # Check if metadata have been loaded
-            df = self.intensities
-            # Calculate correlation between variables
-            correlation = df.corr(method=method)
-            # Calculate dissimilarity
-            dissimilarity = 1 - abs(correlation)
             z = linkage(squareform(dissimilarity), method=linkage_method, metric=metric)
             # Get flat clusters
-            f_clust = fcluster(z, t=cluster_threshold, criterion='distance', depth=100)
+            f_clust = fcluster(z, t=cut_threshold, criterion='distance', depth=100)
             correlation_clusters = pd.DataFrame({ 'Feature': df.columns, 'Correlation cluster':f_clust})
 
             # Plot correlation heatmap and dendrogram
@@ -722,15 +764,83 @@ class MamsiStructSearch:
             sns.heatmap( data=correlation, annot=False, annot_kws={"fontsize":6})
             plt.show()
             plt.figure(figsize=(17.3, 5))
-            dendrogram( Z=z, labels=df.columns, orientation='top', leaf_rotation=90, color_threshold=cluster_threshold, **kwargs)
+            dendrogram( Z=z, labels=df.columns, orientation='top', leaf_rotation=90, color_threshold=cut_threshold, **kwargs)
             plt.show()
             
             # Save data
             self.correlation_clusters = correlation_clusters
             self.structural_links['Correlation cluster'] = f_clust
 
-        else:
-            pass
+        elif flat_method == 'silhouette':
+
+            # Replace 'max_clusters' with the maximum number of clusters you want to consider
+            cluster_range = range(2, max_clusters + 1)
+            # Initialize an empty dictionary to store silhouette scores for each number of clusters
+            silhouette_scores = {}
+            # Iterate over the range of cluster numbers
+            for n_clusters in cluster_range:
+                # Create an AgglomerativeClustering model with 'n_clusters'
+                model = AgglomerativeClustering(n_clusters=n_clusters, metric='precomputed', linkage=linkage_method)
+
+                # Fit the model to the dissimilarity matrix
+                cluster_labels = model.fit_predict(dissimilarity)
+
+                # Calculate the silhouette score for the current number of clusters
+                silhouette_scores[n_clusters] = silhouette_score(dissimilarity, cluster_labels, metric='precomputed')
+
+            # Find the number of clusters with the highest silhouette score
+            best_n_clusters = max(silhouette_scores, key=silhouette_scores.get)
+            best_score = silhouette_scores[best_n_clusters]
+            # Print the best number of clusters and its silhouette score
+            print(f"Best number of clusters based on silhouette score: {best_n_clusters}")
+            print(f"Silhouette score for {best_n_clusters} clusters: {best_score}")
+            # Now you can use 'best_n_clusters' to create flat clusters
+            model = AgglomerativeClustering(n_clusters=best_n_clusters, metric='precomputed', linkage=linkage_method)
+            flat_clusters = model.fit_predict(dissimilarity)
+
+            # Save data
+            self.correlation_clusters = flat_clusters
+            self.structural_links['Correlation cluster'] = flat_clusters
+
+
+            # Visualisation
+            plt.subplots(figsize=(17, 10))
+            sns.heatmap( data=correlation, annot=False, annot_kws={"fontsize":6})
+            plt.show()
+
+            # Compute the silhouette scores for each sample
+            silhouette_vals = silhouette_samples(dissimilarity, flat_clusters, metric='precomputed')
+            # Compute the mean silhouette score
+            silhouette_avg = silhouette_score(dissimilarity, flat_clusters, metric='precomputed')
+            # Plotting the silhouette plot
+            fig, ax = plt.subplots()
+            y_lower = 10
+            for i in range(best_n_clusters):
+                # Aggregate the silhouette scores for samples belonging to cluster i
+                ith_cluster_silhouette_vals = silhouette_vals[flat_clusters == i]
+                ith_cluster_silhouette_vals.sort()
+
+                size_cluster_i = ith_cluster_silhouette_vals.shape[0]
+                y_upper = y_lower + size_cluster_i
+
+                color = plt.cm.nipy_spectral(float(i) / best_n_clusters)
+                ax.fill_betweenx(np.arange(y_lower, y_upper),
+                                0, ith_cluster_silhouette_vals,
+                                facecolor=color, edgecolor=color, alpha=0.7)
+
+                # Label the silhouette plots with their cluster numbers at the middle
+                ax.text(-0.05, y_lower + 0.5 * size_cluster_i, str(i))
+                # Compute the new y_lower for next plot
+                y_lower = y_upper + 10  # 10 for the 0 samples
+
+            ax.set_title("The silhouette plot for best number of clusters.")
+            ax.set_xlabel("The silhouette coefficient values")
+            ax.set_ylabel("Cluster label")
+            # The vertical line for average silhouette score of all the values
+            ax.axvline(x=silhouette_avg, color="red", linestyle="--")
+            ax.set_yticks([])  # Clear the yaxis labels / ticks
+            ax.set_xticks(np.arange(-0.1, 1.1, 0.2))
+            plt.show()
 
 
     def get_structural_network(self, include_all=False, interactive=False, 
