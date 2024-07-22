@@ -19,7 +19,6 @@ import networkx as nx
 from pyvis.network import Network
 from IPython.core.display import display
 from IPython.display import IFrame
-from typing import Literal
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.metrics import silhouette_score, silhouette_samples
 
