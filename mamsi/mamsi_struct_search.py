@@ -230,8 +230,8 @@ class MamsiStructSearch:
             # Sort copied data frame and create new column
             frame.sort_values(by='m/z', inplace=True)
             frame.reset_index(inplace=True, drop=True)
-            frame['Isotopologue group'] = [np.NaN] * len(frame)
-            frame['Isotopologue pattern'] = [np.NaN] * len(frame)
+            frame['Isotopologue group'] = [np.nan] * len(frame)
+            frame['Isotopologue pattern'] = [np.nan] * len(frame)
 
             # Group ID for new cluster
             iso_group = 1
@@ -633,7 +633,7 @@ class MamsiStructSearch:
         data.reset_index(inplace=True, drop=True)
 
         # Create an empty column and isotopolouge group flag
-        data['Cross-assay link'] = [np.NaN] * data.shape[0]
+        data['Cross-assay link'] = [np.nan] * data.shape[0]
         cross_assay_flag = 1
 
         # loop through all rows and check if the expcted neutral mass for i the same as for j

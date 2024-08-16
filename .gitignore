@@ -8,3 +8,5 @@ __pycache__/
 lib/
 example.html
 interactive.html
+dist/
+mamsi.egg-info/

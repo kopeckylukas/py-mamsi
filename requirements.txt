@@ -1,0 +1,9 @@
+mbpls==1.0.4
+pandas
+numpy
+matplotlib
+scipy
+scikit-learn
+seaborn
+networkx
+pyvis
