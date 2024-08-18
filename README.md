@@ -1,4 +1,4 @@
-![MAMSI_logo](MAMSI_logo.png)
+![MAMSI_logo](MAMSI_logo.svg)
 
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
