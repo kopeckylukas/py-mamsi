@@ -10,3 +10,5 @@ example.html
 interactive.html
 dist/
 mamsi.egg-info/
+site/
+pyproject.toml
