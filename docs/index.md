@@ -139,7 +139,7 @@ This package was developed as part of Lukas Kopecky's PhD project at [Imperial C
 
 The authors of this package would like to acknowledge the authors of the [mbpls](https://pypi.org/project/mbpls/) package which became the backbone of MAMSI. For More information on MB-PLS, please visit [MB-PLS Documentation](https://mbpls.readthedocs.io/en/latest/index.html).
 
-Further, we would like thank to Prof Simon Lovestone and Dr Shivani Misra for allowing us to use their data for development of this package. 
+Further, we would like to thank to Prof Simon Lovestone and Dr Shivani Misra for allowing us to use their data for development of this package. 
 
 # Citing us
 If you use MAMSI in a scientific publication, we would appreciate citations. The MAMSI publication is currently under the review process. 

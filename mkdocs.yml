@@ -45,7 +45,7 @@ plugins:
 nav:
   - Home: index.md
   - Tutorials: tutorials.md 
-  - Reference:
+  - API References:
     - ./references/MamsiPls.md
     - ./references/MamsiStructSearch.md
   
