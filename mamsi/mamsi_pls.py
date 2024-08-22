@@ -22,6 +22,9 @@ plt.rc('font', family='Verdana')
 class MamsiPls(MBPLS):
     def __init__(self, n_components=2, full_svd=False, method='NIPALS', standardize=True, max_tol=1e-14,
                  nipals_convergence_norm=2, calc_all=True, sparse_data=False, copy=True):
+        
+        super().__init__(n_components, full_svd, method, standardize, max_tol, nipals_convergence_norm,
+                         calc_all, sparse_data, copy)
         """
         A wrapper of Multi-block PLS regression for predictive modelling using latent variables
         based on MB-PLS package: Baum et al., (2019). Multiblock PLS: Block dependent prediction modeling for Python.
@@ -64,8 +67,6 @@ class MamsiPls(MBPLS):
             copy (bool, optional): Whether the deflation should be done on a copy. Not using a copy might alter the input data
                 and have unforeseeable consequences. Defaults to True.
             """
-        super().__init__(n_components, full_svd, method, standardize, max_tol, nipals_convergence_norm,
-                         calc_all, sparse_data, copy)
 
     def estimate_lv(self, x, y, n_components=10, no_fold=5, y_continuous=False, metric='auc',
                     plateau_threshold=0.01, increase_threshold=0.05, get_scores=False):

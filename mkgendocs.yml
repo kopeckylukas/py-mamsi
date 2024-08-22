@@ -1,23 +1,17 @@
-sources_dir: docs/
-templates_dir: docs/
+sources_dir: docs/api_references/gendocs
+templates_dir: docs/api_references/gendocs
 repo: https://github.com/kopeckylukas/py-mamsi
 version: main
 
 pages:
 
-  - page: "references/MamsiPls.md"
+  - page: "api_references/gendocs/MamsiPls.md"
     source: "mamsi/mamsi_pls.py"
-    # functions:
-    #   - download_KEGG
-    #   - download_reactome
     classes:
       - MamsiPls
 
-  - page: "references/MamsiStructSearch.md"
+  - page: "api_references/gendocs/MamsiStructSearch.md"
     source: "mamsi/mamsi_struct_search.py"
-    # functions:
-    #   - download_KEGG
-    #   - download_reactome
     classes:
       - MamsiStructSearch
   

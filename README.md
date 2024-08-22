@@ -1,7 +1,8 @@
 ![MAMSI_logo](/docs/images/MAMSI_logo.png)
 
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](LICENCE)
-[![Docs](https://img.shields.io/badge/docs-available-brightgreen.svg)](https://kopeckylukas.github.io/py-mamsi/)
+[![Docs](https://img.shields.io/badge/docs-available-brightgreen.svg)](https://kopeckylukas.github.io/py-mamsi/) 
+[![pages-build-deployment](https://github.com/kopeckylukas/py-mamsi/actions/workflows/pages/pages-build-deployment/badge.svg)](https://kopeckylukas.github.io/py-mamsi/)
 
 MAMSI is a Python framework designed for the integration of multi-assay mass spectrometry datasets. 
 In addition, the MAMSI framework provides a platform for linking statistically significant features of untargeted multi-assay liquid chromatography – mass spectrometry (LC-MS) metabolomics datasets into clusters defined by their structural properties based on mass-to-charge ratio (*m/z*) and retention time (*RT*).

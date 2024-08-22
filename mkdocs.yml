@@ -1,4 +1,4 @@
-site_name: MAMSI Docs
+site_name: MAMSI Docs 0.1.1
 
 theme:
   name: material
@@ -40,7 +40,7 @@ plugins:
 nav:
   - Home: index.md
   - Tutorials: tutorials.md 
-  - API References:
-    - ./references/MamsiPls.md
-    - ./references/MamsiStructSearch.md
+  - API References: 
+    - ./api_references/gendocs/MamsiPls.md
+    - ./api_references/gendocs/MamsiStructSearch.md
   

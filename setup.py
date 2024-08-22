@@ -5,7 +5,7 @@ this_directory = Path(__file__).parent
 
 setup(
     name="mamsi",
-    version="0.1.0",
+    version="0.1.1",
     packages=find_packages(),
     license="BSD 3-Clause License",
     package_data={'': ['Data/Adducts/*', 'Data/ROI/*']},
