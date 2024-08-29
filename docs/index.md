@@ -91,4 +91,13 @@ If you use MAMSI in a scientific publication, we would appreciate citations. The
 
 [5] S. Misra *et al.*, "Systematic screening for monogenic diabetes in people of South Asian and African Caribbean ethnicity: Preliminary results from the My Diabetes study," presented at the *Diabet. Med.*, Mar 2018.
 
+[6]  M. Lewis *et al.*, “An Open Platform for Large Scale LC-MS-Based Metabolomics ,” *ChemRxiv*, 2022. doi: [10.26434/chemrxiv-2022-nq9k0](https://chemrxiv.org/engage/chemrxiv/article-details/61ebd6fa0716a8529e3823dc).
+
+[7] C. A. Smith *et al.*, "XCMS:  Processing Mass Spectrometry Data for Metabolite Profiling Using Nonlinear Peak Alignment, Matching, and Identification," *Anal. Chem.*, vol. 78, no. 3, pp. 779-787, Feb 2006, doi: [10.1021/ac051437y](https://doi.org/10.1021/ac051437y).
+
+[8] C. J. Sands *et al.*, "The nPYc-Toolbox, a Python module for the pre-processing, quality-control and analysis of metabolic profiling datasets," *Bioinformatics*, vol. 35, no. 24, pp. 5359-5360, 2019, doi: [10.1093/bioinformatics/btz566](https://doi.org/10.1093/bioinformatics/btz566).
+
+[9]
+
+
 [def]: /images/MAMSI_logo.png
