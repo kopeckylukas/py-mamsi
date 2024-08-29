@@ -1,6 +1,6 @@
-![MAMSI_logo](/docs/images/MAMSI_logo.png)
+![MAMSI_logo](./images/MAMSI_logo.png)
 
-[![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](LICENCE)
+[![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://github.com/kopeckylukas/py-mamsi/blob/main/LICENCE)
 [![Docs](https://img.shields.io/badge/docs-available-brightgreen.svg)](https://kopeckylukas.github.io/py-mamsi/) 
 [![pages-build-deployment](https://github.com/kopeckylukas/py-mamsi/actions/workflows/pages/pages-build-deployment/badge.svg)](https://kopeckylukas.github.io/py-mamsi/)
 
@@ -160,3 +160,5 @@ If you use MAMSI in a scientific publication, we would appreciate citations. The
 [4] A. M. Wolfer *et al.*, "peakPantheR, an R package for large-scale targeted extraction and integration of annotated metabolic features in LC–MS profiling datasets," *Bioinformatics*, vol. 37, no. 24, pp. 4886-4888, 2021, doi: [10.1093/bioinformatics/btab433](https://academic.oup.com/bioinformatics/article/37/24/4886/6298587).
 
 [5] S. Misra *et al.*, "Systematic screening for monogenic diabetes in people of South Asian and African Caribbean ethnicity: Preliminary results from the My Diabetes study," presented at the *Diabet. Med.*, Mar 2018.
+
+[def]: /images/MAMSI_logo.png
