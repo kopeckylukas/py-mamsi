@@ -11,15 +11,17 @@ In addition, the MAMSI framework provides a platform for linking statistically s
 
 # Overview
 ## Features
-- Data integration analysis using the Multi-Block Partial Least Squares (MB-PLS) [[1](#references)] algorithm.
+- Data integration analysis using the Multi-Block Partial Least Squares (MB-PLS) [[1](#references)] algorithm. The `MamsiPls` class inherits from the `mbpls` package [[1](./index.md/#references)]. For more information on MB-PLS, please visit [mbpls Documentation](https://mbpls.readthedocs.io/en/latest/index.html).
 - Multi-Block Variable Importance in Projection (MB-VIP) [[2](#references)].
 - Estimation of statistically significant features (variables) using MB-VIP and permutation testing.
 - Linking significant features into clusters defined by structural properties of metabolites.
 - Feature network links.
 - Annotation of untargeted LC-MS features (only supported for assays analysed by the National Phenome Centre).
 
-## Documentation
-The documentation for this package is available at [https://kopeckylukas.github.io/py-mamsi/](https://kopeckylukas.github.io/py-mamsi/).
+## Source and Materials
+The package source code is accessible via GitHub at [https://github.com/kopeckylukas/py-mamsi](https://github.com/kopeckylukas/py-mamsi)
+
+Training materials including sample data can be found at [https://github.com/kopeckylukas/py-mamsi-tutorials](https://github.com/kopeckylukas/py-mamsi-tutorials).
 
 # Installation 
 ### Dependencies
@@ -53,78 +55,6 @@ pip install .
 ```bash
 pip install -r requirements.txt
 python setup.py develop
-```
-
-# Quickstart
-You can find all MAMSI tutorials by visiting our **[MAMSI Tutorials](https://github.com/kopeckylukas/py-mamsi-tutorials)** repository or follow this quickstart guide.
-
-**Load Packages**
-```python 
-from mamsi.mamsi_pls import MamsiPls
-from mamsi.mamsi_struct_search import MamsiStructSearch
-import pandas as pd
-import numpy as np
-```
-
-**Load Sample Data** 
-<br> Data used within this quickstart guide originate from the AddNeuroMed cohort [[3](#references)] - dataset of Alzheimer's disease patients. 
-You can download the sample data from this [link](https://github.com/kopeckylukas/py-mamsi-tutorials/tree/main/sample_data).
-
-
-```python
-metadata = pd.read_csv('../sample_data/alz_metadata.csv')
-# The PLS algorithm requires the response variable to be numeric. 
-# We will encode the outcome "Gender" (Biological Sex) as 1 for female and 0 for male subjects. 
-y = metadata["Gender"].apply(lambda x: 1 if x == 'Female' else 0)
-
-# Import LC-MS data
-# Add prefix to the columns names. This will be crucial for interpreting the results later on.
-hpos = pd.read_csv('./sample_data/alz_hpos.csv').add_prefix('HPOS_')
-lpos = pd.read_csv('./sample_data/alz_lpos.csv').add_prefix('LPOS_')
-lneg = pd.read_csv('./sample_data/alz_lneg.csv').add_prefix('LNEG_')
-```
-
-**Fit MB-PLS Model and Estimate LVs**
-```python 
-mamsipls = MamsiPls(n_components=1)
-mamsipls.fit([hpos, lpos, lneg], y_train)
-
-mamsipls.estimate_lv([hpos, lpos, lneg], y_train, metric='auc')
-```
-
-**Estimate Feature Importance**
-<br> You can visualise the MB-VIP:
-```python
-mb_vip = mamsipls.mb_vip(plot=True)
-```
-or estimate empirical p-values for all features: 
-
-```python
-p_vals, null_vip = mamsipls.mb_vip_permtest([hpos, lpos, lneg], y, n_permutations=10000, return_scores=True)
-```
-
-**Interpret Statistically Significant Features**
-```python
-x = pd.concat([hpos, lpos, lneg], axis=1)
-
-mask = np.where(p_vals < 0.01)
-selected = x.iloc[:, mask[0]]
-```
-Use `MamsiStrustSearch` to search for structural links within the statistically significant features. <br>
-Firstly, all features are split into retention time (*RT*) windows of 5 seconds intervals, then each RT window is searched for isotopologue signatures by searching mass differences of 1.00335 Da between mass-to-charge ratios (*m/z*) of the features; if two or more features resemble a mass isotopologue signature then they are grouped together. This is followed by a search for common adduct signatures. This is achieved by calculating hypothetical neutral masses based on common adducts in electrospray ionisation. If hypothetical neutral masses match for two or more features within a pre-defined tolerance (15 *ppm*) then these features are grouped together. Overlapping adduct clusters and isotopologue clusters are then merged to form structural clusters. Further, we search cross-assay clusters using [M+H]<sup>+</sup>/[M-H]<sup>-</sup> as link references. Additionally, our structural search tool, that utilises region of interest [(ROI) files](https://github.com/phenomecentre/npc-open-lcms) from peakPantheR [[4](#references)], allows for automated annotation of  some features based on the *RT* for a given chromatography and *m/z*.
-   
-```python
-struct = MamsiStructSearch(rt_win=5, ppm=10)
-struct.load_lcms(selected)
-struct.get_structural_clusters(annotate=True)
-```
-Further, you can use the `MamsiStrustSearch.get_correlation_clusters()` method to find correlation clusters.
-```python
-struct.get_correlation_clusters(flat_method='silhouette', max_clusters=11)
-```
-Finally, we visualise the structural relationships using a network plot. The different node colours represent different flattened hierarchical correlation clusters, while the edges between nodes identify their structural links. You can also save the network as an NX object and review in Cytoscape to get better insight on what the structural relationships between individual features are (e.g. adduct links, isotopologues, cross-assay links).
-```python
-network = struct.get_structural_network(include_all=True, interactive=False, labels=True, return_nx_object=True)
 ```
 
 # Issues and Collaboration
