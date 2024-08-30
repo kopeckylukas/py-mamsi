@@ -28,7 +28,10 @@ plt.rc('font', family='Verdana')
 
 class MamsiStructSearch:
     """
-    A class for performing structural search on LC-MS data using.
+    A class for performing structural search on multi-modal MS data using.
+    The class allows to search for structural signatures in LC-MS data based on their m/z and RT.
+    These structural signatures include isotopologues and adduct patterns.
+
 
     Attributes:
         assay_links (list): List of data frames containing links for each assay.
@@ -36,23 +39,14 @@ class MamsiStructSearch:
         rt_win (int): Retention time tolerance window.
         ppm (int): Mass-to-charge ratio (m/z) tolerance in ppm.
         feature_metadata (pandas.DataFrame): Data frame containing feature metadata extracted from column names.
+        structural_links (pandas.DataFrame): Data frame containing structural clusters.
 
-    Methods:
-        load_lcms(df): Imports LC-MS intensity data and extracts feature metadata from column names.
-        get_structural_clusters(adducts='all', annotate=True): Searches structural
-            signatures in LC-MS data based on their m/z and RT.
-        get_correlation_clusters(visualise=True): Find correlation clusters for MB-PLS features.
+    Args:
+        rt_win (int, optional): Retention time tolerance window. Defaults to 5.
+        ppm (int, optional): Mass-to-charge ratio (m/z) tolerance in ppm. Defaults to 15.
     """
 
     def __init__(self, rt_win=5, ppm=15):
-        """
-        Initialise MAMSI structural search class.
-
-        Args:
-            rt_win (int, optional): Retention time tolerance window. Defaults to 5.
-            ppm (int, optional): Mass-to-charge ratio (m/z) tolerance in ppm. Defaults to 15.
-        """
-        
         self.assay_links = None
         self.intensities = None
         self.rt_win = rt_win
@@ -156,17 +150,17 @@ class MamsiStructSearch:
     def get_structural_clusters(self, adducts='all', annotate=True):
         """
         Searches structural signatures in LC-MS data based on their m/z and RT. These structural signatures include 
-        isotopologues and adduct patterns.
+        isotopologues, adduct patterns and cross-assay links.
 
         Args:
             adducts (str, optional): Define what type of adducts to . 
                 Possible values are:
                     - 'all': All adducts combinations (based on Fiehn Lab adduct calculator).
-                    - 'most-common': Most common adducts for ESI (based on Waters documentation).
+                    - 'most-common': Most common adducts for ESI (based on Waters adducts documentation).
                 Defaults to 'all'.
             annotate (bool, optional): Annotate significant features based on National Phenome Centre RIO data.
                 Only to be run if the data was analysed by the National Phenome Centre or analysis followed their
-                conventions and protocls. For more infomrmation see https://doi.org/10.1021/acs.analchem.6b01481 
+                conventions and protocols. For more information see https://doi.org/10.1021/acs.analchem.6b01481 
                 or https://phenomecentre.org.
                 Uses semi-targeted annotations for selected compounds.
                 Defaults to True.
@@ -221,6 +215,7 @@ class MamsiStructSearch:
 
     def _get_isotopologue_groups(self):
         """
+        Private method.
         Search for isotopologue signature in individual assay data frames.
         """
 
@@ -275,7 +270,9 @@ class MamsiStructSearch:
 
     def _get_adduct_groups(self, adducts='all'):
         """
-        Search for adduct grouping signatures within significant features. The methods finds 
+        Private method.
+        Search for adduct grouping signatures within significant features. 
+        The method uses a ppm window to search for adducts. 
 
         Args:
             adducts (str, optional): _description_. Defaults to 'all'.
@@ -288,7 +285,7 @@ class MamsiStructSearch:
             # Detect isotopologues within one loop
 
             # Get neutral masses for all adducts
-            frame__ = self.get_neutral_mass(features=frame_, adducts=adducts)
+            frame__ = self._get_neutral_mass(features=frame_, adducts=adducts)
 
             # Search for adducts in current DataFrame
             data_clusters_frame = self._search_main_adduct(frame__)
@@ -324,8 +321,9 @@ class MamsiStructSearch:
             self.assay_links[index] = working_frame
             # now load data below in the main loop as nothing is returned
 
-    def get_neutral_mass(self, features, adducts='all'):
+    def _get_neutral_mass(self, features, adducts='all'):
         """
+        Private method.
         Calculate potential neutral masses for all m/z features.
 
         Args:
@@ -377,6 +375,7 @@ class MamsiStructSearch:
 
     def _search_main_adduct(self, x):
         """
+        Private method.
         Search for main adducts ([M+H]+ / [M-H]-) in the given input.
 
         Args:
@@ -403,6 +402,7 @@ class MamsiStructSearch:
 
     def _find_adduct_matches(self, frame_, row_, clust_flag, main_adduct=True):
         """
+        Private method.
         Method searches for adducts within a given ppm window.
 
         Args:
@@ -466,12 +466,13 @@ class MamsiStructSearch:
 
     def _get_unified_struct_groups(self):
         """
+        Private method.
         Unifies 'Isotopologue group' and 'Adduct group' into a single 'Structural group'.
         """
 
         for index, frame in enumerate(self.assay_links):
 
-            frame_ = frame.copy()  # Copy the input dataframe
+            frame_ = frame.copy()  # Copy the input pandas.DataFrame
 
             # Stack Isotopologue and adduct clusters into a single variable 'Structural cluster'
             offset = frame_['Isotopologue group'].max()  # Get the highest number of iso group
@@ -501,6 +502,7 @@ class MamsiStructSearch:
 
     def _get_annotation(self, roi=None):
         """
+        Private method.
         Annotates hypothetical features using the RIO files from the National Phenome Centre.
 
         Args:
@@ -558,15 +560,15 @@ class MamsiStructSearch:
             frame_.reset_index(inplace=True, drop=True)
             roi_ = roi.copy()
             roi_.reset_index(inplace=True, drop=True)
-            # Create empty dataframe for annotations
+            # Create empty pandas.DataFrame for annotations
             _annotations = pd.DataFrame(columns=['cpdName', 'chemicalFormula', 'ion', 'mzMin', 'mzMax', 'rtMin', 'rtMax'])
             # Iterate through all features
             for i in range(len(frame_)):
                 id_current = frame_.loc[i, 'Feature']
                 rt_current = frame_.loc[i, 'RT']  # variable used in the query
                 mz_current = frame_.loc[i, 'm/z']  # variable used in query
-                query = "mzMin < @mz_current < mzMax & rtMin < @rt_current < rtMax"  # query to search the dataframe
-                retrieved = roi_.query(query, inplace=False)  # query the dataframe
+                query = "mzMin < @mz_current < mzMax & rtMin < @rt_current < rtMax"  # query to search the pandas.DataFrame
+                retrieved = roi_.query(query, inplace=False)  # query the pandas.DataFrame
                 retrieved.reset_index(inplace=True, drop=True)  # reindex allows to use .loc[]
                 if retrieved.shape[0] > 0:  # If any annotations found
                     line = pd.DataFrame({
@@ -581,7 +583,7 @@ class MamsiStructSearch:
                     }, index=[0])
                     _annotations = pd.concat([_annotations, line])
 
-            # If any annotation found, then save them merge them with original dataframe
+            # If any annotation found, then save them merge them with original pandas.DataFrame
             if _annotations.shape[0] > 0:
                 frame_annotation = frame_.merge(_annotations, on='Feature', how='left')
             else:
@@ -594,18 +596,19 @@ class MamsiStructSearch:
 
     def _get_cross_assay_links(self):
         """
+        Private method.
         Search for cross-assay links between features based on their m/z and RT. 
-        Features that are part of sturctural cluster are linked only on their M+H and M-H adducts.
-        For singletons nutral mass estimated from M+H and M-H is used for cross-assay linking.
+        Features that are part of structural cluster are linked only on their M+H and M-H adducts.
+        For singletons neutral mass estimated from M+H and M-H is used for cross-assay linking.
         """
         
-        # Load datea
+        # Load data
         struct_data = self.structural_links
         signletons_data = self.structural_links
         data_original = self.structural_links
 
         # Adduct groups
-        # selecto only the rows where the structural cluster is not NaN
+        # select only the rows where the structural cluster is not NaN
         struct_data = struct_data.dropna(subset=['Structural cluster'])
         # get only rows where adduct is like M+H or M-H
         struct_data = struct_data[struct_data['Adduct'].str.contains(r'\[M\+H\]|\[M-H\]', regex=True, na=False)]
@@ -613,10 +616,10 @@ class MamsiStructSearch:
         struct_data = struct_data.drop_duplicates(subset='Expected neutral mass')
         struct_data.reset_index(inplace=True, drop=True)
 
-        # Singletons and Isoptopologues
+        # Singletons and Isotopologues
         # calculate expected neutral mass for singletons
         signletons_data = signletons_data.copy()
-        # frome signletons_data get only rows where the structural cluster is NaN
+        # frome singletons_data get only rows where the structural cluster is NaN
         signletons_data = signletons_data[signletons_data['Expected neutral mass'].isna()]
         # For column 'Isotopologue group' keep only rows where the values is 0 or NaN
         signletons_data = signletons_data[((signletons_data['Isotopologue pattern'] == 0) 
@@ -632,11 +635,11 @@ class MamsiStructSearch:
         data = pd.concat([struct_data, signletons_data])
         data.reset_index(inplace=True, drop=True)
 
-        # Create an empty column and isotopolouge group flag
+        # Create an empty column and isotopologue group flag
         data['Cross-assay link'] = [np.nan] * data.shape[0]
         cross_assay_flag = 1
 
-        # loop through all rows and check if the expcted neutral mass for i the same as for j
+        # loop through all rows and check if the expected neutral mass for i the same as for j
         for i in range(len(data)):
             for j in range(len(data)):
 
@@ -684,6 +687,7 @@ class MamsiStructSearch:
     @staticmethod
     def _mean_ppm_diff(x, y):
         """
+        Private method.
         Calculates the mean PPM difference between two numbers.
 
         Args:
@@ -699,9 +703,10 @@ class MamsiStructSearch:
         return (diff1 + diff2) / 2
     
     def get_correlation_clusters(self, flat_method ='constant', cut_threshold=0.7, max_clusters=5, cor_method='pearson' ,
-                                 linkage_method='complete', metric='euclidian', **kwargs):
+                                 linkage_method='complete', metric='euclidean', **kwargs):
         """
-        Clusters features based on their correlation. The method uses hierarchical clustering to create clusters.
+        Clusters features based on their correlations. The method uses hierarchical clustering to create clusters.
+        To flatten clusters, the method uses either a constant threshold or silhouette score.
 
         Args:
             flat_method (str {'constant', 'silhouette'}, optional):
@@ -710,10 +715,10 @@ class MamsiStructSearch:
                 - 'silhouette': Flattens clusters based on most optimal silhouette score.
                 Defaults to 'constant'.
             cut_threshold (float, optional): Constant threshold for flattening clusters. Defaults to 0.7.
-            max_clusters (int, optional): Maximum number of clusters for silhouete method. Defaults to 5.
-            cor_method (str {'pearson', 'kendall', 'spearman'}, optional): Mehthod for calculation correlations. Defaults to 'pearson'.
-            linkage_method (str, optional): Which linkage criterion to use. The linkage criterion determines which distance to use between sets of observation.
-                The algorithm will merge the pairs of cluster that minimize this criterion.
+            max_clusters (int, optional): Maximum number of clusters for silhouette method. Defaults to 5.
+            cor_method (str {'pearson', 'kendall', 'spearman'}, optional): Method for calculation correlations. Defaults to 'pearson'.
+            linkage_method (str, optional): The linkage criterion determines which distance to use between sets of observation.
+                The algorithm will merge the pairs of cluster that minimise this criterion.
                 - 'single': Single linkage minimises the maximum distance between observations of pairs of clusters.
                 - 'complete': Complete linkage minimises the maximum distance between observations of pairs of clusters.
                 - 'average': Average linkage minimises the average of the distances between all observations of pairs of clusters.
@@ -728,7 +733,7 @@ class MamsiStructSearch:
             metric (str, optional): The distance metric to use. The metric to use when calculating distance between instances in a feature array.
                 Metric used to compute the linkage. Can be “euclidean”, “l1”, “l2”, “manhattan”, “cosine”, or “precomputed”.
                 If linkage is “ward”, only “euclidean” is accepted. If “precomputed”, a distance matrix is needed as input for the fit method.
-                Defaults to 'euclidian'.
+                Defaults to 'euclidean'.
         """
        
         # Check if data were loaded
@@ -744,7 +749,7 @@ class MamsiStructSearch:
         if flat_method not in acceptable_flat_methods:
             raise ValueError(f"Invalid flatting method '{flat_method}'. Choose from {acceptable_flat_methods}.")
 
-        # Calculate correaltion and sissimilarity
+        # Calculate correlation and similarity
         df = self.intensities
         # Calculate correlation between variables
         correlation = df.corr(method=cor_method)
@@ -862,7 +867,7 @@ class MamsiStructSearch:
                 Only applicable when interactive is False. 
                 Defaults to False.
             master_file (pd.DataFrame, optional): The master file containing necessary columns for generating the network.
-                This is intended for cases when strucutural links required manual curation (e.g. manualy assigned isotopologue groups, adduct groups, etc.)
+                This is intended for cases when structural links required manual curation (e.g. manually assigned isotopologue groups, adduct groups, etc.)
                 If not provided, the function uses the loaded structural links data.
                 Required columns: 
                     - Feature: Feature ID (e.g. HPOS_233.25_149.111m/z)
@@ -872,7 +877,7 @@ class MamsiStructSearch:
                     - Adduct group (groups features with similar adduct patterns)
                     - Adduct (adduct label, e.g. [M+H]+, [M-H]-)
                     - Structural cluster (groups features with similar isotopologue and adduct patterns)
-                    - Correlation cluster (flattedned hierarchical cluster from get_correlation_clusters()
+                    - Correlation cluster (flattened hierarchical cluster from get_correlation_clusters()
                     - Cross-assay link (links features across different assays)
                     - cpdName (compound name, optional)
                 Defaults to None.
@@ -893,7 +898,7 @@ class MamsiStructSearch:
         Notes:
             - The function creates a network graph based on the provided master file or the loaded structural links data.
             - The network graph includes nodes representing features and edges representing different types of links.
-            - The graph can be displayed interactively using pyvis.network or using networkx and matplotlib.
+            - The graph can be displayed interactively using pyvis.network or using NetworkX and matplotlib.
             - The graph can be saved as a NetworkX object if return_nx_object is True.
         """
         
@@ -906,7 +911,7 @@ class MamsiStructSearch:
         
         # Import master if 
         if master_file is not None:
-            # Define necessary colums for generating the network
+            # Define necessary columns for generating the network
             required_columns = ['Feature',
                                  'Assay',
                                  'Isotopologue group',
@@ -974,12 +979,12 @@ class MamsiStructSearch:
         correlation_clusters = set(nx.get_node_attributes(G, 'Correlation_cluster').values())
         colour_map = {cluster: plt.cm.tab10(i) for i, cluster in enumerate(correlation_clusters)}
 
-        # Chose plot option btween networkx and pyvis.network 
+        # Chose plot option between NetworkX and pyvis.network 
         if  interactive:
             iG = G.copy()
             # create vis network
             net = Network(notebook=True, cdn_resources='remote')
-            # load the networkx graph
+            # load the NetworkX graph
             net.from_nx(iG)
             net.show(output_file)
             display(IFrame(output_file, width="100%", height="600px"))
