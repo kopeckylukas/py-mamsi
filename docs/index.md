@@ -3,6 +3,7 @@
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://github.com/kopeckylukas/py-mamsi/blob/main/LICENCE)
 [![Docs](https://img.shields.io/badge/docs-available-brightgreen.svg)](https://kopeckylukas.github.io/py-mamsi/) 
 [![pages-build-deployment](https://github.com/kopeckylukas/py-mamsi/actions/workflows/pages/pages-build-deployment/badge.svg)](https://kopeckylukas.github.io/py-mamsi/)
+![PyPI version](https://img.shields.io/pypi/v/mamsi.svg)
 
 [MAMSI](https://github.com/kopeckylukas/py-mamsi) is a Python framework designed for the integration of multi-assay mass spectrometry datasets. 
 In addition, the MAMSI framework provides a platform for linking statistically significant features of untargeted multi-assay liquid chromatography – mass spectrometry (LC-MS) metabolomics datasets into clusters defined by their structural properties based on mass-to-charge ratio (*m/z*) and retention time (*RT*).
@@ -36,6 +37,13 @@ Training materials including sample data can be found at [https://github.com/kop
 - pyvis
 
 ## User Installation 
+### Installing with Pip
+You can install MAMSI from PyPI using pip: 
+```bash
+pip install mamsi
+```
+
+### Installing from source-code
 You can install MAMSI from source code given you have installed both Python (>=3.9) and PIP.
 
 First, clone the repository from GitHub to your computer. You can use following commands if you have a version of Git installed on your computer:

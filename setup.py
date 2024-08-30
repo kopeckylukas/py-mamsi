@@ -5,7 +5,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="mamsi",
-    version="0.1.1",
+    version="1.0.0",
     packages=find_packages(),
     url="https://github.com/kopeckylukas/py-mamsi",
     license="BSD 3-Clause License",
