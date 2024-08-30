@@ -545,9 +545,9 @@ This wrapper has some extra methods convenient in Chemometrics and Metabolomics 
 <li><strong>method</strong> (str, optional) : The method used to derive the model attributes. Options are 'UNIPALS', 'NIPALS', 'SIMPLS', 
     and 'KERNEL'. Defaults to 'NIPALS'.</li>
 <li><strong>standardize</strong> (bool, optional) : Whether to standardise the data (Unit-variance scaling). Defaults to True.</li>
+<li><strong>max_tol</strong> (float, optional) : Maximum tolerance allowed when using the iterative NIPALS algorithm. Defaults to 1e-14.</li>
 <li>
-<p><strong>max_tol</strong> (float, optional) : Maximum tolerance allowed when using the iterative NIPALS algorithm. Defaults to 1e-14.
-    nipals_convergence_norm (int, optional): Order of the norm that is used to calculate the difference of 
+<p><strong>nipals_convergence_norm</strong> (int, optional): Order of the norm that is used to calculate the difference of 
     the super-score vectors between subsequential iterations of the NIPALS algorithm. 
     Following orders are available:</p>
 <table>
