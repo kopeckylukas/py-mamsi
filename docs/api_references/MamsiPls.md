@@ -29,7 +29,7 @@ For a full list of methods, please refer to the MB-PLS class [documentation](htt
     and 'KERNEL'. Defaults to 'NIPALS'.
 * **standardize** (bool, optional) : Whether to standardise the data (Unit-variance scaling). Defaults to True.
 * **max_tol** (float, optional) : Maximum tolerance allowed when using the iterative NIPALS algorithm. Defaults to 1e-14.
-    nipals_convergence_norm (int, optional): Order of the norm that is used to calculate the difference of 
+* **nipals_convergence_norm** (int, optional): Order of the norm that is used to calculate the difference of 
     the super-score vectors between subsequential iterations of the NIPALS algorithm. 
     Following orders are available:
 

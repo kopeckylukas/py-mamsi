@@ -38,7 +38,7 @@ plugins:
             show_submodules: yes
 
 nav:
-  - Home: index.md
+  - MAMSI: index.md
   - Tutorials: tutorials.md 
   - API References: 
     - ./api_references/MamsiPls.md
