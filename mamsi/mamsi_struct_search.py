@@ -851,6 +851,10 @@ class MamsiStructSearch:
                                return_nx_object=False,  output_file='interactive.html', labels=False, master_file=None):
         """
         Generates a structural network graph based on the provided master file or the loaded structural links data.
+        The method creates a network graph based on the generated structural data or the provided master file.
+        The network graph includes nodes representing features and edges representing different types of links.
+        The graph can be displayed interactively using pyvis.network or using NetworkX and matplotlib.
+        The graph can be saved as a NetworkX object if return_nx_object is True.
 
         Args:
             include_all (bool, optional): Whether to include all features in the network, even if they are not structurally linked to other features.

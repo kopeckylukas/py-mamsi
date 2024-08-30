@@ -47,7 +47,9 @@ For a full list of methods, please refer to the MB-PLS class [documentation](htt
     2     | 2-norm (largest sing. value) | as below                     |       
     -2    | smallest singular value      | as below                     |
     other | --                           | sum(abs(x)**ord)**(1./ord)   |
+    
     Defaults to 2.
+    
 * **calc_all** (bool, optional) : Whether to calculate all internal attributes for the used method. Some methods do not need
     to calculate all attributes (i.e., scores, weights) to obtain the regression coefficients used for prediction.
     Setting this parameter to False will omit these calculations for efficiency and speed. Defaults to True.
