@@ -1,9 +1,8 @@
 ![MAMSI_logo](./images/MAMSI_logo.png)
 
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://github.com/kopeckylukas/py-mamsi/blob/main/LICENCE)
-[![Docs](https://img.shields.io/badge/docs-available-brightgreen.svg)](https://kopeckylukas.github.io/py-mamsi/) 
 [![pages-build-deployment](https://github.com/kopeckylukas/py-mamsi/actions/workflows/pages/pages-build-deployment/badge.svg)](https://kopeckylukas.github.io/py-mamsi/)
-![PyPI version](https://img.shields.io/pypi/v/mamsi.svg)
+[![PyPI version](https://img.shields.io/pypi/v/mamsi.svg)](https://pypi.org/project/mamsi/)
 [![DOI](https://zenodo.org/badge/823594568.svg)](https://zenodo.org/doi/10.5281/zenodo.13619607)
 
 [MAMSI](https://github.com/kopeckylukas/py-mamsi) is a Python framework designed for the integration of multi-assay mass spectrometry datasets. 
