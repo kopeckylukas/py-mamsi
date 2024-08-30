@@ -4,6 +4,7 @@
 [![Docs](https://img.shields.io/badge/docs-available-brightgreen.svg)](https://kopeckylukas.github.io/py-mamsi/) 
 [![pages-build-deployment](https://github.com/kopeckylukas/py-mamsi/actions/workflows/pages/pages-build-deployment/badge.svg)](https://kopeckylukas.github.io/py-mamsi/)
 ![PyPI version](https://img.shields.io/pypi/v/mamsi.svg)
+[![DOI](https://zenodo.org/badge/823594568.svg)](https://zenodo.org/doi/10.5281/zenodo.13619607)
 
 [MAMSI](https://github.com/kopeckylukas/py-mamsi) is a Python framework designed for the integration of multi-assay mass spectrometry datasets. 
 In addition, the MAMSI framework provides a platform for linking statistically significant features of untargeted multi-assay liquid chromatography – mass spectrometry (LC-MS) metabolomics datasets into clusters defined by their structural properties based on mass-to-charge ratio (*m/z*) and retention time (*RT*).
@@ -86,7 +87,22 @@ The authors of this package would like to acknowledge the authors of the [mbpls]
 Further, we would like to thank Prof Simon Lovestone and Dr Shivani Misra for allowing us to use their data, AddNeuroMed [[3](#references)] and MY Diabetes [[5](#references)] respectively, for the development of this package. 
 
 # Citing us
-If you use MAMSI in a scientific publication, we would appreciate citations. The MAMSI publication is currently under the review process. 
+If you use MAMSI in a scientific publication, we would appreciate citations. 
+
+## Release
+```
+@misc{MAMSI2024,
+  author       = {Lukas Kopecky, Elizabeth J Want, Timothy MD Ebbels},
+  title        = {MAMSI: Multi-Assay Mass Spectrometry Integration},
+  year         = 2024,
+  url          = {https://doi.org/10.5281/zenodo.13619607},
+  note         = {Zenodo. Version 1.0.0},
+  doi          = {10.5281/zenodo.13619607}
+}
+```
+
+## Publication
+The MAMSI publication is currently under the review process. 
 
 # References
 [1] A. Baum and L. Vermue, "Multiblock PLS: Block dependent prediction modeling for Python," *J. Open Source Softw.*, vol. 4, no. 34, 2019, doi: [10.21105/joss.01190](https://joss.theoj.org/papers/10.21105/joss.01190).
