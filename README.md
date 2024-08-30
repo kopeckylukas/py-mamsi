@@ -39,7 +39,7 @@ You can install MAMSI from source code given you have installed both Python (>=3
 First, clone the repository from GitHub to your computer. You can use following commands if you have a version of Git installed on your computer:
 
 ```bash
-git https://github.com/kopeckylukas/py-mamsi
+git clone https://github.com/kopeckylukas/py-mamsi
 
 cd py-mamsi
 ```

@@ -12,7 +12,6 @@ setup(
     package_data={'': ['Data/Adducts/*', 'Data/ROI/*']},
     author="Lukas Kopecky",
     author_email="l.kopecky22@imperial.ac.uk",
-    description='The Multi-assay Mass Spectrometry Integration Project',
     long_description=long_description,
     long_description_content_type='text/markdown',
     description="Multi-Adduct Mass Spectrometry Integration (MAMSI) is a Python package for the integration of multimodal LC-MS and MSI data.",
