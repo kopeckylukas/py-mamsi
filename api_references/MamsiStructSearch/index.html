@@ -205,7 +205,7 @@
         
   
   <span class="md-ellipsis">
-    Home
+    MAMSI
   </span>
   
 
@@ -665,7 +665,11 @@ flat_method (str {'constant', 'silhouette'}, optional):
 <span class="p">)</span>
 </code></pre></div></p>
 <hr />
-<p>Generates a structural network graph based on the provided master file or the loaded structural links data.</p>
+<p>Generates a structural network graph based on the provided master file or the loaded structural links data.
+The method creates a network graph based on the generated structural data or the provided master file.
+The network graph includes nodes representing features and edges representing different types of links.
+The graph can be displayed interactively using pyvis.network or using NetworkX and matplotlib.
+The graph can be saved as a NetworkX object if return_nx_object is True.</p>
 <p><strong>Args</strong></p>
 <ul>
 <li><strong>include_all</strong> (bool, optional) : Whether to include all features in the network, even if they are not structurally linked to other features.
@@ -711,12 +715,6 @@ flat_method (str {'constant', 'silhouette'}, optional):
 <li><strong>RuntimeWarning</strong>  : If no data is loaded and no master file is provided.</li>
 <li><strong>RuntimeWarning</strong>  : If the provided master file is missing necessary columns.</li>
 </ul>
-<hr />
-<p>Notes:
-    - The function creates a network graph based on the provided master file or the loaded structural links data.
-    - The network graph includes nodes representing features and edges representing different types of links.
-    - The graph can be displayed interactively using pyvis.network or using NetworkX and matplotlib.
-    - The graph can be saved as a NetworkX object if return_nx_object is True.</p>
 
 
 
