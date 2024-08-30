@@ -61,17 +61,17 @@ For a full list of methods, please refer to the MB-PLS class [documentation](htt
 **Attributes**
 
 * **n_components** (int) : Number of Latent Variables (LV).
-* **Ts_** (array) : (X-Side)super scores [n,k].
-* **T_** (list) : (X-Side) block scores [i][n,k]
-* **W_** (list) : (X-Side) block weights [n][pi,k]
-* **A_** (array) : (X-Side) block importances/super weights [i,k]
-* **P_** (list, block) : (X-Side) loadings [i][pi,k]
+* **Ts_** (array) : (X-Side)super scores [n, k].
+* **T_** (list) : (X-Side) block scores [i] [n, k]
+* **W_** (list) : (X-Side) block weights [n] [pi, k]
+* **A_** (array) : (X-Side) block importances/super weights [i, k]
+* **P_** (list, block) : (X-Side) loadings [i] [pi, k]
 * **R_** (array) : (X-Side) x_rotations R=W(PTW)-1
 * **explained_var_x_** (list) : (X-Side) explained variance in X per LV [k]
-* **explained_var_xblocks_** (array) : (X-Side) explained variance in each block Xi [i,k]
-* **beta_** (array) : (X-Side) regression vector 𝛽 [p,q]
-* **U_** (array) : (Y-Side) scoresInitialize [n,k]
-* **V_** (array) : (Y-Side) loadings [q,k]
+* **explained_var_xblocks_** (array) : (X-Side) explained variance in each block Xi [i, k]
+* **beta_** (array) : (X-Side) regression vector 𝛽 [p, q]
+* **U_** (array) : (Y-Side) scoresInitialize [n, k]
+* **V_** (array) : (Y-Side) loadings [q, k]
 * **explained_var_y_** (list) : (Y-Side) explained variance in Y [k]
 A_corrected_ (array, (X-Side) normalized block importances Accor,ik=Aik⋅(1-pip)
 

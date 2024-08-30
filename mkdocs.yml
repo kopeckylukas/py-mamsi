@@ -41,6 +41,6 @@ nav:
   - Home: index.md
   - Tutorials: tutorials.md 
   - API References: 
-    - ./api_references/gendocs/MamsiPls.md
-    - ./api_references/gendocs/MamsiStructSearch.md
+    - ./api_references/MamsiPls.md
+    - ./api_references/MamsiStructSearch.md
   

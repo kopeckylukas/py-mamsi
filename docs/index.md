@@ -4,13 +4,13 @@
 [![Docs](https://img.shields.io/badge/docs-available-brightgreen.svg)](https://kopeckylukas.github.io/py-mamsi/) 
 [![pages-build-deployment](https://github.com/kopeckylukas/py-mamsi/actions/workflows/pages/pages-build-deployment/badge.svg)](https://kopeckylukas.github.io/py-mamsi/)
 
-MAMSI is a Python framework designed for the integration of multi-assay mass spectrometry datasets. 
+[MAMSI](https://github.com/kopeckylukas/py-mamsi) is a Python framework designed for the integration of multi-assay mass spectrometry datasets. 
 In addition, the MAMSI framework provides a platform for linking statistically significant features of untargeted multi-assay liquid chromatography – mass spectrometry (LC-MS) metabolomics datasets into clusters defined by their structural properties based on mass-to-charge ratio (*m/z*) and retention time (*RT*).
 
 *N.B. the framework was tested on metabolomics phenotyping data, but it should be usable with other types of LC-MS data.*
 
-# Overview
-## Features
+## Overview
+### Features
 - Data integration analysis using the Multi-Block Partial Least Squares (MB-PLS) [[1](#references)] algorithm. The `MamsiPls` class inherits from the `mbpls` package [[1](./index.md/#references)]. For more information on MB-PLS, please visit [mbpls Documentation](https://mbpls.readthedocs.io/en/latest/index.html).
 - Multi-Block Variable Importance in Projection (MB-VIP) [[2](#references)].
 - Estimation of statistically significant features (variables) using MB-VIP and permutation testing.
@@ -18,13 +18,13 @@ In addition, the MAMSI framework provides a platform for linking statistically s
 - Feature network links.
 - Annotation of untargeted LC-MS features (only supported for assays analysed by the National Phenome Centre).
 
-## Source and Materials
+### Sources and Materials
 The package source code is accessible via GitHub at [https://github.com/kopeckylukas/py-mamsi](https://github.com/kopeckylukas/py-mamsi)
 
 Training materials including sample data can be found at [https://github.com/kopeckylukas/py-mamsi-tutorials](https://github.com/kopeckylukas/py-mamsi-tutorials).
 
 # Installation 
-### Dependencies
+## Dependencies
 - mbpls==1.0.4
 - pandas
 - numpy
@@ -96,8 +96,6 @@ If you use MAMSI in a scientific publication, we would appreciate citations. The
 [7] C. A. Smith *et al.*, "XCMS:  Processing Mass Spectrometry Data for Metabolite Profiling Using Nonlinear Peak Alignment, Matching, and Identification," *Anal. Chem.*, vol. 78, no. 3, pp. 779-787, Feb 2006, doi: [10.1021/ac051437y](https://doi.org/10.1021/ac051437y).
 
 [8] C. J. Sands *et al.*, "The nPYc-Toolbox, a Python module for the pre-processing, quality-control and analysis of metabolic profiling datasets," *Bioinformatics*, vol. 35, no. 24, pp. 5359-5360, 2019, doi: [10.1093/bioinformatics/btz566](https://doi.org/10.1093/bioinformatics/btz566).
-
-[9]
 
 
 [def]: /images/MAMSI_logo.png
