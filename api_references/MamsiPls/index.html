@@ -20,7 +20,7 @@
     
     
       
-        <title>MamsiPls - MAMSI Docs</title>
+        <title>MamsiPls - MAMSI Docs 0.1.1</title>
       
     
     
@@ -90,7 +90,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="MAMSI Docs" class="md-header__button md-logo" aria-label="MAMSI Docs" data-md-component="logo">
+    <a href="../.." title="MAMSI Docs 0.1.1" class="md-header__button md-logo" aria-label="MAMSI Docs 0.1.1" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
@@ -104,7 +104,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            MAMSI Docs
+            MAMSI Docs 0.1.1
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -185,13 +185,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="MAMSI Docs" class="md-nav__button md-logo" aria-label="MAMSI Docs" data-md-component="logo">
+    <a href="../.." title="MAMSI Docs 0.1.1" class="md-nav__button md-logo" aria-label="MAMSI Docs 0.1.1" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
 
     </a>
-    MAMSI Docs
+    MAMSI Docs 0.1.1
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -380,15 +380,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#_find_plateau" class="md-nav__link">
-    <span class="md-ellipsis">
-      ._find_plateau
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -512,15 +503,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#_find_plateau" class="md-nav__link">
-    <span class="md-ellipsis">
-      ._find_plateau
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -543,47 +525,197 @@
 
 <h1 id="_1"></h1>
 <h2 id="mamsipls">MamsiPls</h2>
-<p><a href="https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L22">source</a>
+<p><a href="https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L23">source</a>
 <div class="highlight"><pre><span></span><code><span class="n">MamsiPls</span><span class="p">(</span>
    <span class="n">n_components</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">full_svd</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="s1">&#39;NIPALS&#39;</span><span class="p">,</span> <span class="n">standardize</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
    <span class="n">max_tol</span> <span class="o">=</span> <span class="mf">1e-14</span><span class="p">,</span> <span class="n">nipals_convergence_norm</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">calc_all</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">sparse_data</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
    <span class="n">copy</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span>
 </code></pre></div></p>
+<hr />
+<p>A class that extends the MB_PLS class by extra methods convenient in Chemometrics and Metabolomics research. 
+It is based on MB-PLS package: Baum et al., (2019). Multiblock PLS: Block dependent prediction modeling for Python.
+This wrapper has some extra methods convenient in Chemometrics and Metabolomics research.</p>
+<p>For a full list of methods, please refer to the MB-PLS class <a href="https://mbpls.readthedocs.io/en/latest/index.html">documentation</a>.</p>
+<p><strong>Args</strong></p>
+<ul>
+<li><strong>n_components</strong> (int, optional) : A number of Latent Variables (LV). Defaults to 2.</li>
+<li><strong>full_svd</strong> (bool, optional) : Whether to use full singular value decomposition when performing the SVD method. 
+    Set to False when using very large quadratic matrices (X). Defaults to False.</li>
+<li><strong>method</strong> (str, optional) : The method used to derive the model attributes. Options are 'UNIPALS', 'NIPALS', 'SIMPLS', 
+    and 'KERNEL'. Defaults to 'NIPALS'.</li>
+<li><strong>standardize</strong> (bool, optional) : Whether to standardise the data (Unit-variance scaling). Defaults to True.</li>
+<li>
+<p><strong>max_tol</strong> (float, optional) : Maximum tolerance allowed when using the iterative NIPALS algorithm. Defaults to 1e-14.
+    nipals_convergence_norm (int, optional): Order of the norm that is used to calculate the difference of 
+    the super-score vectors between subsequential iterations of the NIPALS algorithm. 
+    Following orders are available:</p>
+<table>
+<thead>
+<tr>
+<th>ord</th>
+<th>norm for matrices</th>
+<th>norm for vectors</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>None</td>
+<td>Frobenius norm</td>
+<td>2-norm</td>
+</tr>
+<tr>
+<td>'fro'</td>
+<td>Frobenius norm</td>
+<td>--</td>
+</tr>
+<tr>
+<td>'nuc'</td>
+<td>nuclear norm</td>
+<td>--</td>
+</tr>
+<tr>
+<td>inf</td>
+<td>max(sum(abs(x), axis=1))</td>
+<td>max(abs(x))</td>
+</tr>
+<tr>
+<td>-inf</td>
+<td>min(sum(abs(x), axis=1))</td>
+<td>min(abs(x))</td>
+</tr>
+<tr>
+<td>0</td>
+<td>--</td>
+<td>sum(x != 0)</td>
+</tr>
+<tr>
+<td>1</td>
+<td>max(sum(abs(x), axis=0))</td>
+<td>as below</td>
+</tr>
+<tr>
+<td>-1</td>
+<td>min(sum(abs(x), axis=0))</td>
+<td>as below</td>
+</tr>
+<tr>
+<td>2</td>
+<td>2-norm (largest sing. value)</td>
+<td>as below</td>
+</tr>
+<tr>
+<td>-2</td>
+<td>smallest singular value</td>
+<td>as below</td>
+</tr>
+<tr>
+<td>other</td>
+<td>--</td>
+<td>sum(abs(x)<strong>ord)</strong>(1./ord)</td>
+</tr>
+<tr>
+<td>Defaults to 2.</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>* <strong>calc_all</strong> (bool, optional) : Whether to calculate all internal attributes for the used method. Some methods do not need</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>to calculate all attributes (i.e., scores, weights) to obtain the regression coefficients used for prediction.</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Setting this parameter to False will omit these calculations for efficiency and speed. Defaults to True.</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>* <strong>sparse_data</strong> (bool, optional) : NIPALS is the only algorithm that can handle sparse data using the method of H. Martens</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>and Martens (2001) (p. 381). If this parameter is set to True, the method will be forced to NIPALS and sparse data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>is allowed. Without setting this parameter to True, sparse data will not be accepted. Defaults to False.</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>* <strong>copy</strong> (bool, optional) : Whether the deflation should be done on a copy. Not using a copy might alter the input data</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>and have unforeseeable consequences. Defaults to True.</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<p><strong>Attributes</strong></p>
+<ul>
+<li><strong>n_components</strong> (int) : Number of Latent Variables (LV).</li>
+<li><strong>Ts_</strong> (array) : (X-Side)super scores [n, k].</li>
+<li><strong>T_</strong> (list) : (X-Side) block scores [i] [n, k]</li>
+<li><strong>W_</strong> (list) : (X-Side) block weights [n] [pi, k]</li>
+<li><strong>A_</strong> (array) : (X-Side) block importances/super weights [i, k]</li>
+<li><strong>P_</strong> (list, block) : (X-Side) loadings [i] [pi, k]</li>
+<li><strong>R_</strong> (array) : (X-Side) x_rotations R=W(PTW)-1</li>
+<li><strong>explained_var_x_</strong> (list) : (X-Side) explained variance in X per LV [k]</li>
+<li><strong>explained_var_xblocks_</strong> (array) : (X-Side) explained variance in each block Xi [i, k]</li>
+<li><strong>beta_</strong> (array) : (X-Side) regression vector 𝛽 [p, q]</li>
+<li><strong>U_</strong> (array) : (Y-Side) scoresInitialize [n, k]</li>
+<li><strong>V_</strong> (array) : (Y-Side) loadings [q, k]</li>
+<li><strong>explained_var_y_</strong> (list) : (Y-Side) explained variance in Y [k]
+A_corrected_ (array, (X-Side) normalized block importances Accor,ik=Aik⋅(1-pip)</li>
+</ul>
 <p><strong>Methods:</strong></p>
 <h3 id="estimate_lv">.estimate_lv</h3>
-<p><a href="https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L70">source</a>
+<p><a href="https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L91">source</a>
 <div class="highlight"><pre><span></span><code><span class="o">.</span><span class="n">estimate_lv</span><span class="p">(</span>
    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">n_components</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">no_fold</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">y_continuous</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">metric</span> <span class="o">=</span> <span class="s1">&#39;auc&#39;</span><span class="p">,</span>
    <span class="n">plateau_threshold</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span> <span class="n">increase_threshold</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span> <span class="n">get_scores</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span>
 </code></pre></div></p>
 <hr />
-<p>Method to estimate the number of latent variables (components) for MAMSI MB-PLS model.</p>
+<p>A method to estimate the number of latent variables (LVs)/components in the MB-PLS model.</p>
 <p><strong>Args</strong></p>
 <ul>
 <li><strong>x</strong> (array or list[array]) : All blocks of predictors x1, x2, ..., xn. Rows are observations, columns are features/variables.</li>
-<li><strong>y</strong> (array) : 1-dim or 2-dim array of reference values, either continuous or categorical variable.</li>
-<li><strong>n_components</strong> (int, optional) : Number of components / latent variables. Defaults to 10.</li>
+<li><strong>y</strong> (array) : A 1-dim or 2-dim array of reference values, either continuous or categorical variable.</li>
+<li><strong>n_components</strong> (int, optional) : Number of components/LVs. Defaults to 10.</li>
 <li><strong>no_fold</strong> (int, optional) : Number of folds for k-fold cross-validation. Defaults to 5.</li>
 <li><strong>y_continuous</strong> (bool, optional) : Whether the outcome is a continuous variable. Defaults to False.</li>
-<li><strong>metric</strong> (str, optional) : Metric to use to estimate the number of LVs; available options: ['AUC', 'q2', 'precision', 'recall', 'f1']. Defaults to 'AUC'.</li>
+<li><strong>metric</strong> (str, optional) : Metric to use to estimate the number of LVs; available options: ['AUC', 'precision', 'recall', 'f1'] for 
+    categorical outcome variables and ['q2'] for continuous outcome variable. 
+    Defaults to 'AUC'.</li>
 <li><strong>plateau_threshold</strong> (float, optional) : Maximum increase for a sequence of LVs to be considered a plateau. Must be non-negative. Defaults to 0.01.</li>
 <li><strong>increase_threshold</strong> (float, optional) : Minimum increase to be considered a bend. Must be non-negative. Defaults to 0.05.</li>
-<li><strong>get_scores</strong> (bool, optional) : Whether to return measured scores as a dataframe. Defaults to False.</li>
+<li><strong>get_scores</strong> (bool, optional) : Whether to return measured scores as a Pandas DataFrame. Defaults to False.</li>
 </ul>
 <p><strong>Returns</strong></p>
 <ul>
-<li><strong>DataFrame</strong>  : Measured scores as a Pandas dataframe.</li>
+<li><strong>DataFrame</strong>  : Measured scores as a Pandas DataFrame.</li>
 </ul>
 <h3 id="evaluate_class_model">.evaluate_class_model</h3>
-<p><a href="https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L273">source</a>
+<p><a href="https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L296">source</a>
 <div class="highlight"><pre><span></span><code><span class="o">.</span><span class="n">evaluate_class_model</span><span class="p">(</span>
    <span class="n">x</span><span class="p">,</span> <span class="n">y</span>
 <span class="p">)</span>
 </code></pre></div></p>
 <hr />
-<p>Evaluate classfication MB-PLS model using a <strong>testing</strong> dataset.</p>
+<p>Evaluate classification MB-PLS model using a <strong>testing</strong> dataset.</p>
 <p><strong>Args</strong></p>
 <ul>
 <li><strong>x</strong> (array or list[array]) : All blocks of predictors x1, x2, ..., xn. Rows are observations, columns are features/variables.</li>
@@ -594,13 +726,13 @@
 <li><strong>array</strong>  : Predicted y variable based on training set predictors.</li>
 </ul>
 <h3 id="evaluate_regression_model">.evaluate_regression_model</h3>
-<p><a href="https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L314">source</a>
+<p><a href="https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L337">source</a>
 <div class="highlight"><pre><span></span><code><span class="o">.</span><span class="n">evaluate_regression_model</span><span class="p">(</span>
    <span class="n">x</span><span class="p">,</span> <span class="n">y</span>
 <span class="p">)</span>
 </code></pre></div></p>
 <hr />
-<p>Evaulate regression MB-PLS model using a <strong>testing</strong> dataset.</p>
+<p>Evaluate regression MB-PLS model using a <strong>testing</strong> dataset.</p>
 <p><strong>Args</strong></p>
 <ul>
 <li><strong>x</strong> (array or list[array]) : All blocks of predictors x1, x2, ..., xn. Rows are observations, columns are features/variables.</li>
@@ -611,7 +743,7 @@
 <li><strong>array</strong>  : Predicted y variable based on training set predictors.</li>
 </ul>
 <h3 id="mb_vip">.mb_vip</h3>
-<p><a href="https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L356">source</a>
+<p><a href="https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L379">source</a>
 <div class="highlight"><pre><span></span><code><span class="o">.</span><span class="n">mb_vip</span><span class="p">(</span>
    <span class="n">plot</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span>
@@ -628,22 +760,22 @@
 <li><strong>array</strong>  : MB-VIP scores.</li>
 </ul>
 <h3 id="mb_vip_permtest">.mb_vip_permtest</h3>
-<p><a href="https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L391">source</a>
+<p><a href="https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L414">source</a>
 <div class="highlight"><pre><span></span><code><span class="o">.</span><span class="n">mb_vip_permtest</span><span class="p">(</span>
    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">n_permutations</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">return_scores</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span>
 </code></pre></div></p>
 <hr />
 <p>Calculate empirical p-values for each feature by permuting the Y outcome variable <code>n_permutations</code> times and
-refitting the model. The p-values for each feature are then calculated by counting the number of trials with
+refitting the model. The p-values for each feature are calculated by counting the number of trials with
 MB-VIP greater than or equal to the observed test statistic, and dividing this by <code>n_permutations</code>.</p>
-<p>N.B. This method uses OpenMP to parallelise the code, relying on multi-threading exclusively. By default,
+<p>N.B. This method uses OpenMP to parallelise the code that relies on multi-threading exclusively. By default,
 the implementations using OpenMP will use as many threads as possible, i.e. as many threads as logical cores.
 This is available by default on systems with macOS and MS Windows.
-Running this method on a High Performance Computing (HPC) system, including Imperial College London HPC, requires
-additional Joblib parallelisation. A parallelised permtest function can be found in the ./Extras directory
-as <code>parallel_mb_vip_permtest.py</code>. If you are an Imperial colleague, do not hesitate to contact me for support on how
-to set up a PBS file.</p>
+Running this method on a computer clusters / High Performance Computing (HPC) system, including Imperial HPC, requires
+additional Joblib parallelisation. A parallelised permutation test function can be found at function can be found in the 
+<a href="https://github.com/kopeckylukas/py-mamsi-tutorials">MAMSI Tutorials repository</a>. If you are an Imperial colleague, 
+do not hesitate to contact me for support on how to set up the configuration PBS file for this job.</p>
 <p><strong>Args</strong></p>
 <ul>
 <li><strong>x</strong> (array or list[array]) : All blocks of predictors x1, x2, ..., xn. Rows are observations, columns are features/variables.</li>
@@ -655,24 +787,6 @@ to set up a PBS file.</p>
 <ul>
 <li><strong>array</strong>  : Returns an array of p-values for each feature. If <code>return_scores</code> is True, then a matrix of MB-VIP scores
 for each permuted null model is returned as well.</li>
-</ul>
-<h3 id="_find_plateau">._find_plateau</h3>
-<p><a href="https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L454">source</a>
-<div class="highlight"><pre><span></span><code><span class="o">.</span><span class="n">_find_plateau</span><span class="p">(</span>
-   <span class="n">scores</span><span class="p">,</span> <span class="n">range_threshold</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span> <span class="n">consecutive_elements</span> <span class="o">=</span> <span class="mi">3</span>
-<span class="p">)</span>
-</code></pre></div></p>
-<hr />
-<p>Function to assist in finding a plateau in a sequence of LVs.</p>
-<p><strong>Args</strong></p>
-<ul>
-<li><strong>scores</strong> (list[float]) : List of scores.</li>
-<li><strong>range_threshold</strong> (float, optional) : Maximum increase for a sequence of LVs to be considered a plateau. Defaults to 0.01.</li>
-<li><strong>consecutive_elements</strong> (int, optional) : Number of elements that need to be in a plateau. Defaults to 3.</li>
-</ul>
-<p><strong>Returns</strong></p>
-<ul>
-<li><strong>tuple</strong>  : Beginning and end indices of the plateau.</li>
 </ul>
 
 

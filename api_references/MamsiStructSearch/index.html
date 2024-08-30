@@ -18,7 +18,7 @@
     
     
       
-        <title>MamsiStructSearch - MAMSI Docs</title>
+        <title>MamsiStructSearch - MAMSI Docs 0.1.1</title>
       
     
     
@@ -88,7 +88,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="MAMSI Docs" class="md-header__button md-logo" aria-label="MAMSI Docs" data-md-component="logo">
+    <a href="../.." title="MAMSI Docs 0.1.1" class="md-header__button md-logo" aria-label="MAMSI Docs 0.1.1" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
@@ -102,7 +102,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            MAMSI Docs
+            MAMSI Docs 0.1.1
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -183,13 +183,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="MAMSI Docs" class="md-nav__button md-logo" aria-label="MAMSI Docs" data-md-component="logo">
+    <a href="../.." title="MAMSI Docs 0.1.1" class="md-nav__button md-logo" aria-label="MAMSI Docs 0.1.1" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
 
     </a>
-    MAMSI Docs
+    MAMSI Docs 0.1.1
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -382,24 +382,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#get_neutral_mass" class="md-nav__link">
-    <span class="md-ellipsis">
-      .get_neutral_mass
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#_mean_ppm_diff" class="md-nav__link">
-    <span class="md-ellipsis">
-      ._mean_ppm_diff
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#get_correlation_clusters" class="md-nav__link">
     <span class="md-ellipsis">
       .get_correlation_clusters
@@ -502,24 +484,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#get_neutral_mass" class="md-nav__link">
-    <span class="md-ellipsis">
-      .get_neutral_mass
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#_mean_ppm_diff" class="md-nav__link">
-    <span class="md-ellipsis">
-      ._mean_ppm_diff
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#get_correlation_clusters" class="md-nav__link">
     <span class="md-ellipsis">
       .get_correlation_clusters
@@ -565,7 +529,9 @@
 <span class="p">)</span>
 </code></pre></div></p>
 <hr />
-<p>A class for performing structural search on LC-MS data using.</p>
+<p>A class for performing structural search on multi-modal MS data using.
+The class allows to search for structural signatures in LC-MS data based on their m/z and RT.
+These structural signatures include isotopologues and adduct patterns.</p>
 <p><strong>Attributes</strong></p>
 <ul>
 <li><strong>assay_links</strong> (list) : List of data frames containing links for each assay.</li>
@@ -573,13 +539,16 @@
 <li><strong>rt_win</strong> (int) : Retention time tolerance window.</li>
 <li><strong>ppm</strong> (int) : Mass-to-charge ratio (m/z) tolerance in ppm.</li>
 <li><strong>feature_metadata</strong> (pandas.DataFrame) : Data frame containing feature metadata extracted from column names.</li>
+<li><strong>structural_links</strong> (pandas.DataFrame) : Data frame containing structural clusters.</li>
 </ul>
-<hr />
-<p>Methods:
-    get_correlation_clusters(visualise=True): Find correlation clusters for MB-PLS features.</p>
+<p><strong>Args</strong></p>
+<ul>
+<li><strong>rt_win</strong> (int, optional) : Retention time tolerance window. Defaults to 5.</li>
+<li><strong>ppm</strong> (int, optional) : Mass-to-charge ratio (m/z) tolerance in ppm. Defaults to 15.</li>
+</ul>
 <p><strong>Methods:</strong></p>
 <h3 id="load_msi">.load_msi</h3>
-<p><a href="https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_struct_search.py/#L64">source</a>
+<p><a href="https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_struct_search.py/#L58">source</a>
 <div class="highlight"><pre><span></span><code><span class="o">.</span><span class="n">load_msi</span><span class="p">(</span>
    <span class="n">df</span>
 <span class="p">)</span>
@@ -599,7 +568,7 @@
 </li>
 </ul>
 <h3 id="load_lcms">.load_lcms</h3>
-<p><a href="https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_struct_search.py/#L108">source</a>
+<p><a href="https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_struct_search.py/#L102">source</a>
 <div class="highlight"><pre><span></span><code><span class="o">.</span><span class="n">load_lcms</span><span class="p">(</span>
    <span class="n">df</span>
 <span class="p">)</span>
@@ -619,24 +588,24 @@
 </li>
 </ul>
 <h3 id="get_structural_clusters">.get_structural_clusters</h3>
-<p><a href="https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_struct_search.py/#L156">source</a>
+<p><a href="https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_struct_search.py/#L150">source</a>
 <div class="highlight"><pre><span></span><code><span class="o">.</span><span class="n">get_structural_clusters</span><span class="p">(</span>
    <span class="n">adducts</span> <span class="o">=</span> <span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="n">annotate</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span>
 </code></pre></div></p>
 <hr />
 <p>Searches structural signatures in LC-MS data based on their m/z and RT. These structural signatures include 
-isotopologues and adduct patterns.</p>
+isotopologues, adduct patterns and cross-assay links.</p>
 <p><strong>Args</strong></p>
 <ul>
 <li><strong>adducts</strong> (str, optional) : Define what type of adducts to . 
     Possible values are:
         - 'all': All adducts combinations (based on Fiehn Lab adduct calculator).
-        - 'most-common': Most common adducts for ESI (based on Waters documentation).
+        - 'most-common': Most common adducts for ESI (based on Waters adducts documentation).
     Defaults to 'all'.</li>
 <li><strong>annotate</strong> (bool, optional) : Annotate significant features based on National Phenome Centre RIO data.
     Only to be run if the data was analysed by the National Phenome Centre or analysis followed their
-    conventions and protocls. For more infomrmation see https://doi.org/10.1021/acs.analchem.6b01481 
+    conventions and protocols. For more information see https://doi.org/10.1021/acs.analchem.6b01481 
     or https://phenomecentre.org.
     Uses semi-targeted annotations for selected compounds.
     Defaults to True.</li>
@@ -645,50 +614,17 @@ isotopologues and adduct patterns.</p>
 <ul>
 <li><strong>list</strong> (pandas.DataFrame) : DataFrame of significant features with structural clusters.</li>
 </ul>
-<h3 id="get_neutral_mass">.get_neutral_mass</h3>
-<p><a href="https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_struct_search.py/#L327">source</a>
-<div class="highlight"><pre><span></span><code><span class="o">.</span><span class="n">get_neutral_mass</span><span class="p">(</span>
-   <span class="n">features</span><span class="p">,</span> <span class="n">adducts</span> <span class="o">=</span> <span class="s1">&#39;all&#39;</span>
-<span class="p">)</span>
-</code></pre></div></p>
-<hr />
-<p>Calculate potential neutral masses for all m/z features.</p>
-<p><strong>Args</strong></p>
-<ul>
-<li><strong>features</strong> (pandas.DataFrame) : DataFrame containing m/z features.</li>
-<li><strong>adducts</strong> (str, optional) : DataFrame with ion masses and names. Defaults to 'all'.</li>
-</ul>
-<p><strong>Returns</strong></p>
-<ul>
-<li><strong>DataFrame</strong>  : DataFrame with m/z and hypothetical neutral masses for given adducts.</li>
-</ul>
-<h3 id="_mean_ppm_diff">._mean_ppm_diff</h3>
-<p><a href="https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_struct_search.py/#L685">source</a>
-<div class="highlight"><pre><span></span><code><span class="o">.</span><span class="n">_mean_ppm_diff</span><span class="p">(</span>
-   <span class="n">x</span><span class="p">,</span> <span class="n">y</span>
-<span class="p">)</span>
-</code></pre></div></p>
-<hr />
-<p>Calculates the mean PPM difference between two numbers.</p>
-<p><strong>Args</strong></p>
-<ul>
-<li><strong>x</strong> (float) : The first number.</li>
-<li><strong>y</strong> (float) : The second number.</li>
-</ul>
-<p><strong>Returns</strong></p>
-<ul>
-<li><strong>float</strong>  : Mean PPM difference between <code>x</code> and <code>y</code>.</li>
-</ul>
 <h3 id="get_correlation_clusters">.get_correlation_clusters</h3>
-<p><a href="https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_struct_search.py/#L701">source</a>
+<p><a href="https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_struct_search.py/#L705">source</a>
 <div class="highlight"><pre><span></span><code><span class="o">.</span><span class="n">get_correlation_clusters</span><span class="p">(</span>
    <span class="n">flat_method</span> <span class="o">=</span> <span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="n">cut_threshold</span> <span class="o">=</span> <span class="mf">0.7</span><span class="p">,</span> <span class="n">max_clusters</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
-   <span class="n">cor_method</span> <span class="o">=</span> <span class="s1">&#39;pearson&#39;</span><span class="p">,</span> <span class="n">linkage_method</span> <span class="o">=</span> <span class="s1">&#39;complete&#39;</span><span class="p">,</span> <span class="n">metric</span> <span class="o">=</span> <span class="s1">&#39;euclidian&#39;</span><span class="p">,</span>
+   <span class="n">cor_method</span> <span class="o">=</span> <span class="s1">&#39;pearson&#39;</span><span class="p">,</span> <span class="n">linkage_method</span> <span class="o">=</span> <span class="s1">&#39;complete&#39;</span><span class="p">,</span> <span class="n">metric</span> <span class="o">=</span> <span class="s1">&#39;euclidean&#39;</span><span class="p">,</span>
    <span class="o">**</span><span class="n">kwargs</span>
 <span class="p">)</span>
 </code></pre></div></p>
 <hr />
-<p>Clusters features based on their correlation. The method uses hierarchical clustering to create clusters.</p>
+<p>Clusters features based on their correlations. The method uses hierarchical clustering to create clusters.
+To flatten clusters, the method uses either a constant threshold or silhouette score.</p>
 <p><strong>Args</strong></p>
 <ul>
 <li>Flattens clusters based on a constant threshold (cut_threshold).<ul>
@@ -697,10 +633,10 @@ Defaults to 'constant'.</li>
 </ul>
 </li>
 <li><strong>cut_threshold</strong> (float, optional) : Constant threshold for flattening clusters. Defaults to 0.7.</li>
-<li><strong>max_clusters</strong> (int, optional) : Maximum number of clusters for silhouete method. Defaults to 5.</li>
-<li><strong>cor_method</strong> (str {'pearson', 'kendall', 'spearman'}, optional) : Mehthod for calculation correlations. Defaults to 'pearson'.</li>
-<li><strong>linkage_method</strong> (str, optional) : Which linkage criterion to use. The linkage criterion determines which distance to use between sets of observation.
-    The algorithm will merge the pairs of cluster that minimize this criterion.<ul>
+<li><strong>max_clusters</strong> (int, optional) : Maximum number of clusters for silhouette method. Defaults to 5.</li>
+<li><strong>cor_method</strong> (str {'pearson', 'kendall', 'spearman'}, optional) : Method for calculation correlations. Defaults to 'pearson'.</li>
+<li><strong>linkage_method</strong> (str, optional) : The linkage criterion determines which distance to use between sets of observation.
+    The algorithm will merge the pairs of cluster that minimise this criterion.<ul>
 <li>'single': Single linkage minimises the maximum distance between observations of pairs of clusters.</li>
 <li>'complete': Complete linkage minimises the maximum distance between observations of pairs of clusters.</li>
 <li>'average': Average linkage minimises the average of the distances between all observations of pairs of clusters.</li>
@@ -717,12 +653,12 @@ Defaults to 'complete'.</li>
 <li><strong>metric</strong> (str, optional) : The distance metric to use. The metric to use when calculating distance between instances in a feature array.
     Metric used to compute the linkage. Can be “euclidean”, “l1”, “l2”, “manhattan”, “cosine”, or “precomputed”.
     If linkage is “ward”, only “euclidean” is accepted. If “precomputed”, a distance matrix is needed as input for the fit method.
-    Defaults to 'euclidian'.
+    Defaults to 'euclidean'.
 flat_method (str {'constant', 'silhouette'}, optional):
     Method for cluster flattening:</li>
 </ul>
 <h3 id="get_structural_network">.get_structural_network</h3>
-<p><a href="https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_struct_search.py/#L845">source</a>
+<p><a href="https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_struct_search.py/#L850">source</a>
 <div class="highlight"><pre><span></span><code><span class="o">.</span><span class="n">get_structural_network</span><span class="p">(</span>
    <span class="n">include_all</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">interactive</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">return_nx_object</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
    <span class="n">output_file</span> <span class="o">=</span> <span class="s1">&#39;interactive.html&#39;</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">master_file</span> <span class="o">=</span> <span class="kc">None</span>
@@ -746,7 +682,7 @@ flat_method (str {'constant', 'silhouette'}, optional):
     Only applicable when interactive is False. 
     Defaults to False.</li>
 <li><strong>master_file</strong> (pd.DataFrame, optional) : The master file containing necessary columns for generating the network.
-    This is intended for cases when strucutural links required manual curation (e.g. manualy assigned isotopologue groups, adduct groups, etc.)
+    This is intended for cases when structural links required manual curation (e.g. manually assigned isotopologue groups, adduct groups, etc.)
     If not provided, the function uses the loaded structural links data.
     Required columns: 
         - Feature: Feature ID (e.g. HPOS_233.25_149.111m/z)
@@ -756,7 +692,7 @@ flat_method (str {'constant', 'silhouette'}, optional):
         - Adduct group (groups features with similar adduct patterns)
         - Adduct (adduct label, e.g. [M+H]+, [M-H]-)
         - Structural cluster (groups features with similar isotopologue and adduct patterns)
-        - Correlation cluster (flattedned hierarchical cluster from get_correlation_clusters()
+        - Correlation cluster (flattened hierarchical cluster from get_correlation_clusters()
         - Cross-assay link (links features across different assays)
         - cpdName (compound name, optional)
     Defaults to None.</li>
@@ -779,7 +715,7 @@ flat_method (str {'constant', 'silhouette'}, optional):
 <p>Notes:
     - The function creates a network graph based on the provided master file or the loaded structural links data.
     - The network graph includes nodes representing features and edges representing different types of links.
-    - The graph can be displayed interactively using pyvis.network or using networkx and matplotlib.
+    - The graph can be displayed interactively using pyvis.network or using NetworkX and matplotlib.
     - The graph can be saved as a NetworkX object if return_nx_object is True.</p>
 
 
