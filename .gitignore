@@ -12,3 +12,4 @@ dist/
 mamsi.egg-info/
 site/
 pyproject.toml
+temp_data/
