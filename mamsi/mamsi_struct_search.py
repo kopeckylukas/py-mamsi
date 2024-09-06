@@ -737,9 +737,9 @@ class MamsiStructSearch:
         """
        
         # Check if data were loaded
-        if self.feature_metadata is None:
+        if self.structural_links is None:
             warnings.simplefilter('error', RuntimeWarning)
-            warnings.warn("No data loaded. Use 'load_lcms()' to load data.",
+            warnings.warn("You have to first run structural searcher.",
                           RuntimeWarning)
 
         # Validate the input method
@@ -755,6 +755,9 @@ class MamsiStructSearch:
         correlation = df.corr(method=cor_method)
         # Calculate dissimilarity
         dissimilarity = 1 - abs(correlation)
+
+        # Reorder the structural links by original metadata order
+        self.structural_links = self.structural_links.merge(self.feature_metadata[['Feature']], on='Feature', how='right')
 
         if flat_method == 'constant':
         # Check if metadata have been loaded
