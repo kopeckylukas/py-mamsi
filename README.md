@@ -1,6 +1,6 @@
 ![MAMSI_logo](https://github.com/kopeckylukas/py-mamsi/blob/main/docs/images/MAMSI_logo.png?raw=true)
 
-[![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](LICENCE)
+[![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://github.com/kopeckylukas/py-mamsi/blob/main/LICENCE)
 [![Docs](https://img.shields.io/badge/docs-available-brightgreen.svg)](https://kopeckylukas.github.io/py-mamsi/) 
 [![pages-build-deployment](https://github.com/kopeckylukas/py-mamsi/actions/workflows/pages/pages-build-deployment/badge.svg)](https://kopeckylukas.github.io/py-mamsi/)
 [![PyPI version](https://img.shields.io/pypi/v/mamsi.svg)](https://pypi.org/project/mamsi/)
