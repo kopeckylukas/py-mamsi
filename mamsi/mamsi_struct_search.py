@@ -63,10 +63,7 @@ class MamsiStructSearch:
             df (pandas.DataFrame): Data frame with MSI intensity data.
                 - rows: samples
                 - columns: features (m/z peaks)
-                    Column names in the format:
-                        <m/z>
-                    For example:
-                        149.111
+                    Column names in the format: *(m/z)* For example: *149.111*
         """
 
         _df = df.copy()
@@ -106,11 +103,8 @@ class MamsiStructSearch:
         Args:
             df (pandas.DataFrame): Data frame with LC-MS intensity data.
                 - rows: samples
-                - columns: features (LC-MS peaks)
-                    Column names in the format:
-                        <Assay Name>_<RT in sec>_<m/z>m/z
-                    For example:
-                        HPOS_233.25_149.111m/z
+                - columns: features (LC-MS peaks). Column names in the format: **(AssayName)_(RTsec)_(m/z)m/z**.
+                        For example: **HPOS_233.25_149.111m/z**
         """
 
         _df = df.copy()
@@ -155,8 +149,8 @@ class MamsiStructSearch:
         Args:
             adducts (str, optional): Define what type of adducts to . 
                 Possible values are:
-                    - 'all': All adducts combinations (based on Fiehn Lab adduct calculator).
-                    - 'most-common': Most common adducts for ESI (based on Waters adducts documentation).
+                - 'all': All adducts combinations (based on Fiehn Lab adduct calculator).
+                - 'most-common': Most common adducts for ESI (based on Waters adducts documentation).
                 Defaults to 'all'.
             annotate (bool, optional): Annotate significant features based on National Phenome Centre RIO data.
                 Only to be run if the data was analysed by the National Phenome Centre or analysis followed their
@@ -876,25 +870,25 @@ class MamsiStructSearch:
             master_file (pd.DataFrame, optional): The master file containing necessary columns for generating the network.
                 This is intended for cases when structural links required manual curation (e.g. manually assigned isotopologue groups, adduct groups, etc.)
                 If not provided, the function uses the loaded structural links data.
-                Required columns: 
-                    - Feature: Feature ID (e.g. HPOS_233.25_149.111m/z)
-                    - Assay: Assay name (e.g. HPOS)
-                    - Isotopologue group (groups features with similar isotopologue patterns)
-                    - Isotopologue pattern (e.g. 0, 1, 2 ... N representing M+0, M+1, M+2 ... M+N)
-                    - Adduct group (groups features with similar adduct patterns)
-                    - Adduct (adduct label, e.g. [M+H]+, [M-H]-)
-                    - Structural cluster (groups features with similar isotopologue and adduct patterns)
-                    - Correlation cluster (flattened hierarchical cluster from get_correlation_clusters()
-                    - Cross-assay link (links features across different assays)
-                    - cpdName (compound name, optional)
+                **Required columns:** 
+                - 'Feature': Feature ID (e.g. HPOS_233.25_149.111m/z). Required.
+                - 'Assay': Assay name (e.g. HPOS). Required.
+                - 'Isotopologue group': Grouped features with similar isotopologue patterns (e.g. 1, 2 ... N). Required.
+                - 'Isotopologue pattern': Representing M+0, M+1, M+2 ... M+N for each isotopologue group (e.g. 0, 1, 2 ... N). Required.
+                - 'Adduct group': Grouped features with similar adduct patterns (e.g. 1, 2 ... N). Required.
+                - 'Adduct': Assigned adduct labels to all features within an adduct group (e.g. [M+H]+, [M-H]-). Required.
+                - 'Structural cluster': Grouped features based on the intersection of isotopologue and adduct clusters (e.g. 1, 2, 3 ... N). Required.
+                - 'Correlation cluster': Grouped flattened correlation clusters (e.g. 1, 2, 3 ... N). Required.
+                - 'Cross-assay link': Linked structural clusters between different assays. Required.
+                - 'cpdName': Compound name (e.g. Caffeine). Optional.
                 Defaults to None.
 
         Returns:
             NetworkX.Graph or None: The NetworkX object representing the network graph, if return_nx_object is True.
                 Edge weights represent the type of link between features:
-                    - Isotopologue: 1
-                    - Adduct: 5
-                    - Cross-assay link: 10
+                - Isotopologue: 1
+                - Adduct: 5
+                - Cross-assay link: 10
                 Otherwise, None.
                                     
 
