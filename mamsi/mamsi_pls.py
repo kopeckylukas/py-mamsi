@@ -88,7 +88,7 @@ class MamsiPls(MBPLS):
                          calc_all, sparse_data, copy)
         
 
-    def estimate_lv(self, x, y, n_components=10, no_fold=5, y_continuous=False, metric='auc',
+    def estimate_lv(self, x, y, max_components=10, n_splits=5, y_continuous=False, metric='auc',
                     plateau_threshold=0.01, increase_threshold=0.05, get_scores=False):
         """
         A method to estimate the number of latent variables (LVs)/components in the MB-PLS model.
@@ -96,8 +96,8 @@ class MamsiPls(MBPLS):
         Args:
             x (array or list[array]): All blocks of predictors x1, x2, ..., xn. Rows are observations, columns are features/variables.
             y (array): A 1-dim or 2-dim array of reference values, either continuous or categorical variable.
-            n_components (int, optional): Number of components/LVs. Defaults to 10.
-            no_fold (int, optional): Number of folds for k-fold cross-validation. Defaults to 5.
+            max_components (int, optional): Number of components/LVs. Defaults to 10.
+            n_splits (int, optional): Number of splits for k-fold cross-validation. Defaults to 5.
             y_continuous (bool, optional): Whether the outcome is a continuous variable. Defaults to False.
             metric (str, optional): Metric to use to estimate the number of LVs; available options: ['AUC', 'precision', 'recall', 'f1'] for 
                 categorical outcome variables and ['q2'] for continuous outcome variable. 
@@ -148,11 +148,11 @@ class MamsiPls(MBPLS):
         q2_accuracy = []
 
         # define splits
-        kf = KFold(n_splits=no_fold)
+        kf = KFold(n_splits=n_splits)
         kf.get_n_splits(response_y)
 
         # Estimation of scores for different number of latent variables / components.
-        for i in range(1, n_components + 1):
+        for i in range(1, max_components + 1):
 
             # Set LV scores placeholder lists
             lv_r2 = []
@@ -229,10 +229,10 @@ class MamsiPls(MBPLS):
                 q2_accuracy.append(statistics.mean(lv_q2_accuracy))
 
         if y_continuous:
-            perf_scores = pd.DataFrame([range(1, n_components + 1), r2, q2],
+            perf_scores = pd.DataFrame([range(1, max_components + 1), r2, q2],
                                        index=['Number of Components', 'r2', 'q2']).T
         else:
-            perf_scores = pd.DataFrame([range(1, n_components + 1), r2_auc, r2_precision, r2_recall, r2_f1,
+            perf_scores = pd.DataFrame([range(1, max_components + 1), r2_auc, r2_precision, r2_recall, r2_f1,
                                         r2_accuracy, q2_auc, q2_precision, q2_recall, q2_f1, q2_accuracy],
                                        index=['Number of Components', 'Training AUC', 'Training Precision',
                                               'Training Recall', 'Training F1 Score', 'Training Accuracy',
@@ -266,8 +266,8 @@ class MamsiPls(MBPLS):
 
         # Plot the results
         perf_scores.plot.line(x='Number of Components', marker='.', figsize=(8, 6), grid=False)
-        plt.xlim(0, n_components + 1)
-        plt.xticks(np.arange(1, n_components + 1, 1.0))
+        plt.xlim(0, max_components + 1)
+        plt.xticks(np.arange(1, max_components + 1, 1.0))
         try:
             plt.axvline(plateau_range_start, linestyle='--', color='r', label='Plateau edge')
             plt.axvline(bend, linestyle='dotted', color='b', label='Bend')
