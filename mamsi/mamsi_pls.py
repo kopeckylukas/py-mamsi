@@ -17,7 +17,6 @@ from sklearn.metrics import r2_score, mean_squared_error
 from mbpls.mbpls import MBPLS
 from sklearn.utils.validation import check_array, check_is_fitted
 import matplotlib.pyplot as plt
-plt.rc('font', family='Verdana')
 
 
 class MamsiPls(MBPLS):

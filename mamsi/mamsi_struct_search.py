@@ -4,7 +4,7 @@
 #           Timothy MD Ebbels
 #           Elizabeth J Want
 #
-# License: 3-clause BSD
+# License: BSD 3-clause
 
 import pandas as pd
 import numpy as np
@@ -21,9 +21,6 @@ from IPython.core.display import display
 from IPython.display import IFrame
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.metrics import silhouette_score, silhouette_samples
-
-
-plt.rc('font', family='Verdana')
 
 
 class MamsiStructSearch:
