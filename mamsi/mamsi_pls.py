@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 #
-# Authors:   Lukas Kopecky <l.kopecky22@imperial.ac.uk>
-#           Timothy MD Ebbels 
-#           Elizabeth J Want
+# Authors: Lukas Kopecky <l.kopecky22@imperial.ac.uk>
+#          Timothy MD Ebbels 
+#          Elizabeth J Want
 #
-# License: 3-clause BSD
+# License: BSD 3-clause
 
 import copy as deepcopy
 import pandas as pd
@@ -109,6 +109,8 @@ class MamsiPls(MBPLS):
         Returns:
             pandas.DataFrame: Measured scores as a Pandas DataFrame.
         """
+
+        check_is_fitted(self, 'beta_')
 
         # Validation of data inputs
         data = x.copy()
