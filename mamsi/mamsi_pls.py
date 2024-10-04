@@ -377,7 +377,7 @@ class MamsiPls(MBPLS):
 
         return y_predicted
 
-    def mb_vip(self, plot=False):
+    def mb_vip(self, plot=True, get_scores=False):
         """
         Multi-block Variable Importance in Projection (MB-VIP) for multiblock PLS model.
 
@@ -410,7 +410,8 @@ class MamsiPls(MBPLS):
             plt.xlabel('Feature index')
 
         # Return all MB-VIP scores
-        return vip_scores
+        if get_scores:
+            return vip_scores
 
     def mb_vip_permtest(self, x, y, n_permutations=1000, return_scores=False):
         """
