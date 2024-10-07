@@ -535,7 +535,7 @@ class MamsiPls(MBPLS):
         _y = check_array(_y, ensure_2d=False)
 
         # MB-VIP of observed model
-        _vip = self.mb_vip()
+        _vip = self.mb_vip(plot=False, get_scores=True)
         vip_obs = _vip[:, np.newaxis]
 
         # Fit Null models
@@ -545,7 +545,7 @@ class MamsiPls(MBPLS):
             y_perm = np.random.permutation(_y)
             # Fit permuted model and calculate MB-VIP scores
             self.fit(x, y_perm)
-            _vip_null.append(self.mb_vip())
+            _vip_null.append(self.mb_vip(plot=False, get_scores=True))
         vip_null = np.stack(_vip_null, axis=1)
 
         # Calculate empirical p-values
