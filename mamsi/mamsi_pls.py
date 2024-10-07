@@ -65,11 +65,11 @@ class MamsiPls(MBPLS):
      
     Attributes:
         n_components (int): Number of Latent Variables (LV).
-        Ts_ (array): (X-Side)super scores [n,k].
+        Ts_ (array): (X-Side) super scores [n,k]
         T_ (list): (X-Side) block scores [i][n,k]
         W_ (list): (X-Side) block weights [n][pi,k]
         A_ (array): (X-Side) block importances/super weights [i,k]
-        A_corrected_ (array, (X-Side) normalized block importances Accor,ik=Aik⋅(1-pip)
+        A_corrected_ (array): (X-Side) normalized block importances (see mbpls documentation)
         P_ (list, block): (X-Side) loadings [i][pi,k]
         R_ (array): (X-Side) x_rotations R=W(PTW)-1
         explained_var_x_ (list): (X-Side) explained variance in X per LV [k]
@@ -412,6 +412,89 @@ class MamsiPls(MBPLS):
         # Return all MB-VIP scores
         if get_scores:
             return vip_scores
+        
+    def block_importance(self, block_labels=None, normalised=True, plot=True, get_scores=False):
+        '''
+        Calculate the block importance for each block in the multiblock PLS model.
+        
+        Args:
+            block_labels (list, optional): List of block names. If block names are not provided or they do not match the number 
+                of blocks in the model, the plot will display labels as 'Block 1', 'Block 2', ... 'Block n'. Defaults to None.
+            normalised (bool, optional): Whether to use normalised block importance. For more information see model attribute 
+                ['A_Corrected_'](). Defaults to True.
+            plot (bool, optional): Whether to render plot block importance. Defaults to True.
+            get_scores (bool, optional): Whether to return block importance scores. Defaults to False.
+        
+        Returns:
+            array: Block importance scores.
+        '''
+        
+        # Check if PLS model is fitted
+        check_is_fitted(self, 'beta_')
+
+        # get the block importances
+        if normalised:
+            block_importance = self.A_corrected_
+        else:
+            block_importance = self.A_
+        block_importance_t = block_importance.T
+
+        if plot:
+            # Number of groups and number of bars in each group
+            num_groups = len(block_importance)
+            num_bars = len(block_importance[0])
+
+            # Set up the figure and axis
+            fig, ax = plt.subplots()
+
+            # Set the width of the bars
+            bar_width = 0.15  # Decreased bar width
+
+            # Calculate the total width for each group of bars
+            total_bar_width = bar_width * num_bars
+
+            # Increase spacing between groups
+            group_spacing = 0.5
+
+            # Set the positions for the bars with offset to prevent overlap
+            bar_positions = np.arange(num_groups) * (total_bar_width + group_spacing)
+
+            # Plot each group of bars
+            for i in range(num_bars):
+                ax.bar(bar_positions + i * bar_width, block_importance_t[i], width=bar_width, label=f'LV {i + 1}')
+
+            # Set labels and title
+            ax.set_xlabel('Blocks')
+            ax.set_ylabel('Explained variance')
+            ax.set_title('Block Importance - Experiment 1')
+            ax.set_xticks(bar_positions + (total_bar_width / 2))
+
+            # Set block names as x-tick labels
+            if block_labels is None:
+                # call blocks 'Block 1', 'Block 2' etc. if no names are provided
+                block_labels = [f'Block {i + 1}' for i in range(num_groups)]
+                ax.set_xticklabels(block_labels)
+
+            elif len(block_labels) != num_groups:
+                # call blocks 'Block 1', 'Block 2' etc. if length of block names does not match the number of blocks
+                block_labels = [f'Block {i + 1}' for i in range(num_groups)]
+                ax.set_xticklabels(block_labels)
+                raise ValueError('Number of block names must match the number of blocks')
+            
+            else:
+                # set block names as x-tick labels
+                ax.set_xticklabels(block_labels)
+
+            # Add legend
+            ax.legend()
+
+            # Show the plot
+            plt.tight_layout()  # Adjust layout to prevent clipping of labels
+            plt.show()
+
+        if get_scores:
+            return block_importance
+        
 
     def mb_vip_permtest(self, x, y, n_permutations=1000, return_scores=False):
         """
