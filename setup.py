@@ -5,7 +5,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="mamsi",
-    version="1.0.1",
+    version="1.0.2",
     packages=find_packages(),
     url="https://github.com/kopeckylukas/py-mamsi",
     license="BSD 3-Clause License",
@@ -18,7 +18,10 @@ setup(
     classifiers=[
         'Intended Audience :: Science/Research',
         'Intended Audience :: Developers',
-        'License :: OSI Approved',
+        'Intended Audience :: Metabolomics',
+        'Intended Audience :: Mass Spectrometry',
+        'Intended Audience :: Bioinformatics',
+        'License :: OSI Approved :: BSD License',
         'Topic :: Software Development',
         'Topic :: Scientific/Engineering',
         'Operating System :: Microsoft :: Windows',
