@@ -97,12 +97,12 @@ lneg = pd.read_csv('./sample_data/alz_lneg.csv').add_prefix('LNEG_')
 Fit MamsiPls Model and Estimate LVs
 ```python 
 mamsipls = MamsiPls(n_components=1)
-mamsipls.fit([hpos, lpos, lneg], y_train)
+mamsipls.fit([hpos, lpos, lneg], y)
 ```
 
 **Estimate Latent Variables and Feature Importance**
 ```python
-mamsipls.estimate_lv([hpos, lpos, lneg], y_train, metric='auc')
+mamsipls.estimate_lv([hpos, lpos, lneg], y, metric='auc')
 ```
 <br> You can visualise the MB-VIP:
 ```python
