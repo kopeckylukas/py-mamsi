@@ -436,7 +436,12 @@ class MamsiStructSearch:
                         'RT': frame.iloc[i, 2],
                         'Adduct group': clust_flag
                     }, index=[0])
-                    group = pd.concat([group, line])
+
+                    # To avoid concatenating empty data frame
+                    if len(group) == 0:
+                        group = line.copy()
+                    else:    
+                        group = pd.concat([group, line])
 
         # If there are matches, add the current row into the group
         if len(group) > 0:
