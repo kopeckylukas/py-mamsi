@@ -63,7 +63,10 @@ python setup.py develop
 ```
 
 # Quickstart
-You can find all MAMSI tutorials by visiting our **[MAMSI Tutorials](https://github.com/kopeckylukas/py-mamsi-tutorials)** repository or follow this quickstart guide.
+You can find all MAMSI tutorials by visiting our **[MAMSI Tutorials](https://github.com/kopeckylukas/py-mamsi-tutorials)** repository. To import and instantiate the package objects, you can follow this quickstart guide:
+
+<details>
+<summary>Read more</summary>
 
 **Load Packages**
 ```python 
@@ -73,13 +76,13 @@ import pandas as pd
 import numpy as np
 ```
 
-**Load Sample Data** 
+**Load Sample Data and MamsiPls Model** 
 <br> Data used within this quickstart guide originate from the AddNeuroMed cohort [[3](#references)] - dataset of Alzheimer's disease patients. 
 You can download the sample data from this [link](https://github.com/kopeckylukas/py-mamsi-tutorials/tree/main/sample_data).
 
 
 ```python
-metadata = pd.read_csv('../sample_data/alz_metadata.csv')
+metadata = pd.read_csv('./sample_data/alz_metadata.csv')
 # The PLS algorithm requires the response variable to be numeric. 
 # We will encode the outcome "Gender" (Biological Sex) as 1 for female and 0 for male subjects. 
 y = metadata["Gender"].apply(lambda x: 1 if x == 'Female' else 0)
@@ -91,15 +94,16 @@ lpos = pd.read_csv('./sample_data/alz_lpos.csv').add_prefix('LPOS_')
 lneg = pd.read_csv('./sample_data/alz_lneg.csv').add_prefix('LNEG_')
 ```
 
-**Fit MB-PLS Model and Estimate LVs**
+Fit MamsiPls Model and Estimate LVs
 ```python 
 mamsipls = MamsiPls(n_components=1)
 mamsipls.fit([hpos, lpos, lneg], y_train)
-
-mamsipls.estimate_lv([hpos, lpos, lneg], y_train, metric='auc')
 ```
 
-**Estimate Feature Importance**
+**Estimate Latent Variables and Feature Importance**
+```python
+mamsipls.estimate_lv([hpos, lpos, lneg], y_train, metric='auc')
+```
 <br> You can visualise the MB-VIP:
 ```python
 mb_vip = mamsipls.mb_vip(plot=True)
@@ -133,6 +137,8 @@ Finally, we visualise the structural relationships using a network plot. The dif
 ```python
 network = struct.get_structural_network(include_all=True, interactive=False, labels=True, return_nx_object=True)
 ```
+</details>
+<br>
 
 # Issues and Collaboration
 Thank you for supporting the MAMSI project. MAMSI is an open-source software and welcomes any form of contribution and support.
@@ -182,3 +188,26 @@ The MAMSI publication is currently under the review process.
 [4] A. M. Wolfer *et al.*, "peakPantheR, an R package for large-scale targeted extraction and integration of annotated metabolic features in LC–MS profiling datasets," *Bioinformatics*, vol. 37, no. 24, pp. 4886-4888, 2021, doi: [10.1093/bioinformatics/btab433](https://academic.oup.com/bioinformatics/article/37/24/4886/6298587).
 
 [5] S. Misra *et al.*, "Systematic screening for monogenic diabetes in people of South Asian and African Caribbean ethnicity: Preliminary results from the My Diabetes study," presented at the *Diabet. Med.*, Mar 2018.
+
+# Version History
+<details>
+<summary>Read more</summary>
+
+## v1.0.2
+**New Features**
+- New method 'MamsiPls.block_importance()': Calculate the block importance for each block in the multiblock PLS model and plot the results.
+
+**Minor Bug Updates and Behaviour Changes**
+- Behavioural changes for `MamsiPls.mb_vip()`: The MB-VIP plot is now printed by default, scores are not returned by default. New default arguments (plot=True, get_scores=False).
+- Argument changes for `MamsiPls.estimate_lv()`: Old Arguments (no_folds, n_components) changed to (n_slplits, max_components) respectively. 
+- Plots: 'Verdana' is no longer the default font. the default font changed to Matplotlib default 'DejaVu Sans'.
+- Updates to `MaamsiStructSearch` class to comply with future warnings - Pandas 3.0.
+
+## v1.0.1
+**Minor Bugs Update** 
+- Fixes instances where flattened correlation clusters were misaligned to structural clusters.
+- Readme licence badge links directly to GitHub licence file (URL).
+
+## v1.0.0
+**Initial Release**
+</details>

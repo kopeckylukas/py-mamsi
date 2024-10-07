@@ -415,7 +415,7 @@ class MamsiPls(MBPLS):
         
     def block_importance(self, block_labels=None, normalised=True, plot=True, get_scores=False):
         '''
-        Calculate the block importance for each block in the multiblock PLS model.
+        Calculate the block importance for each block in the multiblock PLS model and plot the results.
         
         Args:
             block_labels (list, optional): List of block names. If block names are not provided or they do not match the number 
