@@ -303,9 +303,7 @@ class MamsiStructSearch:
 
                 # unify all overlapping cluster by assigning the lowest cluster values to all clusters
                 for i in range(len(fr_) - 1):
-                    working_frame['Adduct group'].replace({fr_.iloc[i + 1, 1]: fr_.iloc[0, 1]}, inplace=True)
-                    # working_frame.reset_index(inplace=True, drop=True)
-                    # working_frame['Adduct'].replace({fr_.iloc[i, 2]: fr_.iloc[0, 2]}, inplace=True)
+                    working_frame['Adduct group'] = working_frame['Adduct group'].replace({fr_.iloc[i + 1, 1]: fr_.iloc[0, 1]})
 
                 working_frame = working_frame.drop_duplicates(subset='Feature')  # Delete non unique Features
 
@@ -486,7 +484,8 @@ class MamsiStructSearch:
                 fr_ = frame_[frame_['Feature'] == item].loc[:, ['Feature', 'Structural cluster']]
                 # unify all overlapping cluster by assigning the lowest cluster values to all clusters
                 for i in range(len(fr_) - 1):
-                    frame_['Structural cluster'].replace({fr_.iloc[i + 1, 1]: fr_.iloc[0, 1]}, inplace=True)
+                    # frame_['Structural cluster'].replace({fr_.iloc[i + 1, 1]: fr_.iloc[0, 1]}, inplace=True)
+                    frame_['Structural cluster'] = frame_['Structural cluster'].replace({fr_.iloc[i + 1, 1]: fr_.iloc[0, 1]})
             unified_frame = frame_.drop_duplicates(subset='Feature')  # Delete non unique Features
 
             # Update the current assay metadata with the unified structural clusters
