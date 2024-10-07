@@ -419,7 +419,7 @@ class MamsiStructSearch:
         frame = frame.loc[(frame['RT'] >= rt_now - self.rt_win) & (frame['RT'] <= rt_now + self.rt_win)]  # RT WINDOW
         if row_['Isotopologue group'] > 0:  # Filter out all suspected isotopologues identical to current row
             frame = frame[~(frame['Isotopologue group'] == row_['Isotopologue group'])]
-        val_current = row_[main_adduct_index]
+        val_current = row_.iloc[main_adduct_index]
 
         # Loop through what remained from frame
         for i in range(frame.shape[0]):  # Search in rows
