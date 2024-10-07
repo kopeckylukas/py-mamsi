@@ -386,9 +386,6 @@ class MamsiStructSearch:
             if len(group) > 0:
                 matches = pd.concat([matches, group])
                 cluster_flag = cluster_flag + 1
-            else:
-                matches = pd.concat([matches, group])
-
         return matches
 
     def _find_adduct_matches(self, frame_, row_, clust_flag, main_adduct=True):
