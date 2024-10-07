@@ -574,7 +574,11 @@ class MamsiStructSearch:
                         'rtMin': retrieved.loc[0, 'rtMin'],
                         'rtMax': retrieved.loc[0, 'rtMax']
                     }, index=[0])
-                    _annotations = pd.concat([_annotations, line])
+                    # add statement to avoid future warnings
+                    if len(_annotations) == 0:
+                        _annotations = line.copy()
+                    else:
+                        _annotations = pd.concat([_annotations, line])
 
             # If any annotation found, then save them merge them with original pandas.DataFrame
             if _annotations.shape[0] > 0:
