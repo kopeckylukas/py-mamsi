@@ -484,7 +484,8 @@ class MamsiStructSearch:
                 fr_ = frame_[frame_['Feature'] == item].loc[:, ['Feature', 'Structural cluster']]
                 # unify all overlapping cluster by assigning the lowest cluster values to all clusters
                 for i in range(len(fr_) - 1):
-                    # frame_['Structural cluster'].replace({fr_.iloc[i + 1, 1]: fr_.iloc[0, 1]}, inplace=True)
+                    # Avoid future warning by opting into the future behavior that disables silent downcasting:
+                    pd.set_option('future.no_silent_downcasting', True)
                     frame_['Structural cluster'] = frame_['Structural cluster'].replace({fr_.iloc[i + 1, 1]: fr_.iloc[0, 1]})
             unified_frame = frame_.drop_duplicates(subset='Feature')  # Delete non unique Features
 
