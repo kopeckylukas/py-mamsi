@@ -632,54 +632,20 @@ This wrapper has some extra methods convenient in Chemometrics and Metabolomics 
 <td>--</td>
 <td>sum(abs(x)<strong>ord)</strong>(1./ord)</td>
 </tr>
-<tr>
-<td>Defaults to 2.</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>* <strong>calc_all</strong> (bool, optional) : Whether to calculate all internal attributes for the used method. Some methods do not need</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>to calculate all attributes (i.e., scores, weights) to obtain the regression coefficients used for prediction.</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>Setting this parameter to False will omit these calculations for efficiency and speed. Defaults to True.</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>* <strong>sparse_data</strong> (bool, optional) : NIPALS is the only algorithm that can handle sparse data using the method of H. Martens</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>and Martens (2001) (p. 381). If this parameter is set to True, the method will be forced to NIPALS and sparse data</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>is allowed. Without setting this parameter to True, sparse data will not be accepted. Defaults to False.</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>* <strong>copy</strong> (bool, optional) : Whether the deflation should be done on a copy. Not using a copy might alter the input data</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>and have unforeseeable consequences. Defaults to True.</td>
-<td></td>
-<td></td>
-</tr>
 </tbody>
 </table>
+<p>Defaults to 2.</p>
 </li>
+<li>
+<p><strong>calc_all</strong> (bool, optional) : Whether to calculate all internal attributes for the used method. Some methods do not need
+    to calculate all attributes (i.e., scores, weights) to obtain the regression coefficients used for prediction.
+    Setting this parameter to False will omit these calculations for efficiency and speed. Defaults to True.</p>
+</li>
+<li><strong>sparse_data</strong> (bool, optional) : NIPALS is the only algorithm that can handle sparse data using the method of H. Martens
+    and Martens (2001) (p. 381). If this parameter is set to True, the method will be forced to NIPALS and sparse data
+    is allowed. Without setting this parameter to True, sparse data will not be accepted. Defaults to False.</li>
+<li><strong>copy</strong> (bool, optional) : Whether the deflation should be done on a copy. Not using a copy might alter the input data
+    and have unforeseeable consequences. Defaults to True.</li>
 </ul>
 <p><strong>Attributes</strong></p>
 <ul>
@@ -771,14 +737,15 @@ This wrapper has some extra methods convenient in Chemometrics and Metabolomics 
 <p>Adaptation of C. Wieder et al., (2024). PathIntegrate, doi: 10.1371/journal.pcbi.1011814.</p>
 <p><strong>Args</strong></p>
 <ul>
-<li><strong>plot</strong> (bool, optional) : Whether to plot MB-VIP scores. Defaults to False.</li>
+<li><strong>plot</strong> (bool, optional) : Whether to plot MB-VIP scores. Defaults to True.</li>
+<li><strong>get_scores</strong> (bool, optional) : Whether to return MB-VIP scores. Defaults to False.</li>
 </ul>
 <p><strong>Returns</strong></p>
 <ul>
 <li><strong>array</strong>  : MB-VIP scores.</li>
 </ul>
 <h3 id="block_importance">.block_importance</h3>
-<p><a href="https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L416">source</a>
+<p><a href="https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L417">source</a>
 <div class="highlight"><pre><span></span><code><span class="o">.</span><span class="n">block_importance</span><span class="p">(</span>
    <span class="n">block_labels</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">normalised</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">plot</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">get_scores</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span>
@@ -799,7 +766,7 @@ This wrapper has some extra methods convenient in Chemometrics and Metabolomics 
 <li><strong>array</strong>  : Block importance scores.</li>
 </ul>
 <h3 id="mb_vip_permtest">.mb_vip_permtest</h3>
-<p><a href="https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L499">source</a>
+<p><a href="https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L500">source</a>
 <div class="highlight"><pre><span></span><code><span class="o">.</span><span class="n">mb_vip_permtest</span><span class="p">(</span>
    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">n_permutations</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">return_scores</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span>

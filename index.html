@@ -440,6 +440,48 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#version-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      Version History
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Version History">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#v102" class="md-nav__link">
+    <span class="md-ellipsis">
+      v1.0.2
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v101" class="md-nav__link">
+    <span class="md-ellipsis">
+      v1.0.1
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v100" class="md-nav__link">
+    <span class="md-ellipsis">
+      v1.0.0
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -774,6 +816,48 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#version-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      Version History
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Version History">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#v102" class="md-nav__link">
+    <span class="md-ellipsis">
+      v1.0.2
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v101" class="md-nav__link">
+    <span class="md-ellipsis">
+      v1.0.1
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v100" class="md-nav__link">
+    <span class="md-ellipsis">
+      v1.0.0
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -878,6 +962,27 @@ python<span class="w"> </span>setup.py<span class="w"> </span>develop
 <p>[6]  M. Lewis <em>et al.</em>, “An Open Platform for Large Scale LC-MS-Based Metabolomics ,” <em>ChemRxiv</em>, 2022. doi: <a href="https://chemrxiv.org/engage/chemrxiv/article-details/61ebd6fa0716a8529e3823dc">10.26434/chemrxiv-2022-nq9k0</a>.</p>
 <p>[7] C. A. Smith <em>et al.</em>, "XCMS:  Processing Mass Spectrometry Data for Metabolite Profiling Using Nonlinear Peak Alignment, Matching, and Identification," <em>Anal. Chem.</em>, vol. 78, no. 3, pp. 779-787, Feb 2006, doi: <a href="https://doi.org/10.1021/ac051437y">10.1021/ac051437y</a>.</p>
 <p>[8] C. J. Sands <em>et al.</em>, "The nPYc-Toolbox, a Python module for the pre-processing, quality-control and analysis of metabolic profiling datasets," <em>Bioinformatics</em>, vol. 35, no. 24, pp. 5359-5360, 2019, doi: <a href="https://doi.org/10.1093/bioinformatics/btz566">10.1093/bioinformatics/btz566</a>.</p>
+<h1 id="version-history">Version History</h1>
+<h2 id="v102">v1.0.2</h2>
+<p><strong>New Features</strong></p>
+<ul>
+<li>New method 'MamsiPls.block_importance()': Calculate the block importance for each block in the multiblock PLS model and plot the results.</li>
+</ul>
+<p><strong>Minor Bug Fixes and Behaviour Changes</strong></p>
+<ul>
+<li>Behavioural changes for <code>MamsiPls.mb_vip()</code>: The MB-VIP plot is now rendered by default, scores are not returned by default. New default arguments (plot=True, get_scores=False).</li>
+<li>Argument changes for <code>MamsiPls.estimate_lv()</code>: Old Arguments (no_folds, n_components) changed to (n_slplits, max_components) respectively. </li>
+<li>Plots: 'Verdana' is no longer the default font. The default font changed to Matplotlib default 'DejaVu Sans'.</li>
+<li>Updates to <code>MamsiStructSearch</code> class to comply with future warnings - Pandas 3.0.</li>
+</ul>
+<h2 id="v101">v1.0.1</h2>
+<p><strong>Minor Bugs Update</strong> </p>
+<ul>
+<li>Fixes instances where flattened correlation clusters were misaligned to structural clusters.</li>
+<li>Readme licence badge links directly to GitHub licence file (URL).</li>
+</ul>
+<h2 id="v100">v1.0.0</h2>
+<p><strong>Initial Release</strong></p>
 
 
 
