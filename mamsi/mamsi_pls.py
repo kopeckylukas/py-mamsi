@@ -53,7 +53,9 @@ class MamsiPls(MBPLS):
             2     | 2-norm (largest sing. value) | as below                     |       
             -2    | smallest singular value      | as below                     |
             other | --                           | sum(abs(x)**ord)**(1./ord)   |
+
             Defaults to 2.
+            
         calc_all (bool, optional): Whether to calculate all internal attributes for the used method. Some methods do not need
             to calculate all attributes (i.e., scores, weights) to obtain the regression coefficients used for prediction.
             Setting this parameter to False will omit these calculations for efficiency and speed. Defaults to True.
@@ -384,7 +386,8 @@ class MamsiPls(MBPLS):
         Adaptation of C. Wieder et al., (2024). PathIntegrate, doi: 10.1371/journal.pcbi.1011814.
 
         Args:
-            plot (bool, optional): Whether to plot MB-VIP scores. Defaults to False.
+            plot (bool, optional): Whether to plot MB-VIP scores. Defaults to True.
+            get_scores (bool, optional): Whether to return MB-VIP scores. Defaults to False.
 
         Returns:
             array: MB-VIP scores.

@@ -47,7 +47,9 @@ For a full list of methods, please refer to the MB-PLS class [documentation](htt
     2     | 2-norm (largest sing. value) | as below                     |       
     -2    | smallest singular value      | as below                     |
     other | --                           | sum(abs(x)**ord)**(1./ord)   |
+    
     Defaults to 2.
+
 * **calc_all** (bool, optional) : Whether to calculate all internal attributes for the used method. Some methods do not need
     to calculate all attributes (i.e., scores, weights) to obtain the regression coefficients used for prediction.
     Setting this parameter to False will omit these calculations for efficiency and speed. Defaults to True.
@@ -175,7 +177,8 @@ Adaptation of C. Wieder et al., (2024). PathIntegrate, doi: 10.1371/journal.pcbi
 
 **Args**
 
-* **plot** (bool, optional) : Whether to plot MB-VIP scores. Defaults to False.
+* **plot** (bool, optional) : Whether to plot MB-VIP scores. Defaults to True.
+* **get_scores** (bool, optional) : Whether to return MB-VIP scores. Defaults to False.
 
 
 **Returns**
@@ -184,7 +187,7 @@ Adaptation of C. Wieder et al., (2024). PathIntegrate, doi: 10.1371/journal.pcbi
 
 
 ### .block_importance
-[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L416)
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L417)
 ```python
 .block_importance(
    block_labels = None, normalised = True, plot = True, get_scores = False
@@ -211,7 +214,7 @@ Calculate the block importance for each block in the multiblock PLS model and pl
 
 
 ### .mb_vip_permtest
-[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L499)
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L500)
 ```python
 .mb_vip_permtest(
    x, y, n_permutations = 1000, return_scores = False

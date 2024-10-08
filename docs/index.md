@@ -122,3 +122,27 @@ The MAMSI publication is currently under the review process.
 
 
 [def]: /images/MAMSI_logo.png
+
+# Version History
+
+
+## v1.0.2
+**New Features**
+
+- New method 'MamsiPls.block_importance()': Calculate the block importance for each block in the multiblock PLS model and plot the results.
+
+**Minor Bug Fixes and Behaviour Changes**
+
+- Behavioural changes for `MamsiPls.mb_vip()`: The MB-VIP plot is now rendered by default, scores are not returned by default. New default arguments (plot=True, get_scores=False).
+- Argument changes for `MamsiPls.estimate_lv()`: Old Arguments (no_folds, n_components) changed to (n_slplits, max_components) respectively. 
+- Plots: 'Verdana' is no longer the default font. The default font changed to Matplotlib default 'DejaVu Sans'.
+- Updates to `MamsiStructSearch` class to comply with future warnings - Pandas 3.0.
+
+## v1.0.1
+**Minor Bugs Update** 
+
+- Fixes instances where flattened correlation clusters were misaligned to structural clusters.
+- Readme licence badge links directly to GitHub licence file (URL).
+
+## v1.0.0
+**Initial Release**
