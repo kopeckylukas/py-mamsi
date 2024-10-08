@@ -2,7 +2,7 @@
 
 
 ## MamsiStructSearch
-[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_struct_search.py/#L29)
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_struct_search.py/#L26)
 ```python 
 MamsiStructSearch(
    rt_win = 5, ppm = 15
@@ -38,7 +38,7 @@ These structural signatures include isotopologues and adduct patterns.
 
 
 ### .load_msi
-[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_struct_search.py/#L58)
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_struct_search.py/#L55)
 ```python
 .load_msi(
    df
@@ -54,14 +54,11 @@ Imports MSI intensity data and extracts feature metadata from column names.
 * **df** (pandas.DataFrame) : Data frame with MSI intensity data.
     - rows: samples
     - columns: features (m/z peaks)
-        Column names in the format:
-            <m/z>
-        For example:
-            149.111
+        Column names in the format: *(m/z)* For example: *149.111*
 
 
 ### .load_lcms
-[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_struct_search.py/#L102)
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_struct_search.py/#L96)
 ```python
 .load_lcms(
    df
@@ -76,15 +73,12 @@ Imports LC-MS intensity data and extracts feature metadata from column names.
 
 * **df** (pandas.DataFrame) : Data frame with LC-MS intensity data.
     - rows: samples
-    - columns: features (LC-MS peaks)
-        Column names in the format:
-            <Assay Name>_<RT in sec>_<m/z>m/z
-        For example:
-            HPOS_233.25_149.111m/z
+    - columns: features (LC-MS peaks). Column names in the format: **(AssayName)_(RTsec)_(m/z)m/z**.
+            For example: **HPOS_233.25_149.111m/z**
 
 
 ### .get_structural_clusters
-[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_struct_search.py/#L150)
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_struct_search.py/#L141)
 ```python
 .get_structural_clusters(
    adducts = 'all', annotate = True
@@ -100,8 +94,8 @@ isotopologues, adduct patterns and cross-assay links.
 
 * **adducts** (str, optional) : Define what type of adducts to . 
     Possible values are:
-        - 'all': All adducts combinations (based on Fiehn Lab adduct calculator).
-        - 'most-common': Most common adducts for ESI (based on Waters adducts documentation).
+    - 'all': All adducts combinations (based on Fiehn Lab adduct calculator).
+    - 'most-common': Most common adducts for ESI (based on Waters adducts documentation).
     Defaults to 'all'.
 * **annotate** (bool, optional) : Annotate significant features based on National Phenome Centre RIO data.
     Only to be run if the data was analysed by the National Phenome Centre or analysis followed their
@@ -117,9 +111,8 @@ isotopologues, adduct patterns and cross-assay links.
 
 
 
-
 ### .get_correlation_clusters
-[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_struct_search.py/#L705)
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_struct_search.py/#L703)
 ```python
 .get_correlation_clusters(
    flat_method = 'constant', cut_threshold = 0.7, max_clusters = 5,
@@ -162,7 +155,7 @@ flat_method (str {'constant', 'silhouette'}, optional):
     Method for cluster flattening:
 
 ### .get_structural_network
-[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_struct_search.py/#L850)
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_struct_search.py/#L851)
 ```python
 .get_structural_network(
    include_all = False, interactive = False, return_nx_object = False,
@@ -176,6 +169,7 @@ The method creates a network graph based on the generated structural data or the
 The network graph includes nodes representing features and edges representing different types of links.
 The graph can be displayed interactively using pyvis.network or using NetworkX and matplotlib.
 The graph can be saved as a NetworkX object if return_nx_object is True.
+
 
 **Args**
 
@@ -195,17 +189,17 @@ The graph can be saved as a NetworkX object if return_nx_object is True.
 * **master_file** (pd.DataFrame, optional) : The master file containing necessary columns for generating the network.
     This is intended for cases when structural links required manual curation (e.g. manually assigned isotopologue groups, adduct groups, etc.)
     If not provided, the function uses the loaded structural links data.
-    Required columns: 
-        - Feature: Feature ID (e.g. HPOS_233.25_149.111m/z)
-        - Assay: Assay name (e.g. HPOS)
-        - Isotopologue group (groups features with similar isotopologue patterns)
-        - Isotopologue pattern (e.g. 0, 1, 2 ... N representing M+0, M+1, M+2 ... M+N)
-        - Adduct group (groups features with similar adduct patterns)
-        - Adduct (adduct label, e.g. [M+H]+, [M-H]-)
-        - Structural cluster (groups features with similar isotopologue and adduct patterns)
-        - Correlation cluster (flattened hierarchical cluster from get_correlation_clusters()
-        - Cross-assay link (links features across different assays)
-        - cpdName (compound name, optional)
+    **Required columns:** 
+    - 'Feature': Feature ID (e.g. HPOS_233.25_149.111m/z). Required.
+    - 'Assay': Assay name (e.g. HPOS). Required.
+    - 'Isotopologue group': Grouped features with similar isotopologue patterns (e.g. 1, 2 ... N). Required.
+    - 'Isotopologue pattern': Representing M+0, M+1, M+2 ... M+N for each isotopologue group (e.g. 0, 1, 2 ... N). Required.
+    - 'Adduct group': Grouped features with similar adduct patterns (e.g. 1, 2 ... N). Required.
+    - 'Adduct': Assigned adduct labels to all features within an adduct group (e.g. [M+H]+, [M-H]-). Required.
+    - 'Structural cluster': Grouped features based on the intersection of isotopologue and adduct clusters (e.g. 1, 2, 3 ... N). Required.
+    - 'Correlation cluster': Grouped flattened correlation clusters (e.g. 1, 2, 3 ... N). Required.
+    - 'Cross-assay link': Linked structural clusters between different assays. Required.
+    - 'cpdName': Compound name (e.g. Caffeine). Optional.
     Defaults to None.
 
 
@@ -213,9 +207,9 @@ The graph can be saved as a NetworkX object if return_nx_object is True.
 
 * **None**  : The NetworkX object representing the network graph, if return_nx_object is True.
     Edge weights represent the type of link between features:
-        - Isotopologue: 1
-        - Adduct: 5
-        - Cross-assay link: 10
+    - Isotopologue: 1
+    - Adduct: 5
+    - Cross-assay link: 10
     Otherwise, None.
                         
 
@@ -225,3 +219,9 @@ The graph can be saved as a NetworkX object if return_nx_object is True.
 * **RuntimeWarning**  : If no data is loaded and no master file is provided.
 * **RuntimeWarning**  : If the provided master file is missing necessary columns.
 
+---
+- Notes:
+    - The function creates a network graph based on the provided master file or the loaded structural links data.
+    - The network graph includes nodes representing features and edges representing different types of links.
+    - The graph can be displayed interactively using pyvis.network or using NetworkX and matplotlib.
+    - The graph can be saved as a NetworkX object if return_nx_object is True.

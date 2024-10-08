@@ -2,7 +2,7 @@
 
 
 ## MamsiPls
-[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L23)
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L22)
 ```python 
 MamsiPls(
    n_components = 2, full_svd = False, method = 'NIPALS', standardize = True,
@@ -29,7 +29,7 @@ For a full list of methods, please refer to the MB-PLS class [documentation](htt
     and 'KERNEL'. Defaults to 'NIPALS'.
 * **standardize** (bool, optional) : Whether to standardise the data (Unit-variance scaling). Defaults to True.
 * **max_tol** (float, optional) : Maximum tolerance allowed when using the iterative NIPALS algorithm. Defaults to 1e-14.
-* **nipals_convergence_norm** (int, optional): Order of the norm that is used to calculate the difference of 
+* **nipals_convergence_norm** (int, optional) : Order of the norm that is used to calculate the difference of 
     the super-score vectors between subsequential iterations of the NIPALS algorithm. 
     Following orders are available:
 
@@ -47,9 +47,7 @@ For a full list of methods, please refer to the MB-PLS class [documentation](htt
     2     | 2-norm (largest sing. value) | as below                     |       
     -2    | smallest singular value      | as below                     |
     other | --                           | sum(abs(x)**ord)**(1./ord)   |
-    
     Defaults to 2.
-    
 * **calc_all** (bool, optional) : Whether to calculate all internal attributes for the used method. Some methods do not need
     to calculate all attributes (i.e., scores, weights) to obtain the regression coefficients used for prediction.
     Setting this parameter to False will omit these calculations for efficiency and speed. Defaults to True.
@@ -63,29 +61,30 @@ For a full list of methods, please refer to the MB-PLS class [documentation](htt
 **Attributes**
 
 * **n_components** (int) : Number of Latent Variables (LV).
-* **Ts_** (array) : (X-Side)super scores [n, k].
-* **T_** (list) : (X-Side) block scores [i] [n, k]
-* **W_** (list) : (X-Side) block weights [n] [pi, k]
-* **A_** (array) : (X-Side) block importances/super weights [i, k]
-* **P_** (list, block) : (X-Side) loadings [i] [pi, k]
+* **Ts_** (array) : (X-Side) super scores [n,k]
+* **T_** (list) : (X-Side) block scores [i][n,k]
+* **W_** (list) : (X-Side) block weights [n][pi,k]
+* **A_** (array) : (X-Side) block importances/super weights [i,k]
+* **A_corrected_** (array) : (X-Side) normalized block importances (see mbpls documentation)
+* **P_** (list, block) : (X-Side) loadings [i][pi,k]
 * **R_** (array) : (X-Side) x_rotations R=W(PTW)-1
 * **explained_var_x_** (list) : (X-Side) explained variance in X per LV [k]
-* **explained_var_xblocks_** (array) : (X-Side) explained variance in each block Xi [i, k]
-* **beta_** (array) : (X-Side) regression vector 𝛽 [p, q]
-* **U_** (array) : (Y-Side) scoresInitialize [n, k]
-* **V_** (array) : (Y-Side) loadings [q, k]
+* **explained_var_xblocks_** (array) : (X-Side) explained variance in each block Xi [i,k]
+* **beta_** (array) : (X-Side) regression vector 𝛽 [p,q]
+* **U_** (array) : (Y-Side) scoresInitialize [n,k]
+* **V_** (array) : (Y-Side) loadings [q,k]
 * **explained_var_y_** (list) : (Y-Side) explained variance in Y [k]
-A_corrected_ (array, (X-Side) normalized block importances Accor,ik=Aik⋅(1-pip)
+
 
 
 **Methods:**
 
 
 ### .estimate_lv
-[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L91)
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L90)
 ```python
 .estimate_lv(
-   x, y, n_components = 10, no_fold = 5, y_continuous = False, metric = 'auc',
+   x, y, max_components = 10, n_splits = 5, y_continuous = False, metric = 'auc',
    plateau_threshold = 0.01, increase_threshold = 0.05, get_scores = False
 )
 ```
@@ -98,8 +97,8 @@ A method to estimate the number of latent variables (LVs)/components in the MB-P
 
 * **x** (array or list[array]) : All blocks of predictors x1, x2, ..., xn. Rows are observations, columns are features/variables.
 * **y** (array) : A 1-dim or 2-dim array of reference values, either continuous or categorical variable.
-* **n_components** (int, optional) : Number of components/LVs. Defaults to 10.
-* **no_fold** (int, optional) : Number of folds for k-fold cross-validation. Defaults to 5.
+* **max_components** (int, optional) : Number of components/LVs. Defaults to 10.
+* **n_splits** (int, optional) : Number of splits for k-fold cross-validation. Defaults to 5.
 * **y_continuous** (bool, optional) : Whether the outcome is a continuous variable. Defaults to False.
 * **metric** (str, optional) : Metric to use to estimate the number of LVs; available options: ['AUC', 'precision', 'recall', 'f1'] for 
     categorical outcome variables and ['q2'] for continuous outcome variable. 
@@ -115,7 +114,7 @@ A method to estimate the number of latent variables (LVs)/components in the MB-P
 
 
 ### .evaluate_class_model
-[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L296)
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L297)
 ```python
 .evaluate_class_model(
    x, y
@@ -138,7 +137,7 @@ Evaluate classification MB-PLS model using a **testing** dataset.
 
 
 ### .evaluate_regression_model
-[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L337)
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L338)
 ```python
 .evaluate_regression_model(
    x, y
@@ -161,10 +160,10 @@ Evaluate regression MB-PLS model using a **testing** dataset.
 
 
 ### .mb_vip
-[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L379)
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L380)
 ```python
 .mb_vip(
-   plot = False
+   plot = True, get_scores = False
 )
 ```
 
@@ -184,8 +183,35 @@ Adaptation of C. Wieder et al., (2024). PathIntegrate, doi: 10.1371/journal.pcbi
 * **array**  : MB-VIP scores.
 
 
+### .block_importance
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L416)
+```python
+.block_importance(
+   block_labels = None, normalised = True, plot = True, get_scores = False
+)
+```
+
+---
+Calculate the block importance for each block in the multiblock PLS model and plot the results.
+
+
+**Args**
+
+* **block_labels** (list, optional) : List of block names. If block names are not provided or they do not match the number 
+    of blocks in the model, the plot will display labels as 'Block 1', 'Block 2', ... 'Block n'. Defaults to None.
+* **normalised** (bool, optional) : Whether to use normalised block importance. For more information see model attribute 
+    ['A_Corrected_'](). Defaults to True.
+* **plot** (bool, optional) : Whether to render plot block importance. Defaults to True.
+* **get_scores** (bool, optional) : Whether to return block importance scores. Defaults to False.
+
+
+**Returns**
+
+* **array**  : Block importance scores.
+
+
 ### .mb_vip_permtest
-[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L414)
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L499)
 ```python
 .mb_vip_permtest(
    x, y, n_permutations = 1000, return_scores = False
