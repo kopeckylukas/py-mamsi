@@ -90,7 +90,7 @@ class MamsiPls(MBPLS):
         
 
     def estimate_lv(self, x, y, max_components=10, n_splits=5, y_continuous=False, metric='auc',
-                    plateau_threshold=0.01, increase_threshold=0.05, get_scores=False):
+                    plateau_threshold=0.01, increase_threshold=0.05, get_scores=False, savefig=False, **kwargs):
         """
         A method to estimate the number of latent variables (LVs)/components in the MB-PLS model.
 
@@ -106,7 +106,9 @@ class MamsiPls(MBPLS):
             plateau_threshold (float, optional): Maximum increase for a sequence of LVs to be considered a plateau. Must be non-negative. Defaults to 0.01.
             increase_threshold (float, optional): Minimum increase to be considered a bend. Must be non-negative. Defaults to 0.05.
             get_scores (bool, optional): Whether to return measured scores as a Pandas DataFrame. Defaults to False.
-
+            savefig (bool, optional): Whether to save the plot as a figure. If True, argument `fname` has to be provided. 
+                Defaults to False.
+            **kwargs: Additional keyword arguments to be passed to plt.savefig(), fname required to save .
         Returns:
             pandas.DataFrame: Measured scores as a Pandas DataFrame.
         """
@@ -293,6 +295,9 @@ class MamsiPls(MBPLS):
         plt.title('Latent Variable Estimation')
         plt.legend()
 
+        if savefig:
+            plt.savefig(**kwargs)
+
         if get_scores:
             return perf_scores
 
@@ -379,7 +384,7 @@ class MamsiPls(MBPLS):
 
         return y_predicted
 
-    def mb_vip(self, plot=True, get_scores=False):
+    def mb_vip(self, plot=True, get_scores=False, savefig=False, **kwargs):
         """
         Multi-block Variable Importance in Projection (MB-VIP) for multiblock PLS model.
 
@@ -388,6 +393,9 @@ class MamsiPls(MBPLS):
         Args:
             plot (bool, optional): Whether to plot MB-VIP scores. Defaults to True.
             get_scores (bool, optional): Whether to return MB-VIP scores. Defaults to False.
+            savefig (bool, optional): Whether to save the plot as a figure. If True, argument `fname` has to be provided. 
+                Defaults to False.
+            **kwargs: Additional keyword arguments to be passed to plt.savefig(), fname required to save .            
 
         Returns:
             array: MB-VIP scores.
@@ -412,11 +420,14 @@ class MamsiPls(MBPLS):
             plt.ylabel('MB-VIP score')
             plt.xlabel('Feature index')
 
+            if savefig:
+                plt.savefig(**kwargs)
+
         # Return all MB-VIP scores
         if get_scores:
             return vip_scores
         
-    def block_importance(self, block_labels=None, normalised=True, plot=True, get_scores=False):
+    def block_importance(self, block_labels=None, normalised=True, plot=True, get_scores=False, savefig=False, **kwargs):
         '''
         Calculate the block importance for each block in the multiblock PLS model and plot the results.
         
@@ -427,6 +438,9 @@ class MamsiPls(MBPLS):
                 ['A_Corrected_'](). Defaults to True.
             plot (bool, optional): Whether to render plot block importance. Defaults to True.
             get_scores (bool, optional): Whether to return block importance scores. Defaults to False.
+            savefig (bool, optional): Whether to save the plot as a figure. If True, argument `fname` has to be provided. 
+                Defaults to False.
+            **kwargs: Additional keyword arguments to be passed to plt.savefig(), fname required to save.
         
         Returns:
             array: Block importance scores.
@@ -469,7 +483,7 @@ class MamsiPls(MBPLS):
             # Set labels and title
             ax.set_xlabel('Blocks')
             ax.set_ylabel('Explained variance')
-            ax.set_title('Block Importance - Experiment 1')
+            ax.set_title('Block Importance')
             ax.set_xticks(bar_positions + (total_bar_width / 2))
 
             # Set block names as x-tick labels
@@ -493,6 +507,11 @@ class MamsiPls(MBPLS):
 
             # Show the plot
             plt.tight_layout()  # Adjust layout to prevent clipping of labels
+        
+
+            if savefig:
+                plt.savefig(**kwargs)
+
             plt.show()
 
         if get_scores:
