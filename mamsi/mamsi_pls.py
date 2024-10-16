@@ -13,7 +13,7 @@ import statistics
 from sklearn.metrics import (precision_score, recall_score, f1_score, roc_auc_score, accuracy_score, confusion_matrix,
                              ConfusionMatrixDisplay)
 from sklearn.model_selection import KFold
-from sklearn.metrics import r2_score, mean_squared_error
+from sklearn.metrics import r2_score, root_mean_squared_error
 from mbpls.mbpls import MBPLS
 from sklearn.utils.validation import check_array, check_is_fitted
 import matplotlib.pyplot as plt
@@ -370,8 +370,8 @@ class MamsiPls(MBPLS):
         y_predicted = self.predict(_x)
 
         # Evaluation metrics
-        mse = mean_squared_error(_y, y_predicted)
-        print(f'Mean Squared Error: {mse}')
+        rmse = root_mean_squared_error(_y, y_predicted)
+        print(f'Root Mean Squared Error: {rmse}')
         q2 = r2_score(_y, y_predicted)
         print(f'Q-squared: {q2}')
 
