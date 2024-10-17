@@ -12,7 +12,7 @@ import numpy as np
 import statistics
 from sklearn.metrics import (precision_score, recall_score, f1_score, roc_auc_score, accuracy_score, confusion_matrix,
                              ConfusionMatrixDisplay)
-from sklearn.model_selection import KFold
+from sklearn.model_selection import KFold, GroupKFold
 from sklearn.metrics import r2_score, root_mean_squared_error
 from mbpls.mbpls import MBPLS
 from sklearn.utils.validation import check_array, check_is_fitted
@@ -89,18 +89,23 @@ class MamsiPls(MBPLS):
                          calc_all, sparse_data, copy)
         
 
-    def estimate_lv(self, x, y, max_components=10, n_splits=5, y_continuous=False, metric='auc',
+    def estimate_lv(self, x, y, groups=None, max_components=10, n_splits=5, y_continuous=False, metric='auc',
                     plateau_threshold=0.01, increase_threshold=0.05, get_scores=False, savefig=False, **kwargs):
         """
         A method to estimate the number of latent variables (LVs)/components in the MB-PLS model.
+        The method is based k-fold cross-validation and combined with an outer loop with increasing number of LVs.
+        LV on which the model stabilises corresponds with the optimal number of LVs.
 
         Args:
             x (array or list[array]): All blocks of predictors x1, x2, ..., xn. Rows are observations, columns are features/variables.
             y (array): A 1-dim or 2-dim array of reference values, either continuous or categorical variable.
+            groups (array, optional): If provided, K-fold iterator variant with non-overlapping groups. 
+                Group labels for the samples used while splitting the dataset into train/test set.
+                Defaults to None. 
             max_components (int, optional): Number of components/LVs. Defaults to 10.
             n_splits (int, optional): Number of splits for k-fold cross-validation. Defaults to 5.
             y_continuous (bool, optional): Whether the outcome is a continuous variable. Defaults to False.
-            metric (str, optional): Metric to use to estimate the number of LVs; available options: ['AUC', 'precision', 'recall', 'f1'] for 
+            metric (str, optional): Metric to use to estimate the number of LVs; available options: [`AUC`, `precision`, `recall`, `f1`] for 
                 categorical outcome variables and ['q2'] for continuous outcome variable. 
                 Defaults to 'AUC'.
             plateau_threshold (float, optional): Maximum increase for a sequence of LVs to be considered a plateau. Must be non-negative. Defaults to 0.01.
@@ -110,7 +115,7 @@ class MamsiPls(MBPLS):
                 Defaults to False.
             **kwargs: Additional keyword arguments to be passed to plt.savefig(), fname required to save .
         Returns:
-            pandas.DataFrame: Measured scores as a Pandas DataFrame.
+            pandas.DataFrame: Measured mean scores for test and train splits for all components returned as a Pandas DataFrame.
         """
 
         check_is_fitted(self, 'beta_')
@@ -152,9 +157,11 @@ class MamsiPls(MBPLS):
         q2_f1 = []
         q2_accuracy = []
 
-        # define splits
-        kf = KFold(n_splits=n_splits)
-        kf.get_n_splits(response_y)
+        #If `groups` are provided, group k-fold is performed
+        if groups is None:
+            kf = KFold(n_splits=n_splits)
+        else:
+            kf = GroupKFold(n_splits=n_splits)
 
         # Estimation of scores for different number of latent variables / components.
         for i in range(1, max_components + 1):
@@ -173,7 +180,7 @@ class MamsiPls(MBPLS):
             lv_q2_f1 = []
             lv_q2_accuracy = []
 
-            for j, (train_indices, test_indices) in enumerate(kf.split(response_y)):
+            for j, (train_indices, test_indices) in enumerate(kf.split(response_y, groups=groups)):
 
                 # Unwrap data perform test-train split
                 train_data = [None] * len(data)
