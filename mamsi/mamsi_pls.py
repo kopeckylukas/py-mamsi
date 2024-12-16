@@ -12,8 +12,8 @@ import numpy as np
 import statistics
 from sklearn.metrics import (precision_score, recall_score, f1_score, roc_auc_score, accuracy_score, confusion_matrix,
                              ConfusionMatrixDisplay)
-from sklearn.model_selection import KFold, GroupKFold
-from sklearn.metrics import r2_score, root_mean_squared_error
+from sklearn.model_selection import KFold, GroupKFold, train_test_split
+from sklearn.metrics import r2_score, root_mean_squared_error, mean_squared_error
 from mbpls.mbpls import MBPLS
 from sklearn.utils.validation import check_array, check_is_fitted
 import matplotlib.pyplot as plt
@@ -390,6 +390,121 @@ class MamsiPls(MBPLS):
         plt.title('Regression Model Evaluation')
 
         return y_predicted
+    
+    def evaluate_class_model_mccv(self, x, y, classification=True, groups=None, test_size=0.2, repeats=10 , random_state=42):
+        """
+        Evaluate classification MB-PLS model using Monte Carlo Cross-Validation (MCCV).
+
+        Args:
+            x (array or list[array]): All blocks of predictors x1, x2, ..., xn. Rows are observations, columns are featuress.
+            y (array): 1-dim or 2-dim array of reference values - categorical variable.
+            classification (bool, optional): Whether the outcome is a categorical variable. Defaults to True.
+            groups (array, optional): Group labels for the samples used while splitting the dataset into train/test set.
+                If provided, group-train-test split will be used instead of train-test split for random splits. 
+                Defaults to None.
+            test_size (float, optional): Proportion of the dataset to include in the test split. Defaults to 0.2.
+            repeats (int, optional): Number of MCCV repeats. Defaults to 10.
+            random_state (int, optional): Generates a sequence of random splits to control MCCV. Defaults to 42.
+
+        Returns:
+            pandas.DataFrame: Evaluation metrics for each MCCV repeat.
+        """
+
+        # Check if PLS model is fitted
+        check_is_fitted(self, 'beta_')
+
+        # Validate inputs
+        _x = x.copy()
+        if isinstance(_x, list) and not isinstance(_x[0], list):
+            pass
+        else:
+            _x = [x]
+        _y = y.copy()
+        _y = check_array(_y, ensure_2d=False)
+
+        # Generate random sequence of seeds for MCCV
+        rng = np.random.RandomState(random_state)
+        
+        # Generate n random numbers
+        random_numbers = rng.randint(1, 4294967296, size=repeats)
+
+        # Placeholder for MCCV scores
+        scores = pd.DataFrame()
+
+        # if groups are provided, group k-fold is performed otherwise sk-learn k-fold
+        for i in range(repeats):
+            if groups is None:
+                train, test, y_train, y_test = train_test_split(_x[0], _y, test_size=test_size, random_state=random_numbers[i])
+                x_train = [df.loc[train.index] for df in _x]
+                x_test = [df.loc[test.index] for df in _x]
+            else:
+                x_train, x_test, y_train, y_test = self.group_train_test_split(_x, _y, groups=groups, test_size=test_size, random_state=random_numbers[i])
+
+            # Fit model and predict
+            self.fit_transform(x_train, y_train)
+            y_predicted = self.predict(x_test)
+
+            # Classification model evaluation
+            if classification:
+                y_predicted_lables  = np.where(y_predicted > 0.5, 1, 0)
+                # Evaluation metrics
+                try:
+                    accuracy = accuracy_score(y_test, y_predicted_lables)
+                except ValueError:
+                    accuracy = np.nan
+                try:
+                    precision = precision_score(y_test, y_predicted_lables)
+                except ValueError:
+                    precision = np.nan
+                try:
+                    recall = recall_score(y_test, y_predicted_lables)
+                except ValueError:
+                    recall = np.nan
+                try:
+                    f1 = f1_score(y_test, y_predicted_lables)
+                except ValueError:
+                    f1 = np.nan
+                try:
+                    tn, fp, _, _ = confusion_matrix(y_test, y_predicted_lables, labels=[0, 1]).ravel()
+                    specificity_score = round(tn/(tn+fp), 3)
+                except ValueError:
+                    specificity_score = np.nan
+                try:
+                    roc_auc = roc_auc_score(y_test, y_predicted)
+                except ValueError:
+                    roc_auc = np.nan
+
+                # save MCCV scores
+                score_row = pd.DataFrame({
+                    'random_state': [random_numbers[i]],
+                    'precision': [precision],
+                    'recall': [recall],
+                    'specificity': [specificity_score],
+                    'f1': [f1],
+                    'roc_auc': [roc_auc],
+                    'accuracy': [accuracy]
+                })
+
+            # Regression model evaluation    
+            else:
+                # Evaluation metrics
+                rmse = root_mean_squared_error(y_test, y_predicted)
+                q2 = r2_score(y_test, y_predicted)
+
+                # save MCCV scores
+                score_row = pd.DataFrame({
+                    'random_state': [random_numbers[i]],
+                    'rmse': [rmse],
+                    'q2': [q2]
+                })    
+
+            if len(scores) == 0:
+                scores = score_row
+            else:
+                scores = pd.concat([scores, score_row], ignore_index=True)
+
+        return scores
+            
 
     def mb_vip(self, plot=True, get_scores=False, savefig=False, **kwargs):
         """
@@ -434,6 +549,7 @@ class MamsiPls(MBPLS):
         if get_scores:
             return vip_scores
         
+            
     def block_importance(self, block_labels=None, normalised=True, plot=True, get_scores=False, savefig=False, **kwargs):
         '''
         Calculate the block importance for each block in the multiblock PLS model and plot the results.
@@ -586,6 +702,51 @@ class MamsiPls(MBPLS):
             return p_vals, vip_null
         else:
             return p_vals
+        
+        
+    @staticmethod
+    def group_train_test_split(x, y, gropus=None, test_size=0.2, random_state=42):
+        """
+        Split the data into train and test sets based on the groups. The groups are split into train and test sets
+        based on the `test_size` parameter. The function returns the train and test sets for the predictors and the
+        response variable.
+
+        Args:
+            x (array or list[array]): All blocks of predictors x1, x2, ..., xn. Rows are samples, columns are features.
+            y (array): 1-dim or 2-dim array of reference values, either continuous or categorical variable.
+            groups (array, optional): Group labels for the samples used while splitting the dataset into train/test set. Defaults to None.
+            test_size (float, optional): Proportion of the dataset to include in the test split. Defaults to 0.2.
+            random_state (int, optional): Controls the shuffling applied to the data before applying the split. Defaults to 42.
+
+        Returns:
+            tuple: x_train, x_test, y_train, y_test
+        """
+    
+        # Ensure x is a list of data frames
+        if not isinstance(x, list):
+            x = [x]
+
+        if groups is not None:
+            groups = check_array(groups, ensure_2d=False, dtype=None)
+
+        # Split the groups into train and test
+        unique_groups = pd.unique(groups)
+        train_groups, test_groups = train_test_split(unique_groups, test_size=test_size, random_state=random_state)
+
+        # Create masks for train and test
+        train_mask = np.isin(groups, train_groups)
+        test_mask = np.isin(groups, test_groups)
+
+        # Split the data frames in x
+        x_train = [df.loc[train_mask] for df in x]
+        x_test = [df.loc[test_mask] for df in x]
+
+        # Split y
+        y_train = y[train_mask]
+        y_test = y[test_mask]
+
+        return x_train, x_test, y_train, y_test
+    
 
     @staticmethod
     def _find_plateau(scores, range_threshold=0.01, consecutive_elements=3):
