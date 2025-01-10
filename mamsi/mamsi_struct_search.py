@@ -185,18 +185,21 @@ class MamsiStructSearch:
         for frame in data:
 
             working_frame = frame
- 
+
             data_both.append(working_frame)
 
 
             # Update offsets for isotopologue and adduct clusters
             working_frame['Isotopologue group'] = working_frame['Isotopologue group'].apply(lambda x: x + iso_offset)
+            # print(working_frame['Adduct group'].max())
             working_frame['Adduct group'] = working_frame['Adduct group'].apply(lambda x: x + adduct_offset)
             working_frame['Structural cluster'] = working_frame['Structural cluster'].apply(lambda x: x + cluster_offset)
-            iso_offset = working_frame['Isotopologue group'].max()  # Update offset
-            adduct_offset = working_frame['Adduct group'].max()  # Update offset
+            if not np.isnan(working_frame['Isotopologue group'].max()):
+                iso_offset = working_frame['Isotopologue group'].max()  # Update offset
+            if not np.isnan(working_frame['Adduct group'].max()):
+                adduct_offset = working_frame['Adduct group'].max()
             cluster_offset = working_frame['Structural cluster'].max()  # Update offset
-
+            
         data_both = pd.DataFrame(np.vstack(data_both), columns=data_both[1].columns)
         self.structural_links = data_both
         # Get cross-assay links
@@ -384,6 +387,8 @@ class MamsiStructSearch:
             if len(group) > 0:
                 matches = pd.concat([matches, group])
                 cluster_flag = cluster_flag + 1
+            else:
+                matches = pd.concat([matches, group])
         return matches
 
     def _find_adduct_matches(self, frame_, row_, clust_flag, main_adduct=True):
