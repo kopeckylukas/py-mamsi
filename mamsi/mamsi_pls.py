@@ -89,7 +89,7 @@ class MamsiPls(MBPLS):
                          calc_all, sparse_data, copy)
         
 
-    def estimate_lv(self, x, y, groups=None, max_components=10, n_splits=5, y_continuous=False, metric='auc',
+    def estimate_lv(self, x, y, groups=None, max_components=10, method='kfold', n_splits=5, y_continuous=False, metric='auc',
                     plateau_threshold=0.01, increase_threshold=0.05, get_scores=False, savefig=False, **kwargs):
         """
         A method to estimate the number of latent variables (LVs)/components in the MB-PLS model.
@@ -179,50 +179,54 @@ class MamsiPls(MBPLS):
             lv_q2_auc = []
             lv_q2_f1 = []
             lv_q2_accuracy = []
+            
+            if method == 'kfold':
+                for j, (train_indices, test_indices) in enumerate(kf.split(response_y, groups=groups)):
 
-            for j, (train_indices, test_indices) in enumerate(kf.split(response_y, groups=groups)):
+                    # Unwrap data perform test-train split
+                    train_data = [None] * len(data)
+                    test_data = [None] * len(data)
+                    train_test_data = [None] * len(data)
+                    for k in range(len(data)):
+                        train_data[k] = data[k].iloc[train_indices]  # filter training data by index and save in a new list
+                        test_data[k] = data[k].iloc[test_indices]  # filter testing data by index and save in a new list
+                        train_test_data[k] = data[k].iloc[train_indices]
 
-                # Unwrap data perform test-train split
-                train_data = [None] * len(data)
-                test_data = [None] * len(data)
-                train_test_data = [None] * len(data)
-                for k in range(len(data)):
-                    train_data[k] = data[k].iloc[train_indices]  # filter training data by index and save in a new list
-                    test_data[k] = data[k].iloc[test_indices]  # filter testing data by index and save in a new list
-                    train_test_data[k] = data[k].iloc[train_indices]
+                    # for each n_components fit new model
+                    self.n_components = i
+                    self.fit_transform(train_data, response_y[train_indices])
 
-                # for each n_components fit new model
-                self.n_components = i
-                self.fit_transform(train_data, response_y[train_indices])
+                    # Predict outcome based on training folds
+                    y_predicted_train = self.predict(train_test_data)
+                    # Calculate predictive performance of training folds
+                    if y_continuous:
+                        lv_r2.append(r2_score(response_y[train_indices], y_predicted_train))
+                    else:
+                        lv_r2_auc.append(roc_auc_score(response_y[train_indices], y_predicted_train))
+                        lv_r2_precision.append(precision_score(response_y[train_indices],
+                                                            np.where(y_predicted_train > 0.5, 1, 0)))
+                        lv_r2_recall.append(
+                            recall_score(response_y[train_indices], np.where(y_predicted_train > 0.5, 1, 0)))
+                        lv_r2_f1.append(f1_score(response_y[train_indices], np.where(y_predicted_train > 0.5, 1, 0)))
+                        lv_r2_accuracy.append(
+                            accuracy_score(response_y[train_indices], np.where(y_predicted_train > 0.5, 1, 0)))
 
-                # Predict outcome based on training folds
-                y_predicted_train = self.predict(train_test_data)
-                # Calculate predictive performance of training folds
-                if y_continuous:
-                    lv_r2.append(r2_score(response_y[train_indices], y_predicted_train))
-                else:
-                    lv_r2_auc.append(roc_auc_score(response_y[train_indices], y_predicted_train))
-                    lv_r2_precision.append(precision_score(response_y[train_indices],
-                                                           np.where(y_predicted_train > 0.5, 1, 0)))
-                    lv_r2_recall.append(
-                        recall_score(response_y[train_indices], np.where(y_predicted_train > 0.5, 1, 0)))
-                    lv_r2_f1.append(f1_score(response_y[train_indices], np.where(y_predicted_train > 0.5, 1, 0)))
-                    lv_r2_accuracy.append(
-                        accuracy_score(response_y[train_indices], np.where(y_predicted_train > 0.5, 1, 0)))
-
-                # Predict outcome based on testing folds
-                y_predicted_test = self.predict(test_data)
-                # Calculate predictive performance of testing folds
-                if y_continuous:
-                    lv_q2.append(r2_score(response_y[test_indices], y_predicted_test))
-                else:
-                    lv_q2_auc.append(roc_auc_score(response_y[test_indices], y_predicted_test))
-                    lv_q2_precision.append(precision_score(response_y[test_indices],
-                                                           np.where(y_predicted_test > 0.5, 1, 0)))
-                    lv_q2_recall.append(recall_score(response_y[test_indices], np.where(y_predicted_test > 0.5, 1, 0)))
-                    lv_q2_f1.append(f1_score(response_y[test_indices], np.where(y_predicted_test > 0.5, 1, 0)))
-                    lv_q2_accuracy.append(
-                        accuracy_score(response_y[test_indices], np.where(y_predicted_test > 0.5, 1, 0)))
+                    # Predict outcome based on testing folds
+                    y_predicted_test = self.predict(test_data)
+                    # Calculate predictive performance of testing folds
+                    if y_continuous:
+                        lv_q2.append(r2_score(response_y[test_indices], y_predicted_test))
+                    else:
+                        lv_q2_auc.append(roc_auc_score(response_y[test_indices], y_predicted_test))
+                        lv_q2_precision.append(precision_score(response_y[test_indices],
+                                                            np.where(y_predicted_test > 0.5, 1, 0)))
+                        lv_q2_recall.append(recall_score(response_y[test_indices], np.where(y_predicted_test > 0.5, 1, 0)))
+                        lv_q2_f1.append(f1_score(response_y[test_indices], np.where(y_predicted_test > 0.5, 1, 0)))
+                        lv_q2_accuracy.append(
+                            accuracy_score(response_y[test_indices], np.where(y_predicted_test > 0.5, 1, 0)))
+            elif method == 'mccv':
+                for _ in range(n_splits):
+                    pass            
 
             # Calculate mean scores of predictive performance for training and testing folds across for each LV
             if y_continuous:
@@ -391,7 +395,7 @@ class MamsiPls(MBPLS):
 
         return y_predicted
     
-    def evaluate_class_model_mccv(self, x, y, classification=True, groups=None, test_size=0.2, repeats=10 , random_state=42):
+    def evaluate_class_model_mccv(self, x, y, classification=True, groups=None, training_scores=False, test_size=0.2, repeats=10 , random_state=42):
         """
         Evaluate classification MB-PLS model using Monte Carlo Cross-Validation (MCCV).
 
@@ -441,49 +445,77 @@ class MamsiPls(MBPLS):
                 x_train, x_test, y_train, y_test = self.group_train_test_split(_x, _y, groups=groups, test_size=test_size, random_state=random_numbers[i])
 
             # Fit model and predict
-            self.fit_transform(x_train, y_train)
+            x_train_copy = deepcopy.deepcopy(x_train)
+            self.fit_transform(x_train_copy, y_train)
             y_predicted = self.predict(x_test)
+            predictions = [y_predicted]
+            truths = [y_test]
+
+            # add training scores
+            if training_scores:
+                y_predicted_train = self.predict(x_train)
+                predictions.append(y_predicted_train)
+                truths.append(y_train)
 
             # Classification model evaluation
             if classification:
-                y_predicted_lables  = np.where(y_predicted > 0.5, 1, 0)
-                # Evaluation metrics
-                try:
-                    accuracy = accuracy_score(y_test, y_predicted_lables)
-                except ValueError:
-                    accuracy = np.nan
-                try:
-                    precision = precision_score(y_test, y_predicted_lables)
-                except ValueError:
-                    precision = np.nan
-                try:
-                    recall = recall_score(y_test, y_predicted_lables)
-                except ValueError:
-                    recall = np.nan
-                try:
-                    f1 = f1_score(y_test, y_predicted_lables)
-                except ValueError:
-                    f1 = np.nan
-                try:
-                    tn, fp, _, _ = confusion_matrix(y_test, y_predicted_lables, labels=[0, 1]).ravel()
-                    specificity_score = round(tn/(tn+fp), 3)
-                except ValueError:
-                    specificity_score = np.nan
-                try:
-                    roc_auc = roc_auc_score(y_test, y_predicted)
-                except ValueError:
-                    roc_auc = np.nan
+                predictions_cl = [np.where(y_predicted > 0.5, 1, 0)]
+                if training_scores:
+                    predictions_cl.append(np.where(y_predicted_train > 0.5, 1, 0))
 
-                # save MCCV scores
-                score_row = pd.DataFrame({
-                    'random_state': [random_numbers[i]],
-                    'precision': [precision],
-                    'recall': [recall],
-                    'specificity': [specificity_score],
-                    'f1': [f1],
-                    'roc_auc': [roc_auc],
-                    'accuracy': [accuracy]
-                })
+                    print(y_train)
+                    print(predictions_cl[1])
+
+                # Calculate evaluation metrics for testing and training sets
+                for prediction_cl, prediction, truth, j in zip(predictions_cl, predictions, truths, [0,1]):
+                # Evaluation metrics
+                    try:
+                        accuracy = accuracy_score(truth, prediction_cl)
+                    except ValueError:
+                        accuracy = np.nan
+                    try:
+                        precision = precision_score(truth, prediction_cl)
+                    except ValueError:
+                        precision = np.nan
+                    try:
+                        recall = recall_score(truth, prediction_cl)
+                    except ValueError:
+                        recall = np.nan
+                    try:
+                        f1 = f1_score(truth, prediction_cl)
+                    except ValueError:
+                        f1 = np.nan
+                    try:
+                        tn, fp, _, _ = confusion_matrix(truth, prediction_cl, labels=[0, 1]).ravel()
+                        specificity_score = round(tn/(tn+fp), 3)
+                    except ValueError:
+                        specificity_score = np.nan
+                    try:
+                        roc_auc = roc_auc_score(truth, prediction)
+                    except ValueError:
+                        roc_auc = np.nan
+
+                    if j == 0:
+                    # save MCCV scores
+                        test_score_row[j] = pd.DataFrame({
+                            'random_state': [random_numbers[i]],
+                            'precision': [precision],
+                            'recall': [recall],
+                            'specificity': [specificity_score],
+                            'f1': [f1],
+                            'roc_auc': [roc_auc],
+                            'accuracy': [accuracy]
+                        })
+                    else:
+                        train_score_row = pd.DataFrame({
+                            'random_state': [random_numbers[i]],
+                            'precision': [precision],
+                            'recall': [recall],
+                            'specificity': [specificity_score],
+                            'f1': [f1],
+                            'roc_auc': [roc_auc],
+                            'accuracy': [accuracy]
+                        })
 
             # Regression model evaluation    
             else:
@@ -492,18 +524,26 @@ class MamsiPls(MBPLS):
                 q2 = r2_score(y_test, y_predicted)
 
                 # save MCCV scores
-                score_row = pd.DataFrame({
+                test_score_row = pd.DataFrame({
                     'random_state': [random_numbers[i]],
                     'rmse': [rmse],
                     'q2': [q2]
                 })    
 
             if len(scores) == 0:
-                scores = score_row
+                scores = test_score_row
+                if training_scores:
+                    train_scores = train_score_row
             else:
-                scores = pd.concat([scores, score_row], ignore_index=True)
+                scores = pd.concat([scores, test_score_row], ignore_index=True)
+                if training_scores:
+                    train_scores = pd.concat([train_scores, train_score_row], ignore_index=True)
 
-        return scores
+
+        if training_scores:
+            return scores, train_scores
+        else:    
+            return scores
             
 
     def mb_vip(self, plot=True, get_scores=False, savefig=False, **kwargs):
