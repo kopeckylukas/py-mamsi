@@ -90,7 +90,7 @@ class MamsiPls(MBPLS):
         
 
     def estimate_lv(self, x, y, groups=None, max_components=10, method='kfold', n_splits=5, y_continuous=False, metric='auc',
-                    plateau_threshold=0.01, increase_threshold=0.05, get_scores=False, savefig=False, **kwargs):
+                    plateau_threshold=0.01, increase_threshold=0.05, get_scores=False, savefig=False, random_state=42, **kwargs):
         """
         A method to estimate the number of latent variables (LVs)/components in the MB-PLS model.
         The method is based k-fold cross-validation and combined with an outer loop with increasing number of LVs.
@@ -224,10 +224,7 @@ class MamsiPls(MBPLS):
                         lv_q2_f1.append(f1_score(response_y[test_indices], np.where(y_predicted_test > 0.5, 1, 0)))
                         lv_q2_accuracy.append(
                             accuracy_score(response_y[test_indices], np.where(y_predicted_test > 0.5, 1, 0)))
-            elif method == 'mccv':
-                for _ in range(n_splits):
-                    pass            
-
+            
             # Calculate mean scores of predictive performance for training and testing folds across for each LV
             if y_continuous:
                 r2.append(statistics.mean(lv_r2))
@@ -397,7 +394,7 @@ class MamsiPls(MBPLS):
     
     def evaluate_class_model_mccv(self, x, y, classification=True, groups=None, return_train=False, test_size=0.2, repeats=10 , random_state=42):
         """
-        Evaluate classification MB-PLS model using Monte Carlo Cross-Validation (MCCV).
+        Evaluate MB-PLS model using Monte Carlo Cross-Validation (MCCV).
 
         Args:
             x (array or list[array]): All blocks of predictors x1, x2, ..., xn. Rows are observations, columns are featuress.
@@ -406,6 +403,7 @@ class MamsiPls(MBPLS):
             groups (array, optional): Group labels for the samples used while splitting the dataset into train/test set.
                 If provided, group-train-test split will be used instead of train-test split for random splits. 
                 Defaults to None.
+            return_train (bool, optional): Whether to return evaluation metrics for training set. Defaults to False.
             test_size (float, optional): Proportion of the dataset to include in the test split. Defaults to 0.2.
             repeats (int, optional): Number of MCCV repeats. Defaults to 10.
             random_state (int, optional): Generates a sequence of random splits to control MCCV. Defaults to 42.
