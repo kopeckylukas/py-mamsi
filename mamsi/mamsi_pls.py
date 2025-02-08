@@ -395,7 +395,7 @@ class MamsiPls(MBPLS):
 
         return y_predicted
     
-    def evaluate_class_model_mccv(self, x, y, classification=True, groups=None, training_scores=False, test_size=0.2, repeats=10 , random_state=42):
+    def evaluate_class_model_mccv(self, x, y, classification=True, groups=None, return_train=False, test_size=0.2, repeats=10 , random_state=42):
         """
         Evaluate classification MB-PLS model using Monte Carlo Cross-Validation (MCCV).
 
@@ -452,7 +452,7 @@ class MamsiPls(MBPLS):
             truths = [y_test]
 
             # add training scores
-            if training_scores:
+            if return_train:
                 y_predicted_train = self.predict(x_train)
                 predictions.append(y_predicted_train)
                 truths.append(y_train)
@@ -460,7 +460,7 @@ class MamsiPls(MBPLS):
             # Classification model evaluation
             if classification:
                 predictions_cl = [np.where(y_predicted > 0.5, 1, 0)]
-                if training_scores:
+                if return_train:
                     predictions_cl.append(np.where(y_predicted_train > 0.5, 1, 0))
 
                     print(y_train)
@@ -497,7 +497,7 @@ class MamsiPls(MBPLS):
 
                     if j == 0:
                     # save MCCV scores
-                        test_score_row[j] = pd.DataFrame({
+                        test_score_row = pd.DataFrame({
                             'random_state': [random_numbers[i]],
                             'precision': [precision],
                             'recall': [recall],
@@ -519,28 +519,37 @@ class MamsiPls(MBPLS):
 
             # Regression model evaluation    
             else:
-                # Evaluation metrics
-                rmse = root_mean_squared_error(y_test, y_predicted)
-                q2 = r2_score(y_test, y_predicted)
 
-                # save MCCV scores
-                test_score_row = pd.DataFrame({
-                    'random_state': [random_numbers[i]],
-                    'rmse': [rmse],
-                    'q2': [q2]
-                })    
+                for prediction, truth, j in zip(predictions, truths, [0,1]):
+                    # Evaluation metrics
+                    rmse = root_mean_squared_error(truth, prediction)
+                    q2 = r2_score(truth, prediction)
+
+                    if j == 0:
+                        # save MCCV scores
+                        test_score_row = pd.DataFrame({
+                            'random_state': [random_numbers[i]],
+                            'rmse': [rmse],
+                            'q2': [q2]
+                        })
+                    else:
+                        train_score_row = pd.DataFrame({
+                            'random_state': [random_numbers[i]],
+                            'rmse': [rmse],
+                            'q2': [q2]
+                        })    
 
             if len(scores) == 0:
                 scores = test_score_row
-                if training_scores:
+                if return_train:
                     train_scores = train_score_row
             else:
                 scores = pd.concat([scores, test_score_row], ignore_index=True)
-                if training_scores:
+                if return_train:
                     train_scores = pd.concat([train_scores, train_score_row], ignore_index=True)
 
 
-        if training_scores:
+        if return_train:
             return scores, train_scores
         else:    
             return scores
