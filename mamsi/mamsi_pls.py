@@ -461,12 +461,9 @@ class MamsiPls(MBPLS):
                 if return_train:
                     predictions_cl.append(np.where(y_predicted_train > 0.5, 1, 0))
 
-                    print(y_train)
-                    print(predictions_cl[1])
-
                 # Calculate evaluation metrics for testing and training sets
                 for prediction_cl, prediction, truth, j in zip(predictions_cl, predictions, truths, [0,1]):
-                # Evaluation metrics
+                    # Evaluation metrics
                     try:
                         accuracy = accuracy_score(truth, prediction_cl)
                     except ValueError:
@@ -493,27 +490,21 @@ class MamsiPls(MBPLS):
                     except ValueError:
                         roc_auc = np.nan
 
+                    row = pd.DataFrame({
+                            'random_state': [random_numbers[i]],
+                            'precision': [precision],
+                            'recall': [recall],
+                            'specificity': [specificity_score],
+                            'f1': [f1],
+                            'roc_auc': [roc_auc],
+                            'accuracy': [accuracy]
+                        })
+
                     if j == 0:
-                    # save MCCV scores
-                        test_score_row = pd.DataFrame({
-                            'random_state': [random_numbers[i]],
-                            'precision': [precision],
-                            'recall': [recall],
-                            'specificity': [specificity_score],
-                            'f1': [f1],
-                            'roc_auc': [roc_auc],
-                            'accuracy': [accuracy]
-                        })
+                        # save MCCV scores
+                        test_score_row = row.copy()
                     else:
-                        train_score_row = pd.DataFrame({
-                            'random_state': [random_numbers[i]],
-                            'precision': [precision],
-                            'recall': [recall],
-                            'specificity': [specificity_score],
-                            'f1': [f1],
-                            'roc_auc': [roc_auc],
-                            'accuracy': [accuracy]
-                        })
+                        train_score_row = row.copy()
 
             # Regression model evaluation    
             else:
@@ -523,19 +514,17 @@ class MamsiPls(MBPLS):
                     rmse = root_mean_squared_error(truth, prediction)
                     q2 = r2_score(truth, prediction)
 
-                    if j == 0:
-                        # save MCCV scores
-                        test_score_row = pd.DataFrame({
+                    row = pd.DataFrame({
                             'random_state': [random_numbers[i]],
                             'rmse': [rmse],
                             'q2': [q2]
                         })
+
+                    if j == 0:
+                        # save MCCV scores
+                        test_score_row = row.copy()
                     else:
-                        train_score_row = pd.DataFrame({
-                            'random_state': [random_numbers[i]],
-                            'rmse': [rmse],
-                            'q2': [q2]
-                        })    
+                        train_score_row = row.copy()
 
             if len(scores) == 0:
                 scores = test_score_row
@@ -545,7 +534,6 @@ class MamsiPls(MBPLS):
                 scores = pd.concat([scores, test_score_row], ignore_index=True)
                 if return_train:
                     train_scores = pd.concat([train_scores, train_score_row], ignore_index=True)
-
 
         if return_train:
             return scores, train_scores
