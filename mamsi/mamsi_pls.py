@@ -192,6 +192,8 @@ class MamsiPls(MBPLS):
                         test_data[k] = data[k].iloc[test_indices]  # filter testing data by index and save in a new list
                         train_test_data[k] = data[k].iloc[train_indices]
 
+                    print(len(test_data))
+
                     # for each n_components fit new model
                     self.n_components = i
                     self.fit_transform(train_data, response_y[train_indices])
@@ -225,21 +227,24 @@ class MamsiPls(MBPLS):
                         lv_q2_accuracy.append(
                             accuracy_score(response_y[test_indices], np.where(y_predicted_test > 0.5, 1, 0)))
             
-            # Calculate mean scores of predictive performance for training and testing folds across for each LV
-            if y_continuous:
-                r2.append(statistics.mean(lv_r2))
-                q2.append(statistics.mean(lv_q2))
-            else:
-                r2_auc.append(statistics.mean(lv_r2_auc))
-                q2_auc.append(statistics.mean(lv_q2_auc))
-                r2_precision.append(statistics.mean(lv_r2_precision))
-                r2_recall.append(statistics.mean(lv_r2_recall))
-                r2_f1.append(statistics.mean(lv_r2_f1))
-                r2_accuracy.append(statistics.mean(lv_r2_accuracy))
-                q2_precision.append(statistics.mean(lv_q2_precision))
-                q2_recall.append(statistics.mean(lv_q2_recall))
-                q2_f1.append(statistics.mean(lv_q2_f1))
-                q2_accuracy.append(statistics.mean(lv_q2_accuracy))
+                # Calculate mean scores of predictive performance for training and testing folds across for each LV
+                if y_continuous:
+                    r2.append(statistics.mean(lv_r2))
+                    q2.append(statistics.mean(lv_q2))
+                else:
+                    r2_auc.append(statistics.mean(lv_r2_auc))
+                    q2_auc.append(statistics.mean(lv_q2_auc))
+                    r2_precision.append(statistics.mean(lv_r2_precision))
+                    r2_recall.append(statistics.mean(lv_r2_recall))
+                    r2_f1.append(statistics.mean(lv_r2_f1))
+                    r2_accuracy.append(statistics.mean(lv_r2_accuracy))
+                    q2_precision.append(statistics.mean(lv_q2_precision))
+                    q2_recall.append(statistics.mean(lv_q2_recall))
+                    q2_f1.append(statistics.mean(lv_q2_f1))
+                    q2_accuracy.append(statistics.mean(lv_q2_accuracy))
+
+            if method == 'montecarlo':
+                scores = self.evaluate_class_model_mccv(x, y, classification=not y_continuous, groups=groups, return_train=True, test_size=0.2, repeats=10 , random_state=42)    
 
         if y_continuous:
             perf_scores = pd.DataFrame([range(1, max_components + 1), r2, q2],
@@ -392,17 +397,167 @@ class MamsiPls(MBPLS):
 
         return y_predicted
     
-    def evaluate_class_model_mccv(self, x, y, classification=True, groups=None, return_train=False, test_size=0.2, repeats=10 , random_state=42):
+    def kfold_cv(self, x, y, groups=None, classification=True, return_train=False, n_splits=5):
+        """
+        Perform k-fold cross-validation for MB-PLS model.
+
+        Args:
+            x (array or list[array]): All blocks of predictors x1, x2, ..., xn. Rows are observations, columns are features/variables.
+            y (array): 1-dim or 2-dim array of reference values, either continuous or categorical variable.
+            groups (array, optional): Group labels for the samples used while splitting the dataset into train/test set.
+                If provided, group k-fold is performed. 
+                Defaults to None.
+            classification (bool, optional): Whether the outcome is a categorical variable. Defaults to True.
+            return_train (bool, optional): Whether to return evaluation metrics for training set. Defaults to False.
+            n_splits (int, optional): Number of splits for k-fold cross-validation. Defaults to 5.
+
+        Returns:
+            pandas.DataFrame: Evaluation metrics for each k-fold split.
+                if return_train is True, returns evaluation metrics for training set as well.
+        """
+
+        check_is_fitted(self, 'beta_')
+
+        # Validate inputs
+        _x = x.copy()
+        if isinstance(_x, list) and not isinstance(_x[0], list):
+            pass
+        else:
+            _x = [x]
+        _y = y.copy()
+        _y = check_array(_y, ensure_2d=False)
+
+        # if groups are provided, group k-fold is performed, otherwise sk-learn k-fold is used
+        if groups is None:
+            kf = KFold(n_splits=n_splits)
+        else:
+            kf = GroupKFold(n_splits=n_splits)
+
+        scores = pd.DataFrame()    
+
+        for j, (train_indices, test_indices) in enumerate(kf.split(_y, groups=groups)):
+            # Unwrap data perform test-train split
+            x_train = [None] * len(_x)
+            x_test = [None] * len(_x)
+            train_test_data = [None] * len(_x)
+            y_train = _y[train_indices]
+            y_test = _y[test_indices]
+
+            for k in range(len(_x)):
+                x_train[k] = _x[k].iloc[train_indices]  # filter training data by index and save in a new list
+                x_test[k] = _x[k].iloc[test_indices]  # filter testing data by index and save in a new list
+                train_test_data[k] = _x[k].iloc[train_indices]
+
+            # Fit model and predict
+            x_train_copy = deepcopy.deepcopy(x_train)
+            self.fit_transform(x_train_copy, y_train)# for each n_components fit new model
+    
+            # Predict outcome based on training folds
+            y_predicted = self.predict(x_test)
+            predictions = [y_predicted]
+            truths = [y_test]
+
+            # add training scores
+            if return_train:
+                y_predicted_train = self.predict(x_train)
+                predictions.append(y_predicted_train)
+                truths.append(y_train)
+
+            # Classification model evaluation
+            if classification:
+                predictions_cl = [np.where(y_predicted > 0.5, 1, 0)]
+                if return_train:
+                    predictions_cl.append(np.where(y_predicted_train > 0.5, 1, 0))
+
+                # Calculate evaluation metrics for testing and training sets
+                for prediction_cl, prediction, truth, j in zip(predictions_cl, predictions, truths, [0,1]):
+                    # Evaluation metrics
+                    try:
+                        accuracy = accuracy_score(truth, prediction_cl)
+                    except ValueError:
+                        accuracy = np.nan
+                    try:
+                        precision = precision_score(truth, prediction_cl)
+                    except ValueError:
+                        precision = np.nan
+                    try:
+                        recall = recall_score(truth, prediction_cl)
+                    except ValueError:
+                        recall = np.nan
+                    try:
+                        f1 = f1_score(truth, prediction_cl)
+                    except ValueError:
+                        f1 = np.nan
+                    try:
+                        tn, fp, _, _ = confusion_matrix(truth, prediction_cl, labels=[0, 1]).ravel()
+                        specificity_score = round(tn/(tn+fp), 3)
+                    except ValueError:
+                        specificity_score = np.nan
+                    try:
+                        roc_auc = roc_auc_score(truth, prediction)
+                    except ValueError:
+                        roc_auc = np.nan
+
+                    row = pd.DataFrame({
+                            'precision': [precision],
+                            'recall': [recall],
+                            'specificity': [specificity_score],
+                            'f1': [f1],
+                            'roc_auc': [roc_auc],
+                            'accuracy': [accuracy]
+                        })
+
+                    if j == 0:
+                        # save MCCV scores
+                        test_score_row = row.copy()
+                    else:
+                        train_score_row = row.copy()
+
+            # Regression model evaluation    
+            else:
+
+                for prediction, truth, j in zip(predictions, truths, [0,1]):
+                    # Evaluation metrics
+                    rmse = root_mean_squared_error(truth, prediction)
+                    q2 = r2_score(truth, prediction)
+
+                    row = pd.DataFrame({
+                            'rmse': [rmse],
+                            'q2': [q2]
+                        })
+
+                    if j == 0:
+                        # save MCCV scores
+                        test_score_row = row.copy()
+                    else:
+                        train_score_row = row.copy()
+
+            if len(scores) == 0:
+                scores = test_score_row
+                if return_train:
+                    train_scores = train_score_row
+            else:
+                scores = pd.concat([scores, test_score_row], ignore_index=True)
+                if return_train:
+                    train_scores = pd.concat([train_scores, train_score_row], ignore_index=True)
+
+        if return_train:
+            return scores, train_scores
+        else:    
+            return scores
+
+
+    def evaluate_class_model_mccv(self, x, y, groups=None, classification=True, return_train=False, test_size=0.2, repeats=10, random_state=42):
         """
         Evaluate MB-PLS model using Monte Carlo Cross-Validation (MCCV).
 
         Args:
             x (array or list[array]): All blocks of predictors x1, x2, ..., xn. Rows are observations, columns are featuress.
             y (array): 1-dim or 2-dim array of reference values - categorical variable.
-            classification (bool, optional): Whether the outcome is a categorical variable. Defaults to True.
             groups (array, optional): Group labels for the samples used while splitting the dataset into train/test set.
                 If provided, group-train-test split will be used instead of train-test split for random splits. 
                 Defaults to None.
+            classification (bool, optional): Whether the outcome is a categorical variable. Defaults to True.
             return_train (bool, optional): Whether to return evaluation metrics for training set. Defaults to False.
             test_size (float, optional): Proportion of the dataset to include in the test split. Defaults to 0.2.
             repeats (int, optional): Number of MCCV repeats. Defaults to 10.
@@ -410,6 +565,7 @@ class MamsiPls(MBPLS):
 
         Returns:
             pandas.DataFrame: Evaluation metrics for each MCCV repeat.
+                if return_train is True, returns evaluation metrics for training set as well.
         """
 
         # Check if PLS model is fitted
@@ -433,7 +589,7 @@ class MamsiPls(MBPLS):
         # Placeholder for MCCV scores
         scores = pd.DataFrame()
 
-        # if groups are provided, group k-fold is performed otherwise sk-learn k-fold
+        # if groups are provided, group test-train split is performed otherwise sk-learn test-train split is used
         for i in range(repeats):
             if groups is None:
                 train, test, y_train, y_test = train_test_split(_x[0], _y, test_size=test_size, random_state=random_numbers[i])
