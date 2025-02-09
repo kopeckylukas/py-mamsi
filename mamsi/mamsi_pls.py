@@ -164,7 +164,7 @@ class MamsiPls(MBPLS):
             if method == 'kfold':
                 test_scores, train_scores = self.kfold_cv(x, y, groups=groups, classification=classification, return_train=True, n_splits=n_splits)
             elif method == 'montecarlo':
-                test_scores, train_scores = self.evaluate_class_model_mccv(x, y, groups=groups, classification=classification, return_train=True, 
+                test_scores, train_scores = self.montecarlo_cv(x, y, groups=groups, classification=classification, return_train=True, 
                                                                            test_size=test_size, repeats=repeats, random_state=random_state)
             else:
                 raise ValueError("Invalid method. Available options are ['kfold', 'montecarlo']")
@@ -480,7 +480,7 @@ class MamsiPls(MBPLS):
             return scores
 
 
-    def evaluate_class_model_mccv(self, x, y, groups=None, classification=True, return_train=False, test_size=0.2, repeats=10, random_state=42):
+    def montecarlo_cv(self, x, y, groups=None, classification=True, return_train=False, test_size=0.2, repeats=10, random_state=42):
         """
         Evaluate MB-PLS model using Monte Carlo Cross-Validation (MCCV).
 
