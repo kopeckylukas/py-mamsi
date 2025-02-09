@@ -17,7 +17,7 @@ from sklearn.metrics import r2_score, root_mean_squared_error, mean_squared_erro
 from mbpls.mbpls import MBPLS
 from sklearn.utils.validation import check_array, check_is_fitted
 import matplotlib.pyplot as plt
-
+from scipy import stats
 
 class MamsiPls(MBPLS):
     """
@@ -89,195 +89,123 @@ class MamsiPls(MBPLS):
                          calc_all, sparse_data, copy)
         
 
-    def estimate_lv(self, x, y, groups=None, max_components=10, method='kfold', n_splits=5, y_continuous=False, metric='auc',
-                    plateau_threshold=0.01, increase_threshold=0.05, get_scores=False, savefig=False, random_state=42, **kwargs):
-        """
-        A method to estimate the number of latent variables (LVs)/components in the MB-PLS model.
-        The method is based k-fold cross-validation and combined with an outer loop with increasing number of LVs.
-        LV on which the model stabilises corresponds with the optimal number of LVs.
+    def estimate_lv(self, x, y, groups=None, max_components=10, classification=True, metric='auc', 
+                    method='kfold', n_splits=5, repeats=100, test_size=0.2, random_state=42, 
+                    plateau_threshold=0.01, increase_threshold=0.05, get_scores=False, savefig=False,  **kwargs):
+        """A method to estimate the number of latent variables (LVs)/components in the MB-PLS model.
+           The method is based on cross-validation (k-fold or Monte Carlo) and combined with an outer loop with increasing number of LVs.
+           LV on which the model stabilises corresponds with the optimal number of LVs.
 
         Args:
-            x (array or list[array]): All blocks of predictors x1, x2, ..., xn. Rows are observations, columns are features/variables.
-            y (array): A 1-dim or 2-dim array of reference values, either continuous or categorical variable.
-            groups (array, optional): If provided, K-fold iterator variant with non-overlapping groups. 
+            x (array or list['array']): All blocks of predictors x1, x2, ..., xn. Rows are observations, columns are features/variables.
+            y (array): A 1-dim array of reference values, either continuous or categorical variable.
+            groups (array, optional): If provided, cv iterator variant with non-overlapping groups. 
                 Group labels for the samples used while splitting the dataset into train/test set.
-                Defaults to None. 
-            max_components (int, optional): Number of components/LVs. Defaults to 10.
-            n_splits (int, optional): Number of splits for k-fold cross-validation. Defaults to 5.
-            y_continuous (bool, optional): Whether the outcome is a continuous variable. Defaults to False.
+                Defaults to None.
+            max_components (int, optional): Maximum number of components for whic LV estimate is calculated. 
+                Defaults to 10.
+            classification (bool, optional): Whether to perfrom calssification or regression. Defaults to True.
             metric (str, optional): Metric to use to estimate the number of LVs; available options: [`AUC`, `precision`, `recall`, `f1`] for 
                 categorical outcome variables and ['q2'] for continuous outcome variable. 
-                Defaults to 'AUC'.
-            plateau_threshold (float, optional): Maximum increase for a sequence of LVs to be considered a plateau. Must be non-negative. Defaults to 0.01.
-            increase_threshold (float, optional): Minimum increase to be considered a bend. Must be non-negative. Defaults to 0.05.
-            get_scores (bool, optional): Whether to return measured scores as a Pandas DataFrame. Defaults to False.
-            savefig (bool, optional): Whether to save the plot as a figure. If True, argument `fname` has to be provided. 
-                Defaults to False.
+                Defaults to 'auc'.
+            method (str, optional): Corss-validation method. Available options ['kfold', 'montecarlo']. Defaults to 'kfold'.
+            n_splits (int, optional): Number of splits for k-fold cross-validation. Defaults to 5.
+            repeats (int, optional): Number of train-test split repeats from Monte Carlo. Defaults to 100.
+            test_size (float, optional): Test size for Monte Carlo. Defaults to 0.2.
+            random_state (int, optional): Generates a sequence of random splits to control MCCV. Defaults to 42.
+            plateau_threshold (float, optional): Maximum increase for a sequence of LVs to be considered a plateau. 
+                Must be non-negative. 
+                Defaults to 0.01.
+            increase_threshold (float, optional): Minimum increase to be considered a bend. Must be non-negative.. Defaults to 0.05.
+            get_scores (bool, optional): Whether to retun measured mean scores. Defaults to False.
+            savefig (bool, optional): Whether to save the plot as a figure. If True, argument `fname` has to be provided. Defaults to False.
             **kwargs: Additional keyword arguments to be passed to plt.savefig(), fname required to save .
+
+        Raises:
+            ValueError: Incorrect metric for categorical outcome. Allowed values are: 'auc', 'precision', 'recall', 'specificity', 'f1', 'accuracy'.
+            ValueError: Incorrect metric for continuous outcome. Allowed values are: 'q2'.
+            ValueError: Invalid method. Available options are ['kfold', 'montecarlo'].
+
         Returns:
-            pandas.DataFrame: Measured mean scores for test and train splits for all components returned as a Pandas DataFrame.
+            pandas.DataFrame: Measured mean scores for test and train splits for all components.
         """
 
         check_is_fitted(self, 'beta_')
 
         # Validation of data inputs
-        data = x.copy()
-        # Check if the data is a list of a pandas.DataFrame
-        if isinstance(data, list) and not isinstance(data[0], list):
+        _x = x.copy()
+        if isinstance(_x, list) and not isinstance(_x[0], list):
             pass
         else:
-            data = [data]
-
-        _y = check_array(y, ensure_2d=False)
-        response_y = _y.copy()
+            _x = [_x]
+        _y = y.copy()
+        _y = check_array(_y, ensure_2d=False)
 
         # Validation in parameter inputs
-        if y_continuous:
+        if classification:
+            allowed_metrics = ['auc', 'precision', 'recall', 'specificity', 'f1', 'accuracy']
+            if metric not in allowed_metrics:
+                raise ValueError(f"Invalid metric for categorical outcome. Allowed values are: "
+                                 f"{', '.join(allowed_metrics)}")
+        else:
             metric = 'q2'
             allowed_metrics = ['q2']
             if metric not in allowed_metrics:
                 raise ValueError(f"Invalid metric continuous outcome. Allowed values are: {', '.join(allowed_metrics)}")
-        else:
-            allowed_metrics = ['auc', 'precision', 'recall', 'f1', 'accuracy']
-            if metric not in allowed_metrics:
-                raise ValueError(f"Invalid metric for categorical outcome. Allowed values are: "
-                                 f"{', '.join(allowed_metrics)}")
-
+    
         # Scores placeholders
-        r2 = []
-        q2 = []
-        r2_auc = []
-        r2_precision = []
-        r2_recall = []
-        r2_f1 = []
-        r2_accuracy = []
-        q2_auc = []
-        q2_precision = []
-        q2_recall = []
-        q2_f1 = []
-        q2_accuracy = []
+        training_means = pd.DataFrame()
+        testing_means = pd.DataFrame()
 
-        #If `groups` are provided, group k-fold is performed
-        if groups is None:
-            kf = KFold(n_splits=n_splits)
-        else:
-            kf = GroupKFold(n_splits=n_splits)
-
-        # Estimation of scores for different number of latent variables / components.
+        # Outer loop. Calculate scores for each latent variable.
         for i in range(1, max_components + 1):
 
-            # Set LV scores placeholder lists
-            lv_r2 = []
-            lv_q2 = []
-            lv_r2_precision = []
-            lv_r2_recall = []
-            lv_r2_auc = []
-            lv_r2_f1 = []
-            lv_r2_accuracy = []
-            lv_q2_precision = []
-            lv_q2_recall = []
-            lv_q2_auc = []
-            lv_q2_f1 = []
-            lv_q2_accuracy = []
-            
+            self.n_components = i
             if method == 'kfold':
-                for j, (train_indices, test_indices) in enumerate(kf.split(response_y, groups=groups)):
+                test_scores, train_scores = self.kfold_cv(x, y, groups=groups, classification=classification, return_train=True, n_splits=n_splits)
+            elif method == 'montecarlo':
+                test_scores, train_scores = self.evaluate_class_model_mccv(x, y, groups=groups, classification=classification, return_train=True, 
+                                                                           test_size=test_size, repeats=repeats, random_state=random_state)
+            else:
+                raise ValueError("Invalid method. Available options are ['kfold', 'montecarlo']")
 
-                    # Unwrap data perform test-train split
-                    train_data = [None] * len(data)
-                    test_data = [None] * len(data)
-                    train_test_data = [None] * len(data)
-                    for k in range(len(data)):
-                        train_data[k] = data[k].iloc[train_indices]  # filter training data by index and save in a new list
-                        test_data[k] = data[k].iloc[test_indices]  # filter testing data by index and save in a new list
-                        train_test_data[k] = data[k].iloc[train_indices]
+            if len(training_means) == 0:
+                testing_means = pd.DataFrame(test_scores.mean()).T
+                training_means = pd.DataFrame(train_scores.mean()).T
+            else:
+                testing_means = pd.concat([testing_means, pd.DataFrame(test_scores.mean()).T])
+                training_means = pd.concat([training_means, pd.DataFrame(train_scores.mean()).T])
 
-                    print(len(test_data))
+        testing_means.reset_index(drop=True, inplace=True)
+        training_means.reset_index(drop=True, inplace=True)
 
-                    # for each n_components fit new model
-                    self.n_components = i
-                    self.fit_transform(train_data, response_y[train_indices])
-
-                    # Predict outcome based on training folds
-                    y_predicted_train = self.predict(train_test_data)
-                    # Calculate predictive performance of training folds
-                    if y_continuous:
-                        lv_r2.append(r2_score(response_y[train_indices], y_predicted_train))
-                    else:
-                        lv_r2_auc.append(roc_auc_score(response_y[train_indices], y_predicted_train))
-                        lv_r2_precision.append(precision_score(response_y[train_indices],
-                                                            np.where(y_predicted_train > 0.5, 1, 0)))
-                        lv_r2_recall.append(
-                            recall_score(response_y[train_indices], np.where(y_predicted_train > 0.5, 1, 0)))
-                        lv_r2_f1.append(f1_score(response_y[train_indices], np.where(y_predicted_train > 0.5, 1, 0)))
-                        lv_r2_accuracy.append(
-                            accuracy_score(response_y[train_indices], np.where(y_predicted_train > 0.5, 1, 0)))
-
-                    # Predict outcome based on testing folds
-                    y_predicted_test = self.predict(test_data)
-                    # Calculate predictive performance of testing folds
-                    if y_continuous:
-                        lv_q2.append(r2_score(response_y[test_indices], y_predicted_test))
-                    else:
-                        lv_q2_auc.append(roc_auc_score(response_y[test_indices], y_predicted_test))
-                        lv_q2_precision.append(precision_score(response_y[test_indices],
-                                                            np.where(y_predicted_test > 0.5, 1, 0)))
-                        lv_q2_recall.append(recall_score(response_y[test_indices], np.where(y_predicted_test > 0.5, 1, 0)))
-                        lv_q2_f1.append(f1_score(response_y[test_indices], np.where(y_predicted_test > 0.5, 1, 0)))
-                        lv_q2_accuracy.append(
-                            accuracy_score(response_y[test_indices], np.where(y_predicted_test > 0.5, 1, 0)))
-            
-                # Calculate mean scores of predictive performance for training and testing folds across for each LV
-                if y_continuous:
-                    r2.append(statistics.mean(lv_r2))
-                    q2.append(statistics.mean(lv_q2))
-                else:
-                    r2_auc.append(statistics.mean(lv_r2_auc))
-                    q2_auc.append(statistics.mean(lv_q2_auc))
-                    r2_precision.append(statistics.mean(lv_r2_precision))
-                    r2_recall.append(statistics.mean(lv_r2_recall))
-                    r2_f1.append(statistics.mean(lv_r2_f1))
-                    r2_accuracy.append(statistics.mean(lv_r2_accuracy))
-                    q2_precision.append(statistics.mean(lv_q2_precision))
-                    q2_recall.append(statistics.mean(lv_q2_recall))
-                    q2_f1.append(statistics.mean(lv_q2_f1))
-                    q2_accuracy.append(statistics.mean(lv_q2_accuracy))
-
-            if method == 'montecarlo':
-                scores = self.evaluate_class_model_mccv(x, y, classification=not y_continuous, groups=groups, return_train=True, test_size=0.2, repeats=10 , random_state=42)    
-
-        if y_continuous:
-            perf_scores = pd.DataFrame([range(1, max_components + 1), r2, q2],
-                                       index=['Number of Components', 'r2', 'q2']).T
-        else:
-            perf_scores = pd.DataFrame([range(1, max_components + 1), r2_auc, r2_precision, r2_recall, r2_f1,
-                                        r2_accuracy, q2_auc, q2_precision, q2_recall, q2_f1, q2_accuracy],
-                                       index=['Number of Components', 'Training AUC', 'Training Precision',
-                                              'Training Recall', 'Training F1 Score', 'Training Accuracy',
-                                              'Testing AUC', 'Testing Precision', 'Testing Recall',
-                                              'Testing F1 Score', 'Testing Accuracy']).T
+        # concatenate training and testing scores into one dataframe, add prefix training_ to training scores
+        perf_scores = pd.concat([training_means.add_prefix('training_'), testing_means], axis=1)
+        perf_scores.insert(0, 'Number of Components', range(1, max_components + 1))
 
         # Select desired metric
         if metric == 'q2':
-            data = q2
+            _data = testing_means['q2']
         if metric == 'auc':
-            data = q2_auc
+            _data = testing_means['roc_auc']
         if metric == 'precision':
-            data = q2_precision
+            _data = testing_means['precision']
         if metric == 'recall':
-            data = q2_recall
+            _data = testing_means['recall']
         if metric == 'f1':
-            data = q2_f1
+            _data = testing_means['f1']
         if metric == 'accuracy':
-            data = q2_accuracy
+            _data = testing_means['accuracy']
+        if metric == 'specificity':
+            _data = testing_means['specificity']
 
         # Estimate number of LVs
         try:
-            bend = np.min(np.where(np.diff(data) / data[0] < increase_threshold)[0]) + 1
+            bend = np.min(np.where(np.diff(_data) / _data[0] < increase_threshold)[0]) + 1
         except ValueError:
             # Handle the case where np.min() fails due to an empty array
             bend = 1
-        plateau_range_start, plateau_range_end = self._find_plateau(data, range_threshold=plateau_threshold)
+        plateau_range_start, plateau_range_end = self._find_plateau(_data, range_threshold=plateau_threshold)
 
         # Percentage for printed statements below
         increase = increase_threshold * 100
@@ -305,14 +233,19 @@ class MamsiPls(MBPLS):
             print("Model re-fitted with n_components =", self.n_components)
         plt.ylabel('Score')
         plt.xlabel('Number of Latent Variables')
-        plt.title('Latent Variable Estimation')
+        if method == 'kfold':
+            title = 'Latent Variable Estimation' + ' (k-Fold) '
+        else:
+            title = 'Latent Variable Estimation' + ' (Monte Carlo) ' 
+        plt.title(title)
         plt.legend()
 
         if savefig:
             plt.savefig(**kwargs)
 
         if get_scores:
-            return perf_scores
+            return perf_scores    
+
 
     def evaluate_class_model(self, x, y):
         """
@@ -647,7 +580,7 @@ class MamsiPls(MBPLS):
                         roc_auc = np.nan
 
                     row = pd.DataFrame({
-                            'random_state': [random_numbers[i]],
+                            # 'random_state': [random_numbers[i]],
                             'precision': [precision],
                             'recall': [recall],
                             'specificity': [specificity_score],
@@ -671,7 +604,7 @@ class MamsiPls(MBPLS):
                     q2 = r2_score(truth, prediction)
 
                     row = pd.DataFrame({
-                            'random_state': [random_numbers[i]],
+                            # 'random_state': [random_numbers[i]],
                             'rmse': [rmse],
                             'q2': [q2]
                         })
@@ -893,8 +826,8 @@ class MamsiPls(MBPLS):
             return p_vals, vip_null
         else:
             return p_vals
-        
-        
+
+
     @staticmethod
     def group_train_test_split(x, y, gropus=None, test_size=0.2, random_state=42):
         """
