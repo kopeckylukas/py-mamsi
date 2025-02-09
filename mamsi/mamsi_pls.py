@@ -169,6 +169,9 @@ class MamsiPls(MBPLS):
             else:
                 raise ValueError("Invalid method. Available options are ['kfold', 'montecarlo']")
 
+            test_scores = test_scores.dropna(axis=0)
+            train_scores = train_scores.dropna(axis=0)
+
             if len(training_means) == 0:
                 testing_means = pd.DataFrame(test_scores.mean()).T
                 training_means = pd.DataFrame(train_scores.mean()).T
@@ -414,7 +417,7 @@ class MamsiPls(MBPLS):
                     except ValueError:
                         precision = np.nan
                     try:
-                        recall = recall_score(truth, prediction_cl)
+                        recall = recall_score(truth, prediction_cl, zero_division=np.nan)
                     except ValueError:
                         recall = np.nan
                     try:
@@ -423,7 +426,7 @@ class MamsiPls(MBPLS):
                         f1 = np.nan
                     try:
                         tn, fp, _, _ = confusion_matrix(truth, prediction_cl, labels=[0, 1]).ravel()
-                        specificity_score = round(tn/(tn+fp), 3)
+                        specificity_score = tn/(tn+fp) if (tn + fp) != 0 else np.nan
                     except ValueError:
                         specificity_score = np.nan
                     try:
@@ -562,7 +565,7 @@ class MamsiPls(MBPLS):
                     except ValueError:
                         precision = np.nan
                     try:
-                        recall = recall_score(truth, prediction_cl)
+                        recall = recall_score(truth, prediction_cl, zero_division=np.nan)
                     except ValueError:
                         recall = np.nan
                     try:
@@ -571,7 +574,7 @@ class MamsiPls(MBPLS):
                         f1 = np.nan
                     try:
                         tn, fp, _, _ = confusion_matrix(truth, prediction_cl, labels=[0, 1]).ravel()
-                        specificity_score = round(tn/(tn+fp), 3)
+                        specificity_score = tn/(tn+fp) if (tn + fp) != 0 else np.nan
                     except ValueError:
                         specificity_score = np.nan
                     try:
