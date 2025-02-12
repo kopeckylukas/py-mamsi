@@ -830,6 +830,45 @@ class MamsiPls(MBPLS):
         else:
             return p_vals
 
+    @staticmethod
+    def calculate_ci(data, ci_level=0.90, dropna=True):
+        """Calculates mean, margin of error, and confidence interval for each column.
+
+        Args:
+            data (pd.DataFrame): The input DataFrame.
+            ci_level (float, optional): The confidence level (e.g., 0.90, 0.95). Defaults to 0.90.
+            dropna (bool, optional): Whether to drop rows containing NaNs. Defaults to True.
+
+        Returns:
+            pd.DataFrame: A DataFrame containing the calculated statistics for each column.
+                        If dropna = False, and a column has less than 2 valid values after
+                        dropping NaNs specific to that column, all the result values for that
+                        column will be np.nan.
+        """
+
+        if dropna:
+            _data = data.dropna()  # Drop rows with NaNs for consistent comparison
+        else:
+            _data = data  # Use the data as-is (handle NaNs later if needed)
+
+        results = {}
+        for col in _data.columns:
+            col_data = _data[col]
+            if not dropna: # if user did not specify dropna, handle nans in individual columns
+                col_data = col_data.dropna() # drop for each column separately
+            
+            if len(col_data) < 2: # handle cases where after dropping nans for a column, there is only one element. 
+                print(f"Warning: Column {col} has less than 2 valid values after NaN removal. Cannot calculate CI.")
+                results[col] = {"mean": np.nan, "margin_of_error": np.nan, "CI_lower": np.nan, "CI_upper": np.nan}
+                continue
+
+            mean = np.mean(col_data)
+            sem = stats.sem(col_data)
+            ci = stats.t.interval(ci_level, len(col_data) - 1, loc=mean, scale=sem)  # len(col_data) - 1: Degrees of freedom
+            error = (ci[1] - ci[0]) / 2
+            results[col] = {"mean": mean, "margin_of_error": error, "CI_lower": ci[0], "CI_upper": ci[1]}
+
+        return pd.DataFrame(results)
 
     @staticmethod
     def group_train_test_split(x, y, gropus=None, test_size=0.2, random_state=42):
