@@ -186,6 +186,12 @@ class MamsiPls(MBPLS):
         perf_scores = pd.concat([training_means.add_prefix('training_'), testing_means], axis=1)
         perf_scores.insert(0, 'Number of Components', range(1, max_components + 1))
 
+        #  for regression, delete RMSE from the dataframe and rename training_q2 to r2
+        if not classification:
+            perf_scores.drop('training_rmse', axis=1, inplace=True)
+            perf_scores.drop('rmse', axis=1, inplace=True)
+            perf_scores.rename(columns={'training_q2': 'r2'}, inplace=True)
+            
         # Select desired metric
         if metric == 'q2':
             _data = testing_means['q2']
