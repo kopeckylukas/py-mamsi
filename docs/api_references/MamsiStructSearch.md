@@ -110,9 +110,8 @@ isotopologues, adduct patterns and cross-assay links.
 * **list** (pandas.DataFrame) : DataFrame of significant features with structural clusters.
 
 
-
 ### .get_correlation_clusters
-[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_struct_search.py/#L703)
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_struct_search.py/#L708)
 ```python
 .get_correlation_clusters(
    flat_method = 'constant', cut_threshold = 0.7, max_clusters = 5,
@@ -155,7 +154,7 @@ flat_method (str {'constant', 'silhouette'}, optional):
     Method for cluster flattening:
 
 ### .get_structural_network
-[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_struct_search.py/#L851)
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_struct_search.py/#L856)
 ```python
 .get_structural_network(
    include_all = False, interactive = False, return_nx_object = False,
@@ -219,9 +218,3 @@ The graph can be saved as a NetworkX object if return_nx_object is True.
 * **RuntimeWarning**  : If no data is loaded and no master file is provided.
 * **RuntimeWarning**  : If the provided master file is missing necessary columns.
 
----
-Notes:
-    - The function creates a network graph based on the provided master file or the loaded structural links data.
-    - The network graph includes nodes representing features and edges representing different types of links.
-    - The graph can be displayed interactively using pyvis.network or using NetworkX and matplotlib.
-    - The graph can be saved as a NetworkX object if return_nx_object is True.
