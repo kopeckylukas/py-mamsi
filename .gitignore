@@ -14,3 +14,4 @@ site/
 pyproject.toml
 temp_data/
 dev_scripts/
+/docs/api_references/index.md
