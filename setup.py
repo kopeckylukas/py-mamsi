@@ -5,7 +5,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="mamsi",
-    version="1.0.2",
+    version="1.0.3",
     packages=find_packages(),
     url="https://github.com/kopeckylukas/py-mamsi",
     license="BSD 3-Clause License",
@@ -34,6 +34,7 @@ setup(
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: 3.13',
     ],
 
     install_requires=[
