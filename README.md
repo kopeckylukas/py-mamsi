@@ -1,3 +1,4 @@
+# MAMSI
 ![MAMSI_logo](https://github.com/kopeckylukas/py-mamsi/blob/main/docs/images/MAMSI_logo.png?raw=true)
 
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://github.com/kopeckylukas/py-mamsi/blob/main/LICENCE)
@@ -11,7 +12,7 @@ In addition, the MAMSI framework provides a platform for linking statistically s
 
 *N.B. the framework was tested on metabolomics phenotyping data, but it should be usable with other types of LC-MS data.*
 
-# Overview
+
 ## Features
 - Data integration analysis using the Multi-Block Partial Least Squares (MB-PLS) [[1](#references)] algorithm.
 - Multi-Block Variable Importance in Projection (MB-VIP) [[2](#references)].
