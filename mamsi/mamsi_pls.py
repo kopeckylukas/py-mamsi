@@ -840,6 +840,7 @@ class MamsiPls(MBPLS):
     def calculate_ci(data, ci_level=0.90, dropna=True):
         """
         Static Method
+        
         Calculates mean, margin of error, and confidence interval for each column.
 
         Args:
@@ -882,6 +883,7 @@ class MamsiPls(MBPLS):
     def group_train_test_split(x, y, gropus=None, test_size=0.2, random_state=42):
         """
         Static Method
+
         Split the data into train and test sets based on the groups. The groups are split into train and test sets
         based on the `test_size` parameter. The function returns the train and test sets for the predictors and the
         response variable.
@@ -926,8 +928,7 @@ class MamsiPls(MBPLS):
     @staticmethod
     def _find_plateau(scores, range_threshold=0.01, consecutive_elements=3):
         """
-        Private Method
-        Static Method
+        Private Method, Static Method
         
         Function to assist in finding a plateau in a sequence of LVs.
 
