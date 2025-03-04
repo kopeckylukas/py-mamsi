@@ -193,6 +193,18 @@ The MAMSI publication is currently under the review process.
 <details>
 <summary>Read more</summary>
 
+## v1.0.3
+**New Features** 
+- *k*-fold cross-validation implemented as a method `.kfold_cv()` that can be used for model performance evaluation. This method includes GroupKFold option.
+- Monte Carlo cross-validaton (MCCV), also nown as 'random sampling cross-validation' implemented as a method `.montecarlo_cv()` that can be used for model performance evaluation.
+- `.estimate_lv()` method now allows to choose between *k*-fold CV and MC-CV using parameter `method`
+
+**Bug Fixes and Behavioural Changes**
+- Plot title for `.block_importance()` fixed.
+- For regression analysis, MSE metric changed to RMSE
+- For `.estimate_lv()` method, parameter `y_continuous=False` was replaced with `classification=True` 
+
+
 ## v1.0.2
 **New Features**
 - New method 'MamsiPls.block_importance()': Calculate the block importance for each block in the multiblock PLS model and plot the results.
@@ -203,10 +215,12 @@ The MAMSI publication is currently under the review process.
 - Plots: 'Verdana' is no longer the default font. The default font changed to Matplotlib default 'DejaVu Sans'.
 - Updates to `MamsiStructSearch` class to comply with future warnings - Pandas 3.0.
 
+
 ## v1.0.1
 **Minor Bugs Update** 
 - Fixes instances where flattened correlation clusters were misaligned to structural clusters.
 - Readme licence badge links directly to GitHub licence file (URL).
+
 
 ## v1.0.0
 **Initial Release**

@@ -109,7 +109,6 @@ The MAMSI publication is currently under the review process.
 [2] C. Wieder *et al.*, "PathIntegrate: Multivariate modelling approaches for pathway-based multi-omics data integration," *PLOS Comput. Biol.*, vol. 20, no. 3, p. e1011814, Mar 2024, doi: [10.1371/journal.pcbi.1011814](https://pubmed.ncbi.nlm.nih.gov/38527092/).
 
 [3] S. Lovestone *et al.*, "AddNeuroMed—The European Collaboration for the Discovery of Novel Biomarkers for Alzheimer's Disease," *Ann. N. Y. Acad. Sci*, vol. 1180, no. 1, pp. 36-46, 2009, doi: [10.1111/j.1749-6632.2009.05064.x](https://nyaspubs.onlinelibrary.wiley.com/doi/10.1111/j.1749-6632.2009.05064.x).
-
 [4] A. M. Wolfer *et al.*, "peakPantheR, an R package for large-scale targeted extraction and integration of annotated metabolic features in LC–MS profiling datasets," *Bioinformatics*, vol. 37, no. 24, pp. 4886-4888, 2021, doi: [10.1093/bioinformatics/btab433](https://academic.oup.com/bioinformatics/article/37/24/4886/6298587).
 
 [5] S. Misra *et al.*, "Systematic screening for monogenic diabetes in people of South Asian and African Caribbean ethnicity: Preliminary results from the My Diabetes study," presented at the *Diabet. Med.*, Mar 2018.
@@ -126,23 +125,37 @@ The MAMSI publication is currently under the review process.
 # Version History
 
 
+## v1.0.3
+**New Features** 
+- *k*-fold cross-validation implemented as a method `.kfold_cv()` that can be used for model performance evaluation. This method includes GroupKFold option.
+- Monte Carlo cross-validaton (MCCV), also nown as 'random sampling cross-validation' implemented as a method `.montecarlo_cv()` that can be used for model performance evaluation.
+- `.estimate_lv()` method now allows to choose between *k*-fold CV and MC-CV using parameter `method`
+
+**Bug Fixes and Behavioural Changes**
+- Plot title for `.block_importance()` fixed.
+- For regression analysis, MSE metric changed to RMSE
+- For `.estimate_lv()` method, parameter `y_continuous=False` was replaced with `classification=True` 
+
+
 ## v1.0.2
 **New Features**
 
 - New method 'MamsiPls.block_importance()': Calculate the block importance for each block in the multiblock PLS model and plot the results.
 
-**Minor Bug Fixes and Behaviour Changes**
+**Minor Bug Fixes and Behavioural Changes**
 
 - Behavioural changes for `MamsiPls.mb_vip()`: The MB-VIP plot is now rendered by default, scores are not returned by default. New default arguments (plot=True, get_scores=False).
 - Argument changes for `MamsiPls.estimate_lv()`: Old Arguments (no_folds, n_components) changed to (n_slplits, max_components) respectively. 
 - Plots: 'Verdana' is no longer the default font. The default font changed to Matplotlib default 'DejaVu Sans'.
 - Updates to `MamsiStructSearch` class to comply with future warnings - Pandas 3.0.
 
+
 ## v1.0.1
-**Minor Bugs Update** 
+**Minor Bugs Fixes** 
 
 - Fixes instances where flattened correlation clusters were misaligned to structural clusters.
 - Readme licence badge links directly to GitHub licence file (URL).
+
 
 ## v1.0.0
 **Initial Release**
