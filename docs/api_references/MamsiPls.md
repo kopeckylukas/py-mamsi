@@ -47,9 +47,9 @@ For a full list of methods, please refer to the MB-PLS class [documentation](htt
     2     | 2-norm (largest sing. value) | as below                     |       
     -2    | smallest singular value      | as below                     |
     other | --                           | sum(abs(x)**ord)**(1./ord)   |
-    
-    Defaults to 2.
 
+    Defaults to 2.
+    
 * **calc_all** (bool, optional) : Whether to calculate all internal attributes for the used method. Some methods do not need
     to calculate all attributes (i.e., scores, weights) to obtain the regression coefficients used for prediction.
     Setting this parameter to False will omit these calculations for efficiency and speed. Defaults to True.
@@ -83,40 +83,63 @@ For a full list of methods, please refer to the MB-PLS class [documentation](htt
 
 
 ### .estimate_lv
-[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L90)
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L92)
 ```python
 .estimate_lv(
-   x, y, max_components = 10, n_splits = 5, y_continuous = False, metric = 'auc',
-   plateau_threshold = 0.01, increase_threshold = 0.05, get_scores = False
+   x, y, groups = None, max_components = 10, classification = True, metric = 'auc',
+   method = 'kfold', n_splits = 5, repeats = 100, test_size = 0.2, random_state = 42,
+   plateau_threshold = 0.01, increase_threshold = 0.05, get_scores = False,
+   savefig = False, **kwargs
 )
 ```
 
 ---
 A method to estimate the number of latent variables (LVs)/components in the MB-PLS model.
+   The method is based on cross-validation (k-fold or Monte Carlo) and combined with an outer loop with increasing number of LVs.
+   LV on which the model stabilises corresponds with the optimal number of LVs.
 
 
 **Args**
 
-* **x** (array or list[array]) : All blocks of predictors x1, x2, ..., xn. Rows are observations, columns are features/variables.
-* **y** (array) : A 1-dim or 2-dim array of reference values, either continuous or categorical variable.
-* **max_components** (int, optional) : Number of components/LVs. Defaults to 10.
-* **n_splits** (int, optional) : Number of splits for k-fold cross-validation. Defaults to 5.
-* **y_continuous** (bool, optional) : Whether the outcome is a continuous variable. Defaults to False.
-* **metric** (str, optional) : Metric to use to estimate the number of LVs; available options: ['AUC', 'precision', 'recall', 'f1'] for 
+* **x** (array or list['array']) : All blocks of predictors x1, x2, ..., xn. Rows are observations, columns are features/variables.
+* **y** (array) : A 1-dim array of reference values, either continuous or categorical variable.
+* **groups** (array, optional) : If provided, cv iterator variant with non-overlapping groups. 
+    Group labels for the samples used while splitting the dataset into train/test set.
+    Defaults to None.
+* **max_components** (int, optional) : Maximum number of components for whic LV estimate is calculated. 
+    Defaults to 10.
+* **classification** (bool, optional) : Whether to perfrom calssification or regression. Defaults to True.
+* **metric** (str, optional) : Metric to use to estimate the number of LVs; available options: [`AUC`, `precision`, `recall`, `f1`] for 
     categorical outcome variables and ['q2'] for continuous outcome variable. 
-    Defaults to 'AUC'.
-* **plateau_threshold** (float, optional) : Maximum increase for a sequence of LVs to be considered a plateau. Must be non-negative. Defaults to 0.01.
-* **increase_threshold** (float, optional) : Minimum increase to be considered a bend. Must be non-negative. Defaults to 0.05.
-* **get_scores** (bool, optional) : Whether to return measured scores as a Pandas DataFrame. Defaults to False.
+    Defaults to 'auc'.
+* **method** (str, optional) : Corss-validation method. Available options ['kfold', 'montecarlo']. Defaults to 'kfold'.
+* **n_splits** (int, optional) : Number of splits for k-fold cross-validation. Defaults to 5.
+* **repeats** (int, optional) : Number of train-test split repeats from Monte Carlo. Defaults to 100.
+* **test_size** (float, optional) : Test size for Monte Carlo. Defaults to 0.2.
+* **random_state** (int, optional) : Generates a sequence of random splits to control MCCV. Defaults to 42.
+* **plateau_threshold** (float, optional) : Maximum increase for a sequence of LVs to be considered a plateau. 
+    Must be non-negative. 
+    Defaults to 0.01.
+* **increase_threshold** (float, optional) : Minimum increase to be considered a bend. Must be non-negative.. Defaults to 0.05.
+* **get_scores** (bool, optional) : Whether to retun measured mean scores. Defaults to False.
+* **savefig** (bool, optional) : Whether to save the plot as a figure. If True, argument `fname` has to be provided. Defaults to False.
+* **kwargs**  : Additional keyword arguments to be passed to plt.savefig(), fname required to save .
+
+
+**Raises**
+
+* **ValueError**  : Incorrect metric for categorical outcome. Allowed values are: 'auc', 'precision', 'recall', 'specificity', 'f1', 'accuracy'.
+* **ValueError**  : Incorrect metric for continuous outcome. Allowed values are: 'q2'.
+* **ValueError**  : Invalid method. Available options are ['kfold', 'montecarlo'].
 
 
 **Returns**
 
-* **DataFrame**  : Measured scores as a Pandas DataFrame.
+* **DataFrame**  : Measured mean scores for test and train splits for all components.
 
 
 ### .evaluate_class_model
-[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L297)
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L259)
 ```python
 .evaluate_class_model(
    x, y
@@ -139,7 +162,7 @@ Evaluate classification MB-PLS model using a **testing** dataset.
 
 
 ### .evaluate_regression_model
-[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L338)
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L300)
 ```python
 .evaluate_regression_model(
    x, y
@@ -161,11 +184,74 @@ Evaluate regression MB-PLS model using a **testing** dataset.
 * **array**  : Predicted y variable based on training set predictors.
 
 
+### .kfold_cv
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L342)
+```python
+.kfold_cv(
+   x, y, groups = None, classification = True, return_train = False, n_splits = 5
+)
+```
+
+---
+Perform k-fold cross-validation for MB-PLS model.
+
+
+**Args**
+
+* **x** (array or list[array]) : All blocks of predictors x1, x2, ..., xn. Rows are observations, columns are features/variables.
+* **y** (array) : 1-dim or 2-dim array of reference values, either continuous or categorical variable.
+* **groups** (array, optional) : Group labels for the samples used while splitting the dataset into train/test set.
+    If provided, group k-fold is performed. 
+    Defaults to None.
+* **classification** (bool, optional) : Whether the outcome is a categorical variable. Defaults to True.
+* **return_train** (bool, optional) : Whether to return evaluation metrics for training set. Defaults to False.
+* **n_splits** (int, optional) : Number of splits for k-fold cross-validation. Defaults to 5.
+
+
+**Returns**
+
+* **DataFrame**  : Evaluation metrics for each k-fold split.
+    if return_train is True, returns evaluation metrics for training set as well.
+
+
+### .montecarlo_cv
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L492)
+```python
+.montecarlo_cv(
+   x, y, groups = None, classification = True, return_train = False, test_size = 0.2,
+   repeats = 10, random_state = 42
+)
+```
+
+---
+Evaluate MB-PLS model using Monte Carlo Cross-Validation (MCCV).
+
+
+**Args**
+
+* **x** (array or list[array]) : All blocks of predictors x1, x2, ..., xn. Rows are observations, columns are featuress.
+* **y** (array) : 1-dim or 2-dim array of reference values - categorical variable.
+* **groups** (array, optional) : Group labels for the samples used while splitting the dataset into train/test set.
+    If provided, group-train-test split will be used instead of train-test split for random splits. 
+    Defaults to None.
+* **classification** (bool, optional) : Whether the outcome is a categorical variable. Defaults to True.
+* **return_train** (bool, optional) : Whether to return evaluation metrics for training set. Defaults to False.
+* **test_size** (float, optional) : Proportion of the dataset to include in the test split. Defaults to 0.2.
+* **repeats** (int, optional) : Number of MCCV repeats. Defaults to 10.
+* **random_state** (int, optional) : Generates a sequence of random splits to control MCCV. Defaults to 42.
+
+
+**Returns**
+
+* **DataFrame**  : Evaluation metrics for each MCCV repeat.
+    if return_train is True, returns evaluation metrics for training set as well.
+
+
 ### .mb_vip
-[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L380)
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L642)
 ```python
 .mb_vip(
-   plot = True, get_scores = False
+   plot = True, get_scores = False, savefig = False, **kwargs
 )
 ```
 
@@ -179,6 +265,9 @@ Adaptation of C. Wieder et al., (2024). PathIntegrate, doi: 10.1371/journal.pcbi
 
 * **plot** (bool, optional) : Whether to plot MB-VIP scores. Defaults to True.
 * **get_scores** (bool, optional) : Whether to return MB-VIP scores. Defaults to False.
+* **savefig** (bool, optional) : Whether to save the plot as a figure. If True, argument `fname` has to be provided. 
+    Defaults to False.
+* **kwargs**  : Additional keyword arguments to be passed to plt.savefig(), fname required to save .            
 
 
 **Returns**
@@ -187,10 +276,11 @@ Adaptation of C. Wieder et al., (2024). PathIntegrate, doi: 10.1371/journal.pcbi
 
 
 ### .block_importance
-[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L417)
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L686)
 ```python
 .block_importance(
-   block_labels = None, normalised = True, plot = True, get_scores = False
+   block_labels = None, normalised = True, plot = True, get_scores = False,
+   savefig = False, **kwargs
 )
 ```
 
@@ -206,6 +296,9 @@ Calculate the block importance for each block in the multiblock PLS model and pl
     ['A_Corrected_'](). Defaults to True.
 * **plot** (bool, optional) : Whether to render plot block importance. Defaults to True.
 * **get_scores** (bool, optional) : Whether to return block importance scores. Defaults to False.
+* **savefig** (bool, optional) : Whether to save the plot as a figure. If True, argument `fname` has to be provided. 
+    Defaults to False.
+* **kwargs**  : Additional keyword arguments to be passed to plt.savefig(), fname required to save.
 
 
 **Returns**
@@ -214,7 +307,7 @@ Calculate the block importance for each block in the multiblock PLS model and pl
 
 
 ### .mb_vip_permtest
-[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L500)
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L777)
 ```python
 .mb_vip_permtest(
    x, y, n_permutations = 1000, return_scores = False
@@ -248,4 +341,61 @@ do not hesitate to contact me for support on how to set up the configuration PBS
 * **array**  : Returns an array of p-values for each feature. If `return_scores` is True, then a matrix of MB-VIP scores
 for each permuted null model is returned as well.
 
+### .calculate_ci
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L840)
+```python
+.calculate_ci(
+   data, ci_level = 0.9, dropna = True
+)
+```
+
+---
+Static Method
+
+Calculates mean, margin of error, and confidence interval for each column.
+
+
+**Args**
+
+* **data** (pd.DataFrame) : The input DataFrame.
+* **ci_level** (float, optional) : The confidence level (e.g., 0.90, 0.95). Defaults to 0.90.
+* **dropna** (bool, optional) : Whether to drop rows containing NaNs. Defaults to True.
+
+
+**Returns**
+
+* **DataFrame**  : A DataFrame containing the calculated statistics for each column.
+            If dropna = False, and a column has less than 2 valid values after
+            dropping NaNs specific to that column, all the result values for that
+            column will be np.nan.
+
+
+### .group_train_test_split
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L883)
+```python
+.group_train_test_split(
+   x, y, gropus = None, test_size = 0.2, random_state = 42
+)
+```
+
+---
+Static Method
+
+Split the data into train and test sets based on the groups. The groups are split into train and test sets
+based on the `test_size` parameter. The function returns the train and test sets for the predictors and the
+response variable.
+
+
+**Args**
+
+* **x** (array or list[array]) : All blocks of predictors x1, x2, ..., xn. Rows are samples, columns are features.
+* **y** (array) : 1-dim or 2-dim array of reference values, either continuous or categorical variable.
+* **groups** (array, optional) : Group labels for the samples used while splitting the dataset into train/test set. Defaults to None.
+* **test_size** (float, optional) : Proportion of the dataset to include in the test split. Defaults to 0.2.
+* **random_state** (int, optional) : Controls the shuffling applied to the data before applying the split. Defaults to 42.
+
+
+**Returns**
+
+* **tuple**  : x_train, x_test, y_train, y_test
 
