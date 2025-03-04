@@ -9,7 +9,7 @@ setup(
     packages=find_packages(),
     url="https://github.com/kopeckylukas/py-mamsi",
     license="BSD 3-Clause License",
-    license_files=('LICENSE',),
+    license_files=["LICENSE.txt"],
     package_data={'': ['Data/Adducts/*', 'Data/ROI/*']},
     author="Lukas Kopecky",
     author_email="l.kopecky22@imperial.ac.uk",
