@@ -1,4 +1,4 @@
-site_name: MAMSI v1.0.2
+site_name: MAMSI v1.0.3
 
 theme:
   name: material
@@ -21,15 +21,12 @@ markdown_extensions:
         class: mermaid
         format: !!python/name:pymdownx.superfences.fence_code_format
 
-
 plugins:
   - search
   - mkdocstrings:
       default_handler: python
       handlers:
         python:
-          rendering:
-            show_source: false
           options:
             docstring_style: google
             docstring_options:
@@ -43,4 +40,3 @@ nav:
   - API References: 
     - ./api_references/MamsiPls.md
     - ./api_references/MamsiStructSearch.md
-  
