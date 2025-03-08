@@ -365,7 +365,7 @@ class MamsiPls(MBPLS):
         if isinstance(_x, list) and not isinstance(_x[0], list):
             pass
         else:
-            _x = [x]
+            _x = [_x]
         _y = y.copy()
         _y = check_array(_y, ensure_2d=False)
 
@@ -386,9 +386,9 @@ class MamsiPls(MBPLS):
             y_test = _y[test_indices]
 
             for k in range(len(_x)):
-                x_train[k] = _x[k].iloc[train_indices]  # filter training data by index and save in a new list
-                x_test[k] = _x[k].iloc[test_indices]  # filter testing data by index and save in a new list
-                train_test_data[k] = _x[k].iloc[train_indices]
+                x_train[k] = pd.DataFrame(_x[k]).iloc[train_indices]  # filter training data by index and save in a new list
+                x_test[k] = pd.DataFrame(_x[k]).iloc[test_indices]  # filter testing data by index and save in a new list
+                train_test_data[k] = pd.DataFrame(_x[k]).iloc[train_indices]
 
             # Fit model and predict
             x_train_copy = deepcopy.deepcopy(x_train)
@@ -547,6 +547,8 @@ class MamsiPls(MBPLS):
             # Fit model and predict
             x_train_copy = deepcopy.deepcopy(x_train)
             self.fit_transform(x_train_copy, y_train)
+
+            # Predict outcome based on training folds
             y_predicted = self.predict(x_test)
             predictions = [y_predicted]
             truths = [y_test]
