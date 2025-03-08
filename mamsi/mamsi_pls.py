@@ -518,7 +518,7 @@ class MamsiPls(MBPLS):
         if isinstance(_x, list) and not isinstance(_x[0], list):
             pass
         else:
-            _x = [x]
+            _x = [_x]
         _y = y.copy()
         _y = check_array(_y, ensure_2d=False)
 
@@ -534,9 +534,13 @@ class MamsiPls(MBPLS):
         # if groups are provided, group test-train split is performed otherwise sk-learn test-train split is used
         for i in range(repeats):
             if groups is None:
-                train, test, y_train, y_test = train_test_split(_x[0], _y, test_size=test_size, random_state=random_numbers[i])
-                x_train = [df.loc[train.index] for df in _x]
-                x_test = [df.loc[test.index] for df in _x]
+                train, test, y_train, y_test = train_test_split(pd.DataFrame(_x[0]), _y, test_size=test_size, random_state=random_numbers[i])
+                if isinstance(_x[0], pd.DataFrame):
+                    x_train = [df.loc[train.index] for df in _x]
+                    x_test = [df.loc[test.index] for df in _x]
+                else:
+                    x_train = [df[train.index] for df in _x]
+                    x_test = [df[train.index] for df in _x]
             else:
                 x_train, x_test, y_train, y_test = self.group_train_test_split(_x, _y, groups=groups, test_size=test_size, random_state=random_numbers[i])
 
