@@ -68,7 +68,7 @@ def test_evaluate_class_model(request, data_fixture):
 
 ## test evaluate_regression_model
 @pytest.mark.parametrize("data_fixture", ["sample_data", "sample_multiblock_data", "sample_multiblock_data_df"])
-def test_mamsi_pls_evaluate_regression_model(request, data_fixture):
+def test_evaluate_regression_model(request, data_fixture):
     x, y = request.getfixturevalue(data_fixture)
     y = np.random.rand(100)  # Continuous target for regression
     model = MamsiPls(n_components=2)
