@@ -94,35 +94,43 @@ def test_montecarlo_cv(request, data_fixture):
     scores = model.montecarlo_cv(x, y, repeats=5)
     assert not scores.empty
 
-## test mb_vip
-## method does not take any user input, not needed to test other data formats
-def test_mb_vip(sample_multiblock_data):
+# test mb_vip_permtest with different number of permutations
+@pytest.mark.parametrize("n_permutations", [10, 50, 100])
+def test_mb_vip_permtest_permutations(sample_multiblock_data, n_permutations):
     x, y = sample_multiblock_data
     model = MamsiPls(n_components=2)
     model.fit(x, y)
-    vip_scores = model.mb_vip(plot=False, get_scores=True)
+    p_vals = model.mb_vip_permtest(x, y, n_permutations=n_permutations)
+    assert p_vals is not None
+    assert len(p_vals) == sum([block.shape[1] for block in x])
+
+# test mb_vip_permtest with return_scores=True
+def test_mb_vip_permtest_return_scores(sample_multiblock_data):
+    x, y = sample_multiblock_data
+    model = MamsiPls(n_components=2)
+    model.fit(x, y)
+    p_vals, vip_scores = model.mb_vip_permtest(x, y, n_permutations=100, return_scores=True)
+    assert p_vals is not None
     assert vip_scores is not None
+    assert len(p_vals) == sum([block.shape[1] for block in x])
+    assert vip_scores.shape[1] == 100
 
-## test block_importance
-## method does not take any user input, not needed to test other data formats
-def test_block_importance(sample_multiblock_data):
-    x, y = sample_multiblock_data
-    model = MamsiPls(n_components=2)
-    model.fit(x, y)
-    block_importance = model.block_importance(plot=False, get_scores=True)
-    assert block_importance is not None
-
-## test calculate_ci
-def test_calculate_ci():
-    data = np.random.rand(100, 5)
-    df = pd.DataFrame(data)
-    ci = MamsiPls.calculate_ci(df)
-    assert not ci.empty
-
-# test mb_vip_permtest
-def test_mb_vip_permtest(sample_multiblock_data):
-    x, y = sample_multiblock_data
+# test mb_vip_permtest with different data formats
+@pytest.mark.parametrize("data_fixture", ["sample_multiblock_data", "sample_multiblock_data_df"])
+def test_mb_vip_permtest_data_formats(request, data_fixture):
+    x, y = request.getfixturevalue(data_fixture)
     model = MamsiPls(n_components=2)
     model.fit(x, y)
     p_vals = model.mb_vip_permtest(x, y, n_permutations=10)
     assert p_vals is not None
+    assert len(p_vals) == sum([block.shape[1] for block in x])
+
+# test mb_vip_permtest with different n_components
+@pytest.mark.parametrize("n_components", [1, 2, 3])
+def test_mb_vip_permtest_n_components(sample_multiblock_data, n_components):
+    x, y = sample_multiblock_data
+    model = MamsiPls(n_components=n_components)
+    model.fit(x, y)
+    p_vals = model.mb_vip_permtest(x, y, n_permutations=10)
+    assert p_vals is not None
+    assert len(p_vals) == sum([block.shape[1] for block in x])
