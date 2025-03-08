@@ -36,20 +36,20 @@ def sample_multiblock_data_df():
 
 # Tests
 ## Initialisation
-def test_mamsi_pls_initialisation():
+def test_initialisation():
     model = MamsiPls(n_components=3)
     assert model.n_components == 3
 
 # Test inherited methods from the mbpls parent class
 @pytest.mark.parametrize("data_fixture", ["sample_data", "sample_multiblock_data", "sample_multiblock_data_df"])
-def test_mamsi_pls_fit(request, data_fixture):
+def test_fit(request, data_fixture):
     x, y = request.getfixturevalue(data_fixture)
     model = MamsiPls(n_components=2)
     model.fit(x, y)
     assert hasattr(model, 'beta_')
 
 @pytest.mark.parametrize("data_fixture", ["sample_data", "sample_multiblock_data", "sample_multiblock_data_df"])
-def test_mamsi_pls_predict(request, data_fixture):
+def test_predict(request, data_fixture):
     x, y = request.getfixturevalue(data_fixture)
     model = MamsiPls(n_components=2)
     model.fit(x, y)
@@ -59,7 +59,7 @@ def test_mamsi_pls_predict(request, data_fixture):
 # Test MamsiPls specific methods
 ## test evaluate_class_model
 @pytest.mark.parametrize("data_fixture", ["sample_data", "sample_multiblock_data", "sample_multiblock_data_df"])
-def test_mamsi_pls_evaluate_class_model(request, data_fixture):
+def test_evaluate_class_model(request, data_fixture):
     x, y = request.getfixturevalue(data_fixture)
     model = MamsiPls(n_components=2)
     model.fit(x, y)
@@ -78,7 +78,7 @@ def test_mamsi_pls_evaluate_regression_model(request, data_fixture):
 
 ## test kfold_cv
 @pytest.mark.parametrize("data_fixture", ["sample_data", "sample_multiblock_data", "sample_multiblock_data_df"])
-def test_mamsi_pls_kfold_cv(request, data_fixture):
+def test_kfold_cv(request, data_fixture):
     x, y = request.getfixturevalue(data_fixture)
     model = MamsiPls(n_components=2)
     model.fit(x, y)
@@ -87,12 +87,42 @@ def test_mamsi_pls_kfold_cv(request, data_fixture):
 
 ## test montecarlo_cv
 @pytest.mark.parametrize("data_fixture", ["sample_data", "sample_multiblock_data", "sample_multiblock_data_df"])
-def test_mamsi_pls_montecarlo_cv(request, data_fixture):
+def test_montecarlo_cv(request, data_fixture):
     x, y = request.getfixturevalue(data_fixture)
     model = MamsiPls(n_components=2)
     model.fit(x, y)
     scores = model.montecarlo_cv(x, y, repeats=5)
     assert not scores.empty
 
+## test mb_vip
+## method does not take any user input, not needed to test other data formats
+def test_mb_vip(sample_multiblock_data):
+    x, y = sample_multiblock_data
+    model = MamsiPls(n_components=2)
+    model.fit(x, y)
+    vip_scores = model.mb_vip(plot=False, get_scores=True)
+    assert vip_scores is not None
 
+## test block_importance
+## method does not take any user input, not needed to test other data formats
+def test_block_importance(sample_multiblock_data):
+    x, y = sample_multiblock_data
+    model = MamsiPls(n_components=2)
+    model.fit(x, y)
+    block_importance = model.block_importance(plot=False, get_scores=True)
+    assert block_importance is not None
 
+## test calculate_ci
+def test_calculate_ci():
+    data = np.random.rand(100, 5)
+    df = pd.DataFrame(data)
+    ci = MamsiPls.calculate_ci(df)
+    assert not ci.empty
+
+# test mb_vip_permtest
+def test_mb_vip_permtest(sample_multiblock_data):
+    x, y = sample_multiblock_data
+    model = MamsiPls(n_components=2)
+    model.fit(x, y)
+    p_vals = model.mb_vip_permtest(x, y, n_permutations=10)
+    assert p_vals is not None
