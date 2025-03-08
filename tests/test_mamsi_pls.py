@@ -94,6 +94,47 @@ def test_montecarlo_cv(request, data_fixture):
     scores = model.montecarlo_cv(x, y, repeats=5)
     assert not scores.empty
 
+# test montecarlo_cv with different number of repeats
+@pytest.mark.parametrize("repeats", [1, 5, 10])
+def test_montecarlo_cv_repeats(sample_multiblock_data, repeats):
+    x, y = sample_multiblock_data
+    model = MamsiPls(n_components=2)
+    model.fit(x, y)
+    scores = model.montecarlo_cv(x, y, repeats=repeats)
+    assert not scores.empty
+
+# test montecarlo_cv with different data sizes
+@pytest.mark.parametrize("data_size", [(50, 5), (200, 20)])
+def test_montecarlo_cv_data_sizes(data_size):
+    np.random.seed(42)
+    x1 = np.random.rand(data_size[0], data_size[1])
+    x2 = np.random.rand(data_size[0], data_size[1] + 5)
+    y = np.random.randint(0, 2, data_size[0])
+    x = [x1, x2]
+    model = MamsiPls(n_components=2)
+    model.fit(x, y)
+    scores = model.montecarlo_cv(x, y, repeats=5)
+    assert not scores.empty
+
+# test montecarlo_cv with empty data blocks
+def test_montecarlo_cv_empty_data():
+    x = [np.empty((0, 10)), np.empty((0, 15))]
+    y = np.empty((0,))
+    model = MamsiPls(n_components=2)
+    with pytest.raises(ValueError):
+        model.fit(x, y)
+        model.montecarlo_cv(x, y, repeats=5)
+
+# test montecarlo_cv with different random states
+@pytest.mark.parametrize("random_state", [0, 42, 100])
+def test_montecarlo_cv_random_state(sample_multiblock_data, random_state):
+    x, y = sample_multiblock_data
+    model = MamsiPls(n_components=2)
+    model.fit(x, y)
+    scores_1 = model.montecarlo_cv(x, y, repeats=5, random_state=random_state)
+    scores_2 = model.montecarlo_cv(x, y, repeats=5, random_state=random_state)
+    assert scores_1.equals(scores_2)
+
 # test mb_vip_permtest with different number of permutations
 @pytest.mark.parametrize("n_permutations", [10, 50, 100])
 def test_mb_vip_permtest_permutations(sample_multiblock_data, n_permutations):
