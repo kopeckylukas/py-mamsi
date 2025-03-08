@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+#
+# Authors: Lukas Kopecky <l.kopecky22@imperial.ac.uk>
+#          Timothy MD Ebbels 
+#          Elizabeth J Want
+#
+# License: BSD 3-clause
+
 import pytest
 import numpy as np
 import pandas as pd
