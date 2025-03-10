@@ -18,6 +18,7 @@ from mbpls.mbpls import MBPLS
 from sklearn.utils.validation import check_array, check_is_fitted
 import matplotlib.pyplot as plt
 from scipy import stats
+from joblib import Parallel, delayed
 
 class MamsiPls(MBPLS):
     """
@@ -780,7 +781,7 @@ class MamsiPls(MBPLS):
             return block_importance
         
 
-    def mb_vip_permtest(self, x, y, n_permutations=1000, return_scores=False):
+    def mb_vip_permtest(self, x, y, n_permutations=1000, return_scores=False, n_jobs=1):
         """
         Calculate empirical p-values for each feature by permuting the Y outcome variable `n_permutations` times and
         refitting the model. The p-values for each feature are calculated by counting the number of trials with
@@ -822,14 +823,12 @@ class MamsiPls(MBPLS):
         _vip = self.mb_vip(plot=False, get_scores=True)
         vip_obs = _vip[:, np.newaxis]
 
-        # Fit Null models
-        _vip_null = []
-        for i in range(n_permutations):
-            # Permute outcome
-            y_perm = np.random.permutation(_y)
-            # Fit permuted model and calculate MB-VIP scores
+        def _fit_permute(x, y):
+            y_perm = np.random.permutation(y)
             self.fit(x, y_perm)
-            _vip_null.append(self.mb_vip(plot=False, get_scores=True))
+            return self.mb_vip(plot=False, get_scores=True)
+
+        _vip_null = Parallel(n_jobs=n_jobs)(delayed(_fit_permute)(_x, _y) for _ in range(n_permutations))
         vip_null = np.stack(_vip_null, axis=1)
 
         # Calculate empirical p-values
