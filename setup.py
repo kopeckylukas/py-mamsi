@@ -44,7 +44,7 @@ setup(
         'numpy',
         'matplotlib',
         'scipy',
-        'scikit-learn',
+        'scikit-learn<=1.5.2',
         'seaborn',
         'networkx',
         'pyvis',
