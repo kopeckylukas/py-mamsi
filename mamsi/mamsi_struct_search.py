@@ -17,7 +17,7 @@ from scipy.spatial.distance import squareform
 import seaborn as sns
 import networkx as nx
 from pyvis.network import Network
-from IPython.core.display import display
+from IPython.display import display
 from IPython.display import IFrame
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.metrics import silhouette_score, silhouette_samples
