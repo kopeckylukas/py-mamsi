@@ -490,7 +490,7 @@ class MamsiPls(MBPLS):
             return scores
 
 
-    def montecarlo_cv(self, x, y, groups=None, classification=True, return_train=False, test_size=0.2, repeats=10, random_state=42):
+    def montecarlo_cv(self, x, y, groups=None, classification=True, return_train=False, test_size=0.2, repeats=10, random_state=42, n_jobs=1):
         """
         Evaluate MB-PLS model using Monte Carlo Cross-Validation (MCCV).
 
@@ -532,18 +532,19 @@ class MamsiPls(MBPLS):
         # Placeholder for MCCV scores
         scores = pd.DataFrame()
 
-        # if groups are provided, group test-train split is performed otherwise sk-learn test-train split is used
-        for i in range(repeats):
-            if groups is None:
-                train, test, y_train, y_test = train_test_split(pd.DataFrame(_x[0]), _y, test_size=test_size, random_state=random_numbers[i])
-                if isinstance(_x[0], pd.DataFrame):
-                    x_train = [df.loc[train.index] for df in _x]
-                    x_test = [df.loc[test.index] for df in _x]
+        def _mccv(_x_, _y_, i, _groups, _classification, _return_train, _test_size, _random_numbers):
+
+
+            if _groups is None:
+                train, test, y_train, y_test = train_test_split(pd.DataFrame(_x_[0]), _y_, test_size=_test_size, random_state=_random_numbers[i])
+                if isinstance(_x_[0], pd.DataFrame):
+                    x_train = [df.loc[train.index] for df in _x_]
+                    x_test = [df.loc[test.index] for df in _x_]
                 else:
-                    x_train = [df[train.index] for df in _x]
-                    x_test = [df[train.index] for df in _x]
+                    x_train = [df[train.index] for df in _x_]
+                    x_test = [df[train.index] for df in _x_]
             else:
-                x_train, x_test, y_train, y_test = self.group_train_test_split(_x, _y, groups=groups, test_size=test_size, random_state=random_numbers[i])
+                x_train, x_test, y_train, y_test = self.group_train_test_split(_x_, _y_, groups=_groups, test_size=_test_size, random_state=_random_numbers[i])
 
             # Fit model and predict
             x_train_copy = deepcopy.deepcopy(x_train)
@@ -555,15 +556,15 @@ class MamsiPls(MBPLS):
             truths = [y_test]
 
             # add training scores
-            if return_train:
+            if _return_train:
                 y_predicted_train = self.predict(x_train)
                 predictions.append(y_predicted_train)
                 truths.append(y_train)
 
             # Classification model evaluation
-            if classification:
+            if _classification:
                 predictions_cl = [np.where(y_predicted > 0.5, 1, 0)]
-                if return_train:
+                if _return_train:
                     predictions_cl.append(np.where(y_predicted_train > 0.5, 1, 0))
 
                 # Calculate evaluation metrics for testing and training sets
@@ -596,7 +597,6 @@ class MamsiPls(MBPLS):
                         roc_auc = np.nan
 
                     row = pd.DataFrame({
-                            # 'random_state': [random_numbers[i]],
                             'precision': [precision],
                             'recall': [recall],
                             'specificity': [specificity_score],
@@ -619,27 +619,42 @@ class MamsiPls(MBPLS):
                     rmse = root_mean_squared_error(truth, prediction)
                     q2 = r2_score(truth, prediction)
 
-                    row = pd.DataFrame({
-                            # 'random_state': [random_numbers[i]],
-                            'rmse': [rmse],
-                            'q2': [q2]
-                        })
+                    row = np.array([[rmse, q2]])
 
                     if j == 0:
                         # save MCCV scores
                         test_score_row = row.copy()
                     else:
                         train_score_row = row.copy()
+            
+            _scores = test_score_row
+            if _return_train:
+                _train_scores = train_score_row
 
-            if len(scores) == 0:
-                scores = test_score_row
-                if return_train:
-                    train_scores = train_score_row
+            if _return_train:
+                return _scores, _train_scores 
+
             else:
-                scores = pd.concat([scores, test_score_row], ignore_index=True)
-                if return_train:
-                    train_scores = pd.concat([train_scores, train_score_row], ignore_index=True)
+                return _scores, None
 
+        results = Parallel(n_jobs=n_jobs)(delayed(_mccv)(_x_ = _x, _y_=_y, i=j, _groups=groups, _classification=classification, _return_train=return_train, _test_size=test_size, _random_numbers=random_numbers) for j in range(repeats))
+        
+        scores, train_scores = zip(*results)
+        scores = np.stack(scores, axis=1)
+
+        if classification:
+            scores = pd.DataFrame(scores[0], columns=['precision', 'recall', 'specificity', 'f1', 'roc_auc', 'accuracy' ]) 
+        else:
+            scores = pd.DataFrame(scores[0], columns=['rmse', 'q2'])
+
+        if return_train:
+            train_scores = np.stack(train_scores, axis=1)
+            if classification:
+                train_scores = pd.DataFrame(train_scores[0], columns=['precision', 'recall', 'specificity', 'f1', 'roc_auc', 'accuracy' ]) 
+            else:
+                train_scores = pd.DataFrame(train_scores[0], columns=['rmse', 'q2'])
+
+        
         if return_train:
             return scores, train_scores
         else:    
