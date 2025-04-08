@@ -505,6 +505,8 @@ class MamsiPls(MBPLS):
             test_size (float, optional): Proportion of the dataset to include in the test split. Defaults to 0.2.
             repeats (int, optional): Number of MCCV repeats. Defaults to 10.
             random_state (int, optional): Generates a sequence of random splits to control MCCV. Defaults to 42.
+            n_jobs (str, optional): Number of workers (CPU cores) for multiprocessing, -1 utilises all available cores on a system. 
+                Defaults to 1.
 
         Returns:
             pandas.DataFrame: Evaluation metrics for each MCCV repeat.
@@ -515,13 +517,13 @@ class MamsiPls(MBPLS):
         check_is_fitted(self, 'beta_')
 
         # Validate inputs
-        _x = x.copy()
-        if isinstance(_x, list) and not isinstance(_x[0], list):
+        x_cp = x.copy()
+        if isinstance(x_cp, list) and not isinstance(x_cp[0], list):
             pass
         else:
-            _x = [_x]
-        _y = y.copy()
-        _y = check_array(_y, ensure_2d=False)
+            x_cp = [x_cp]
+        y_cp = y.copy()
+        y_cp = check_array(y_cp, ensure_2d=False)
 
         # Generate random sequence of seeds for MCCV
         rng = np.random.RandomState(random_state)
@@ -532,19 +534,19 @@ class MamsiPls(MBPLS):
         # Placeholder for MCCV scores
         scores = pd.DataFrame()
 
-        def _mccv(_x_, _y_, i, _groups, _classification, _return_train, _test_size, _random_numbers):
+        def _mccv(_x, _y, i, _groups, _classification, _return_train, _test_size, _random_numbers):
 
 
             if _groups is None:
-                train, test, y_train, y_test = train_test_split(pd.DataFrame(_x_[0]), _y_, test_size=_test_size, random_state=_random_numbers[i])
-                if isinstance(_x_[0], pd.DataFrame):
-                    x_train = [df.loc[train.index] for df in _x_]
-                    x_test = [df.loc[test.index] for df in _x_]
+                train, test, y_train, y_test = train_test_split(pd.DataFrame(_x[0]), _y, test_size=_test_size, random_state=_random_numbers[i])
+                if isinstance(_x[0], pd.DataFrame):
+                    x_train = [df.loc[train.index] for df in _x]
+                    x_test = [df.loc[test.index] for df in _x]
                 else:
-                    x_train = [df[train.index] for df in _x_]
-                    x_test = [df[train.index] for df in _x_]
+                    x_train = [df[train.index] for df in _x]
+                    x_test = [df[train.index] for df in _x]
             else:
-                x_train, x_test, y_train, y_test = self.group_train_test_split(_x_, _y_, groups=_groups, test_size=_test_size, random_state=_random_numbers[i])
+                x_train, x_test, y_train, y_test = self.group_train_test_split(_x, _y, groups=_groups, test_size=_test_size, random_state=_random_numbers[i])
 
             # Fit model and predict
             x_train_copy = deepcopy.deepcopy(x_train)
@@ -596,14 +598,7 @@ class MamsiPls(MBPLS):
                     except ValueError:
                         roc_auc = np.nan
 
-                    row = pd.DataFrame({
-                            'precision': [precision],
-                            'recall': [recall],
-                            'specificity': [specificity_score],
-                            'f1': [f1],
-                            'roc_auc': [roc_auc],
-                            'accuracy': [accuracy]
-                        })
+                    row = np.array([[precision, recall, specificity_score, f1, roc_auc, accuracy]])
 
                     if j == 0:
                         # save MCCV scores
@@ -637,11 +632,14 @@ class MamsiPls(MBPLS):
             else:
                 return _scores, None
 
-        results = Parallel(n_jobs=n_jobs)(delayed(_mccv)(_x_ = _x, _y_=_y, i=j, _groups=groups, _classification=classification, _return_train=return_train, _test_size=test_size, _random_numbers=random_numbers) for j in range(repeats))
+        # Run parellelised funciton 
+        results = Parallel(n_jobs=n_jobs)(delayed(_mccv)(_x = x_cp, _y=y_cp, i=j, _groups=groups, _classification=classification, _return_train=return_train, _test_size=test_size, _random_numbers=random_numbers) for j in range(repeats))
         
+        # Get scores unwrapped 
         scores, train_scores = zip(*results)
         scores = np.stack(scores, axis=1)
 
+        # Add lables to the the outcome labels
         if classification:
             scores = pd.DataFrame(scores[0], columns=['precision', 'recall', 'specificity', 'f1', 'roc_auc', 'accuracy' ]) 
         else:
@@ -654,7 +652,7 @@ class MamsiPls(MBPLS):
             else:
                 train_scores = pd.DataFrame(train_scores[0], columns=['rmse', 'q2'])
 
-        
+        # retun data
         if return_train:
             return scores, train_scores
         else:    
