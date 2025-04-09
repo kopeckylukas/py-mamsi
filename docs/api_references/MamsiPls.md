@@ -2,7 +2,7 @@
 
 
 ## MamsiPls
-[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L22)
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L23)
 ```python 
 MamsiPls(
    n_components = 2, full_svd = False, method = 'NIPALS', standardize = True,
@@ -83,13 +83,13 @@ For a full list of methods, please refer to the MB-PLS class [documentation](htt
 
 
 ### .estimate_lv
-[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L92)
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L93)
 ```python
 .estimate_lv(
    x, y, groups = None, max_components = 10, classification = True, metric = 'auc',
    method = 'kfold', n_splits = 5, repeats = 100, test_size = 0.2, random_state = 42,
    plateau_threshold = 0.01, increase_threshold = 0.05, get_scores = False,
-   savefig = False, **kwargs
+   savefig = False, n_jobs = -1, **kwargs
 )
 ```
 
@@ -123,6 +123,8 @@ A method to estimate the number of latent variables (LVs)/components in the MB-P
 * **increase_threshold** (float, optional) : Minimum increase to be considered a bend. Must be non-negative.. Defaults to 0.05.
 * **get_scores** (bool, optional) : Whether to retun measured mean scores. Defaults to False.
 * **savefig** (bool, optional) : Whether to save the plot as a figure. If True, argument `fname` has to be provided. Defaults to False.
+* **n_jobs** (int, optional) : Number of workers (CPU cores) for multiprocessing, -1 utilises all available cores on a system. 
+    Defaults to -1.
 * **kwargs**  : Additional keyword arguments to be passed to plt.savefig(), fname required to save .
 
 
@@ -139,7 +141,7 @@ A method to estimate the number of latent variables (LVs)/components in the MB-P
 
 
 ### .evaluate_class_model
-[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L259)
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L262)
 ```python
 .evaluate_class_model(
    x, y
@@ -162,7 +164,7 @@ Evaluate classification MB-PLS model using a **testing** dataset.
 
 
 ### .evaluate_regression_model
-[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L300)
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L303)
 ```python
 .evaluate_regression_model(
    x, y
@@ -185,10 +187,11 @@ Evaluate regression MB-PLS model using a **testing** dataset.
 
 
 ### .kfold_cv
-[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L342)
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L345)
 ```python
 .kfold_cv(
-   x, y, groups = None, classification = True, return_train = False, n_splits = 5
+   x, y, groups = None, classification = True, return_train = False, n_splits = 5,
+   n_jobs = -1
 )
 ```
 
@@ -206,6 +209,8 @@ Perform k-fold cross-validation for MB-PLS model.
 * **classification** (bool, optional) : Whether the outcome is a categorical variable. Defaults to True.
 * **return_train** (bool, optional) : Whether to return evaluation metrics for training set. Defaults to False.
 * **n_splits** (int, optional) : Number of splits for k-fold cross-validation. Defaults to 5.
+* **n_jobs** (int, optional) : Number of workers (CPU cores) for multiprocessing, -1 utilises all available cores on a system. 
+    Defaults to -1.
 
 
 **Returns**
@@ -215,11 +220,11 @@ Perform k-fold cross-validation for MB-PLS model.
 
 
 ### .montecarlo_cv
-[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L492)
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L513)
 ```python
 .montecarlo_cv(
    x, y, groups = None, classification = True, return_train = False, test_size = 0.2,
-   repeats = 10, random_state = 42
+   repeats = 10, random_state = 42, n_jobs = -1
 )
 ```
 
@@ -239,6 +244,8 @@ Evaluate MB-PLS model using Monte Carlo Cross-Validation (MCCV).
 * **test_size** (float, optional) : Proportion of the dataset to include in the test split. Defaults to 0.2.
 * **repeats** (int, optional) : Number of MCCV repeats. Defaults to 10.
 * **random_state** (int, optional) : Generates a sequence of random splits to control MCCV. Defaults to 42.
+* **n_jobs** (int, optional) : Number of workers (CPU cores) for multiprocessing, -1 utilises all available cores on a system. 
+    Defaults to -1.
 
 
 **Returns**
@@ -248,7 +255,7 @@ Evaluate MB-PLS model using Monte Carlo Cross-Validation (MCCV).
 
 
 ### .mb_vip
-[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L642)
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L682)
 ```python
 .mb_vip(
    plot = True, get_scores = False, savefig = False, **kwargs
@@ -276,7 +283,7 @@ Adaptation of C. Wieder et al., (2024). PathIntegrate, doi: 10.1371/journal.pcbi
 
 
 ### .block_importance
-[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L686)
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L726)
 ```python
 .block_importance(
    block_labels = None, normalised = True, plot = True, get_scores = False,
@@ -307,10 +314,10 @@ Calculate the block importance for each block in the multiblock PLS model and pl
 
 
 ### .mb_vip_permtest
-[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L777)
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L817)
 ```python
 .mb_vip_permtest(
-   x, y, n_permutations = 1000, return_scores = False
+   x, y, n_permutations = 1000, return_scores = False, n_jobs = -1
 )
 ```
 
@@ -319,14 +326,6 @@ Calculate empirical p-values for each feature by permuting the Y outcome variabl
 refitting the model. The p-values for each feature are calculated by counting the number of trials with
 MB-VIP greater than or equal to the observed test statistic, and dividing this by `n_permutations`.
 
-N.B. This method uses OpenMP to parallelise the code that relies on multi-threading exclusively. By default,
-the implementations using OpenMP will use as many threads as possible, i.e. as many threads as logical cores.
-This is available by default on systems with macOS and MS Windows.
-Running this method on a computer clusters / High Performance Computing (HPC) system, including Imperial HPC, requires
-additional Joblib parallelisation. A parallelised permutation test function can be found at function can be found in the 
-[MAMSI Tutorials repository](https://github.com/kopeckylukas/py-mamsi-tutorials). If you are an Imperial colleague, 
-do not hesitate to contact me for support on how to set up the configuration PBS file for this job.
-
 
 **Args**
 
@@ -334,6 +333,8 @@ do not hesitate to contact me for support on how to set up the configuration PBS
 * **y** (array) : 1-dim or 2-dim array of reference values, either continuous or categorical variable.
 * **n_permutations** (int, optional) : Number of permutation tests. Defaults to 1000.
 * **return_scores** (bool, optional) : Whether to return MB-VIP scores for each permuted null model. Defaults to False.
+* **n_jobs** (int, optional) : Number of workers (CPU cores) for multiprocessing, -1 utilises all available cores on a system. 
+    Defaults to -1.
 
 
 **Returns**
@@ -342,7 +343,7 @@ do not hesitate to contact me for support on how to set up the configuration PBS
 for each permuted null model is returned as well.
 
 ### .calculate_ci
-[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L840)
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L872)
 ```python
 .calculate_ci(
    data, ci_level = 0.9, dropna = True
@@ -371,7 +372,7 @@ Calculates mean, margin of error, and confidence interval for each column.
 
 
 ### .group_train_test_split
-[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L883)
+[source](https://github.com/kopeckylukas/py-mamsi/blob/main/mamsi/mamsi_pls.py/#L915)
 ```python
 .group_train_test_split(
    x, y, gropus = None, test_size = 0.2, random_state = 42

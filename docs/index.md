@@ -127,6 +127,7 @@ The MAMSI publication is currently under the review process.
 
 ## v1.0.4
 **New Features**
+
 - Parallelised `.kfold_cv()`
 - Parallelised `.montecarlo_cv()`
 - Parallelised `.estimate_lv()`
@@ -134,6 +135,7 @@ The MAMSI publication is currently under the review process.
 
 ## v1.0.3
 **New Features** 
+
 - *k*-fold cross-validation implemented as a method `.kfold_cv()` that can be used for model performance evaluation. This method includes GroupKFold option.
 - Monte Carlo cross-validaton (MCCV), also nown as 'random sampling cross-validation' implemented as a method `.montecarlo_cv()` that can be used for model performance evaluation.
 - `.estimate_lv()` method now allows to choose between *k*-fold CV and MC-CV using parameter `method`
