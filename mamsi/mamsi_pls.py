@@ -121,7 +121,6 @@ class MamsiPls(MBPLS):
             get_scores (bool, optional): Whether to retun measured mean scores. Defaults to False.
             savefig (bool, optional): Whether to save the plot as a figure. If True, argument `fname` has to be provided. Defaults to False.
             n_jobs(int, optional): Number of workers (CPU cores) for multiprocessing, -1 utilises all available cores on a system. 
-                Currently Available for Monte Carlo CV.
                 Defaults to 1.
             **kwargs: Additional keyword arguments to be passed to plt.savefig(), fname required to save .
 
@@ -166,7 +165,7 @@ class MamsiPls(MBPLS):
 
             self.n_components = i
             if method == 'kfold':
-                test_scores, train_scores = self.kfold_cv(x, y, groups=groups, classification=classification, return_train=True, n_splits=n_splits)
+                test_scores, train_scores = self.kfold_cv(x, y, groups=groups, classification=classification, return_train=True, n_splits=n_splits, n_jobs=n_jobs)
             elif method == 'montecarlo':
                 test_scores, train_scores = self.montecarlo_cv(x, y, groups=groups, classification=classification, return_train=True, 
                                                                            test_size=test_size, repeats=repeats, random_state=random_state, n_jobs=n_jobs)
@@ -343,7 +342,7 @@ class MamsiPls(MBPLS):
 
         return y_predicted
     
-    def kfold_cv(self, x, y, groups=None, classification=True, return_train=False, n_splits=5):
+    def kfold_cv(self, x, y, groups=None, classification=True, return_train=False, n_splits=5, n_jobs=1):
         """
         Perform k-fold cross-validation for MB-PLS model.
 
@@ -356,6 +355,8 @@ class MamsiPls(MBPLS):
             classification (bool, optional): Whether the outcome is a categorical variable. Defaults to True.
             return_train (bool, optional): Whether to return evaluation metrics for training set. Defaults to False.
             n_splits (int, optional): Number of splits for k-fold cross-validation. Defaults to 5.
+            n_jobs (int, optional): Number of workers (CPU cores) for multiprocessing, -1 utilises all available cores on a system. 
+                Defaults to 1.
 
         Returns:
             pandas.DataFrame: Evaluation metrics for each k-fold split.
@@ -365,13 +366,13 @@ class MamsiPls(MBPLS):
         check_is_fitted(self, 'beta_')
 
         # Validate inputs
-        _x = x.copy()
-        if isinstance(_x, list) and not isinstance(_x[0], list):
+        x_cp = x.copy()
+        if isinstance(x_cp, list) and not isinstance(x_cp[0], list):
             pass
         else:
-            _x = [_x]
-        _y = y.copy()
-        _y = check_array(_y, ensure_2d=False)
+            x_cp = [x_cp]
+        y_cp = y.copy()
+        y_cp = check_array(y_cp, ensure_2d=False)
 
         # if groups are provided, group k-fold is performed, otherwise sk-learn k-fold is used
         if groups is None:
@@ -381,18 +382,20 @@ class MamsiPls(MBPLS):
 
         scores = pd.DataFrame()    
 
-        for j, (train_indices, test_indices) in enumerate(kf.split(_y, groups=groups)):
+        def _kfold (_x, _y, _j, _train_indices, _test_indices, _classification, _return_train):
+        
+        # (j, (train_indices, test_indices) in enumerate(kf.split(_y, groups=groups))):
             # Unwrap data perform test-train split
             x_train = [None] * len(_x)
             x_test = [None] * len(_x)
             train_test_data = [None] * len(_x)
-            y_train = _y[train_indices]
-            y_test = _y[test_indices]
+            y_train = _y[_train_indices]
+            y_test = _y[_test_indices]
 
             for k in range(len(_x)):
-                x_train[k] = pd.DataFrame(_x[k]).iloc[train_indices]  # filter training data by index and save in a new list
-                x_test[k] = pd.DataFrame(_x[k]).iloc[test_indices]  # filter testing data by index and save in a new list
-                train_test_data[k] = pd.DataFrame(_x[k]).iloc[train_indices]
+                x_train[k] = pd.DataFrame(_x[k]).iloc[_train_indices]  # filter training data by index and save in a new list
+                x_test[k] = pd.DataFrame(_x[k]).iloc[_test_indices]  # filter testing data by index and save in a new list
+                train_test_data[k] = pd.DataFrame(_x[k]).iloc[_train_indices]
 
             # Fit model and predict
             x_train_copy = deepcopy.deepcopy(x_train)
@@ -404,15 +407,15 @@ class MamsiPls(MBPLS):
             truths = [y_test]
 
             # add training scores
-            if return_train:
+            if _return_train:
                 y_predicted_train = self.predict(x_train)
                 predictions.append(y_predicted_train)
                 truths.append(y_train)
 
             # Classification model evaluation
-            if classification:
+            if _classification:
                 predictions_cl = [np.where(y_predicted > 0.5, 1, 0)]
-                if return_train:
+                if _return_train:
                     predictions_cl.append(np.where(y_predicted_train > 0.5, 1, 0))
 
                 # Calculate evaluation metrics for testing and training sets
@@ -444,14 +447,7 @@ class MamsiPls(MBPLS):
                     except ValueError:
                         roc_auc = np.nan
 
-                    row = pd.DataFrame({
-                            'precision': [precision],
-                            'recall': [recall],
-                            'specificity': [specificity_score],
-                            'f1': [f1],
-                            'roc_auc': [roc_auc],
-                            'accuracy': [accuracy]
-                        })
+                    row = np.array([[precision, recall, specificity_score, f1, roc_auc, accuracy]])
 
                     if j == 0:
                         # save MCCV scores
@@ -467,10 +463,8 @@ class MamsiPls(MBPLS):
                     rmse = root_mean_squared_error(truth, prediction)
                     q2 = r2_score(truth, prediction)
 
-                    row = pd.DataFrame({
-                            'rmse': [rmse],
-                            'q2': [q2]
-                        })
+                    row = np.array([[rmse, q2]])
+
 
                     if j == 0:
                         # save MCCV scores
@@ -478,14 +472,37 @@ class MamsiPls(MBPLS):
                     else:
                         train_score_row = row.copy()
 
-            if len(scores) == 0:
-                scores = test_score_row
-                if return_train:
-                    train_scores = train_score_row
+            _scores = test_score_row
+            if _return_train:
+                _train_scores = train_score_row
+
+            if _return_train:
+                return _scores, _train_scores 
+
             else:
-                scores = pd.concat([scores, test_score_row], ignore_index=True)
-                if return_train:
-                    train_scores = pd.concat([train_scores, train_score_row], ignore_index=True)
+                return _scores, None
+
+         # Run parellelised funciton 
+        results = Parallel(n_jobs=n_jobs)(delayed(_kfold)
+        (_x = x_cp, _y = y_cp, _j=i, _train_indices=train_indices, _test_indices=test_indices, _classification=classification, _return_train=return_train) 
+        for i, (train_indices, test_indices) in enumerate(kf.split(y_cp, groups=groups)))
+        
+        # Get scores unwrapped 
+        scores, train_scores = zip(*results)
+        scores = np.stack(scores, axis=1)
+
+        # Add lables to the the outcome labels
+        if classification:
+            scores = pd.DataFrame(scores[0], columns=['precision', 'recall', 'specificity', 'f1', 'roc_auc', 'accuracy' ]) 
+        else:
+            scores = pd.DataFrame(scores[0], columns=['rmse', 'q2'])
+
+        if return_train:
+            train_scores = np.stack(train_scores, axis=1)
+            if classification:
+                train_scores = pd.DataFrame(train_scores[0], columns=['precision', 'recall', 'specificity', 'f1', 'roc_auc', 'accuracy' ]) 
+            else:
+                train_scores = pd.DataFrame(train_scores[0], columns=['rmse', 'q2'])
 
         if return_train:
             return scores, train_scores
