@@ -820,14 +820,6 @@ class MamsiPls(MBPLS):
         refitting the model. The p-values for each feature are calculated by counting the number of trials with
         MB-VIP greater than or equal to the observed test statistic, and dividing this by `n_permutations`.
 
-        N.B. This method uses OpenMP to parallelise the code that relies on multi-threading exclusively. By default,
-        the implementations using OpenMP will use as many threads as possible, i.e. as many threads as logical cores.
-        This is available by default on systems with macOS and MS Windows.
-        Running this method on a computer clusters / High Performance Computing (HPC) system, including Imperial HPC, requires
-        additional Joblib parallelisation. A parallelised permutation test function can be found at function can be found in the 
-        [MAMSI Tutorials repository](https://github.com/kopeckylukas/py-mamsi-tutorials). If you are an Imperial colleague, 
-        do not hesitate to contact me for support on how to set up the configuration PBS file for this job.
-
         Args:
             x (array or list[array]): All blocks of predictors x1, x2, ..., xn. Rows are observations, columns are features/variables.
             y (array): 1-dim or 2-dim array of reference values, either continuous or categorical variable.
