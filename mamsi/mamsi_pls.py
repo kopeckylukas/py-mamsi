@@ -92,7 +92,7 @@ class MamsiPls(MBPLS):
 
     def estimate_lv(self, x, y, groups=None, max_components=10, classification=True, metric='auc', 
                     method='kfold', n_splits=5, repeats=100, test_size=0.2, random_state=42, 
-                    plateau_threshold=0.01, increase_threshold=0.05, get_scores=False, savefig=False,  **kwargs):
+                    plateau_threshold=0.01, increase_threshold=0.05, get_scores=False, savefig=False, n_jobs=1,  **kwargs):
         """A method to estimate the number of latent variables (LVs)/components in the MB-PLS model.
            The method is based on cross-validation (k-fold or Monte Carlo) and combined with an outer loop with increasing number of LVs.
            LV on which the model stabilises corresponds with the optimal number of LVs.
@@ -120,6 +120,9 @@ class MamsiPls(MBPLS):
             increase_threshold (float, optional): Minimum increase to be considered a bend. Must be non-negative.. Defaults to 0.05.
             get_scores (bool, optional): Whether to retun measured mean scores. Defaults to False.
             savefig (bool, optional): Whether to save the plot as a figure. If True, argument `fname` has to be provided. Defaults to False.
+            n_jobs(int, optional): Number of workers (CPU cores) for multiprocessing, -1 utilises all available cores on a system. 
+                Currently Available for Monte Carlo CV.
+                Defaults to 1.
             **kwargs: Additional keyword arguments to be passed to plt.savefig(), fname required to save .
 
         Raises:
@@ -166,7 +169,7 @@ class MamsiPls(MBPLS):
                 test_scores, train_scores = self.kfold_cv(x, y, groups=groups, classification=classification, return_train=True, n_splits=n_splits)
             elif method == 'montecarlo':
                 test_scores, train_scores = self.montecarlo_cv(x, y, groups=groups, classification=classification, return_train=True, 
-                                                                           test_size=test_size, repeats=repeats, random_state=random_state)
+                                                                           test_size=test_size, repeats=repeats, random_state=random_state, n_jobs=n_jobs)
             else:
                 raise ValueError("Invalid method. Available options are ['kfold', 'montecarlo']")
 
@@ -505,7 +508,7 @@ class MamsiPls(MBPLS):
             test_size (float, optional): Proportion of the dataset to include in the test split. Defaults to 0.2.
             repeats (int, optional): Number of MCCV repeats. Defaults to 10.
             random_state (int, optional): Generates a sequence of random splits to control MCCV. Defaults to 42.
-            n_jobs (str, optional): Number of workers (CPU cores) for multiprocessing, -1 utilises all available cores on a system. 
+            n_jobs (int, optional): Number of workers (CPU cores) for multiprocessing, -1 utilises all available cores on a system. 
                 Defaults to 1.
 
         Returns:
