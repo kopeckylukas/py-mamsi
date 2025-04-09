@@ -1,0 +1,642 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.11">
+    
+    
+      
+        <title>MAMSI - MAMSI v1.0.4</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.4af4bdda.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="mamsi" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#mamsi" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="MAMSI v1.0.4" class="md-header__button md-logo" aria-label="MAMSI v1.0.4" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            MAMSI v1.0.4
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              MAMSI
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="MAMSI v1.0.4" class="md-nav__button md-logo" aria-label="MAMSI v1.0.4" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    MAMSI v1.0.4
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    MAMSI
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tutorials
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    API References
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            API References
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="MamsiPls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    MamsiPls
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="MamsiStructSearch/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    MamsiStructSearch
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Features
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Documentation
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="mamsi">MAMSI</h1>
+<p><img alt="MAMSI_logo" src="https://github.com/kopeckylukas/py-mamsi/blob/main/docs/images/MAMSI_logo.png?raw=true" /></p>
+<p><a href="https://github.com/kopeckylukas/py-mamsi/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/badge/License-BSD_3--Clause-blue.svg" /></a>
+<a href="https://kopeckylukas.github.io/py-mamsi/"><img alt="Docs" src="https://img.shields.io/badge/docs-available-brightgreen.svg" /></a> 
+<a href="https://kopeckylukas.github.io/py-mamsi/"><img alt="pages-build-deployment" src="https://github.com/kopeckylukas/py-mamsi/actions/workflows/pages/pages-build-deployment/badge.svg" /></a>
+<a href="https://pypi.org/project/mamsi/"><img alt="PyPI version" src="https://img.shields.io/pypi/v/mamsi.svg" /></a>
+<a href="https://zenodo.org/doi/10.5281/zenodo.13619607"><img alt="DOI" src="https://zenodo.org/badge/823594568.svg" /></a></p>
+<p>MAMSI is a Python framework designed for the integration of multi-assay mass spectrometry datasets. 
+In addition, the MAMSI framework provides a platform for linking statistically significant features of untargeted multi-assay liquid chromatography – mass spectrometry (LC-MS) metabolomics datasets into clusters defined by their structural properties based on mass-to-charge ratio (<em>m/z</em>) and retention time (<em>RT</em>).</p>
+<p><em>N.B. the framework was tested on metabolomics phenotyping data, but it should be usable with other types of LC-MS data.</em></p>
+<h2 id="features">Features</h2>
+<ul>
+<li>Data integration analysis using the Multi-Block Partial Least Squares (MB-PLS) [<a href="#references">1</a>] algorithm.</li>
+<li>Multi-Block Variable Importance in Projection (MB-VIP) [<a href="#references">2</a>].</li>
+<li>Estimation of statistically significant features (variables) using MB-VIP and permutation testing.</li>
+<li>Linking significant features into clusters defined by structural properties of metabolites.</li>
+<li>Feature network links.</li>
+<li>Annotation of untargeted LC-MS features (only supported for assays analysed by the National Phenome Centre).</li>
+</ul>
+<h2 id="documentation">Documentation</h2>
+<p>The documentation for this package is available at <a href="https://kopeckylukas.github.io/py-mamsi/">https://kopeckylukas.github.io/py-mamsi/</a>.</p>
+<h1 id="installation">Installation</h1>
+<h3 id="dependencies">Dependencies</h3>
+<ul>
+<li>mbpls==1.0.4</li>
+<li>pandas</li>
+<li>numpy</li>
+<li>matplotlib</li>
+<li>scipy</li>
+<li>scikit-learn</li>
+<li>seaborn</li>
+<li>networkx</li>
+<li>pyvis</li>
+<li>joblib</li>
+</ul>
+<h2 id="user-installation">User Installation</h2>
+<h3 id="installing-with-pip">Installing with Pip</h3>
+<p>You can install MAMSI from PyPI using pip: 
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>mamsi
+</code></pre></div></p>
+<h3 id="installing-from-source-code">Installing from source-code</h3>
+<p>You can install it directly from source code given you have installed both Python (&gt;=3.9) and PIP.</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/kopeckylukas/py-mamsi
+<span class="nb">cd</span><span class="w"> </span>py-mamsi
+</code></pre></div>
+<p>When you are in the cloned project folder, type the following code to install MAMSI and all dependencies: 
+<div class="highlight"><pre><span></span><code>pip install .
+</code></pre></div></p>
+<p><strong>Alternatively</strong>, you can install dependencies using pip and MAMSI using Python:
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+python<span class="w"> </span>setup.py<span class="w"> </span>develop
+</code></pre></div></p>
+<h1 id="quickstart">Quickstart</h1>
+<p>You can find all MAMSI tutorials by visiting our <strong><a href="https://github.com/kopeckylukas/py-mamsi-tutorials">MAMSI Tutorials</a></strong> repository. To import and instantiate the package objects, you can follow this quickstart guide:</p>
+<details>
+<summary>Read more</summary>
+
+**Load Packages**
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">mamsi.mamsi_pls</span><span class="w"> </span><span class="kn">import</span> <span class="n">MamsiPls</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mamsi.mamsi_struct_search</span><span class="w"> </span><span class="kn">import</span> <span class="n">MamsiStructSearch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+</code></pre></div>
+
+**Load Sample Data and MamsiPls Model** 
+<br> Data used within this quickstart guide originate from the AddNeuroMed cohort [[3](#references)] - dataset of Alzheimer's disease patients. 
+You can download the sample data from this [link](https://github.com/kopeckylukas/py-mamsi-tutorials/tree/main/sample_data).
+
+
+<div class="highlight"><pre><span></span><code><span class="n">metadata</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;./sample_data/alz_metadata.csv&#39;</span><span class="p">)</span>
+<span class="c1"># The PLS algorithm requires the response variable to be numeric. </span>
+<span class="c1"># We will encode the outcome &quot;Gender&quot; (Biological Sex) as 1 for female and 0 for male subjects. </span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;Gender&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="s1">&#39;Female&#39;</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Import LC-MS data</span>
+<span class="c1"># Add prefix to the columns names. This will be crucial for interpreting the results later on.</span>
+<span class="n">hpos</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;./sample_data/alz_hpos.csv&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">add_prefix</span><span class="p">(</span><span class="s1">&#39;HPOS_&#39;</span><span class="p">)</span>
+<span class="n">lpos</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;./sample_data/alz_lpos.csv&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">add_prefix</span><span class="p">(</span><span class="s1">&#39;LPOS_&#39;</span><span class="p">)</span>
+<span class="n">lneg</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;./sample_data/alz_lneg.csv&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">add_prefix</span><span class="p">(</span><span class="s1">&#39;LNEG_&#39;</span><span class="p">)</span>
+</code></pre></div>
+
+Fit MamsiPls Model and Estimate LVs
+<div class="highlight"><pre><span></span><code><span class="n">mamsipls</span> <span class="o">=</span> <span class="n">MamsiPls</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">mamsipls</span><span class="o">.</span><span class="n">fit</span><span class="p">([</span><span class="n">hpos</span><span class="p">,</span> <span class="n">lpos</span><span class="p">,</span> <span class="n">lneg</span><span class="p">],</span> <span class="n">y</span><span class="p">)</span>
+</code></pre></div>
+
+**Estimate Latent Variables and Feature Importance**
+<div class="highlight"><pre><span></span><code><span class="n">mamsipls</span><span class="o">.</span><span class="n">estimate_lv</span><span class="p">([</span><span class="n">hpos</span><span class="p">,</span> <span class="n">lpos</span><span class="p">,</span> <span class="n">lneg</span><span class="p">],</span> <span class="n">y</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s1">&#39;auc&#39;</span><span class="p">)</span>
+</code></pre></div>
+<br> You can visualise the MB-VIP:
+<div class="highlight"><pre><span></span><code><span class="n">mb_vip</span> <span class="o">=</span> <span class="n">mamsipls</span><span class="o">.</span><span class="n">mb_vip</span><span class="p">(</span><span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+or estimate empirical p-values for all features: 
+
+<div class="highlight"><pre><span></span><code><span class="n">p_vals</span><span class="p">,</span> <span class="n">null_vip</span> <span class="o">=</span> <span class="n">mamsipls</span><span class="o">.</span><span class="n">mb_vip_permtest</span><span class="p">([</span><span class="n">hpos</span><span class="p">,</span> <span class="n">lpos</span><span class="p">,</span> <span class="n">lneg</span><span class="p">],</span> <span class="n">y</span><span class="p">,</span> <span class="n">n_permutations</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">return_scores</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+
+**Interpret Statistically Significant Features**
+<div class="highlight"><pre><span></span><code><span class="n">x</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">hpos</span><span class="p">,</span> <span class="n">lpos</span><span class="p">,</span> <span class="n">lneg</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">p_vals</span> <span class="o">&lt;</span> <span class="mf">0.01</span><span class="p">)</span>
+<span class="n">selected</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="n">mask</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+</code></pre></div>
+Use `MamsiStrustSearch` to search for structural links within the statistically significant features. <br>
+Firstly, all features are split into retention time (*RT*) windows of 5 seconds intervals, then each RT window is searched for isotopologue signatures by searching mass differences of 1.00335 Da between mass-to-charge ratios (*m/z*) of the features; if two or more features resemble a mass isotopologue signature then they are grouped together. This is followed by a search for common adduct signatures. This is achieved by calculating hypothetical neutral masses based on common adducts in electrospray ionisation. If hypothetical neutral masses match for two or more features within a pre-defined tolerance (15 *ppm*) then these features are grouped together. Overlapping adduct clusters and isotopologue clusters are then merged to form structural clusters. Further, we search cross-assay clusters using [M+H]<sup>+</sup>/[M-H]<sup>-</sup> as link references. Additionally, our structural search tool, that utilises region of interest [(ROI) files](https://github.com/phenomecentre/npc-open-lcms) from peakPantheR [[4](#references)], allows for automated annotation of  some features based on the *RT* for a given chromatography and *m/z*.
+
+<div class="highlight"><pre><span></span><code><span class="n">struct</span> <span class="o">=</span> <span class="n">MamsiStructSearch</span><span class="p">(</span><span class="n">rt_win</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">ppm</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">struct</span><span class="o">.</span><span class="n">load_lcms</span><span class="p">(</span><span class="n">selected</span><span class="p">)</span>
+<span class="n">struct</span><span class="o">.</span><span class="n">get_structural_clusters</span><span class="p">(</span><span class="n">annotate</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+Further, you can use the `MamsiStrustSearch.get_correlation_clusters()` method to find correlation clusters.
+<div class="highlight"><pre><span></span><code><span class="n">struct</span><span class="o">.</span><span class="n">get_correlation_clusters</span><span class="p">(</span><span class="n">flat_method</span><span class="o">=</span><span class="s1">&#39;silhouette&#39;</span><span class="p">,</span> <span class="n">max_clusters</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
+</code></pre></div>
+Finally, we visualise the structural relationships using a network plot. The different node colours represent different flattened hierarchical correlation clusters, while the edges between nodes identify their structural links. You can also save the network as an NX object and review in Cytoscape to get better insight on what the structural relationships between individual features are (e.g. adduct links, isotopologues, cross-assay links).
+<div class="highlight"><pre><span></span><code><span class="n">network</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">get_structural_network</span><span class="p">(</span><span class="n">include_all</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_nx_object</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+</details>
+<p><br></p>
+<h1 id="issues-and-collaboration">Issues and Collaboration</h1>
+<p>Thank you for supporting the MAMSI project. MAMSI is an open-source software and welcomes any form of contribution and support.</p>
+<h2 id="issues">Issues</h2>
+<p>Please submit any bugs or issues via the project's GitHub <a href="https://github.com/kopeckylukas/py-mamsi/issues">issue page</a> and any include details about the (<code>mamsi.__version__</code>) together with any relevant input data/metadata. </p>
+<h2 id="collaboration">Collaboration</h2>
+<h3 id="pull-requests">Pull requests</h3>
+<p>You can actively collaborate on MAMSI package by submitting any changes via a pull request. All pull requests will be reviewed by the MAMSI team and merged in due course. </p>
+<h3 id="contributions">Contributions</h3>
+<p>If you would like to become a contributor on the MAMSI project, please contact <a href="https://profiles.imperial.ac.uk/l.kopecky22">Lukas Kopecky</a>.</p>
+<h1 id="acknowledgement">Acknowledgement</h1>
+<p>This package was developed as part of Lukas Kopecky's PhD project at <a href="https://www.imperial.ac.uk/metabolism-digestion-reproduction/research/systems-medicine/">Imperial College London</a>, funded by <a href="https://www.waters.com/nextgen/gb/en.html">Waters UK</a>. It is free to use, published under BSD 3-Clause <a href="./LICENCE">licence</a>.</p>
+<p>The authors of this package would like to acknowledge the authors of the <a href="https://pypi.org/project/mbpls/">mbpls</a> package [<a href="#references">1</a>] which became the backbone of MAMSI. For more information on MB-PLS, please visit <a href="https://mbpls.readthedocs.io/en/latest/index.html">MB-PLS Documentation</a>.</p>
+<p>Further, we would like to thank Prof Simon Lovestone and Dr Shivani Misra for allowing us to use their data, AddNeuroMed [<a href="#references">3</a>] and MY Diabetes [<a href="#references">5</a>] respectively, for the development of this package. </p>
+<h1 id="citing-us">Citing us</h1>
+<p>If you use MAMSI in a scientific publication, we would appreciate citations. </p>
+<h2 id="release">Release</h2>
+<div class="highlight"><pre><span></span><code>@misc{MAMSI2024,
+  author       = {Lukas Kopecky, Elizabeth J Want, Timothy MD Ebbels},
+  title        = {MAMSI: Multi-Assay Mass Spectrometry Integration},
+  year         = 2024,
+  url          = {https://doi.org/10.5281/zenodo.13619607},
+  note         = {Zenodo. Version 1.0.0},
+  doi          = {10.5281/zenodo.13619607}
+}
+</code></pre></div>
+<h2 id="publication">Publication</h2>
+<p>The MAMSI publication is currently under the review process. </p>
+<h1 id="references">References</h1>
+<p>[1] A. Baum and L. Vermue, "Multiblock PLS: Block dependent prediction modeling for Python," <em>J. Open Source Softw.</em>, vol. 4, no. 34, 2019, doi: <a href="https://joss.theoj.org/papers/10.21105/joss.01190">10.21105/joss.01190</a>.</p>
+<p>[2] C. Wieder <em>et al.</em>, "PathIntegrate: Multivariate modelling approaches for pathway-based multi-omics data integration," <em>PLOS Comput. Biol.</em>, vol. 20, no. 3, p. e1011814, Mar 2024, doi: <a href="https://pubmed.ncbi.nlm.nih.gov/38527092/">10.1371/journal.pcbi.1011814</a>.</p>
+<p>[3] S. Lovestone <em>et al.</em>, "AddNeuroMed—The European Collaboration for the Discovery of Novel Biomarkers for Alzheimer's Disease," <em>Ann. N. Y. Acad. Sci</em>, vol. 1180, no. 1, pp. 36-46, 2009, doi: <a href="https://nyaspubs.onlinelibrary.wiley.com/doi/10.1111/j.1749-6632.2009.05064.x">10.1111/j.1749-6632.2009.05064.x</a>.</p>
+<p>[4] A. M. Wolfer <em>et al.</em>, "peakPantheR, an R package for large-scale targeted extraction and integration of annotated metabolic features in LC–MS profiling datasets," <em>Bioinformatics</em>, vol. 37, no. 24, pp. 4886-4888, 2021, doi: <a href="https://academic.oup.com/bioinformatics/article/37/24/4886/6298587">10.1093/bioinformatics/btab433</a>.</p>
+<p>[5] S. Misra <em>et al.</em>, "Systematic screening for monogenic diabetes in people of South Asian and African Caribbean ethnicity: Preliminary results from the My Diabetes study," presented at the <em>Diabet. Med.</em>, Mar 2018.</p>
+<h1 id="version-history">Version History</h1>
+<details>
+<summary>Read more</summary>
+
+## v1.0.4
+**New Features**
+- Parallelised `.kfold_cv()`
+- Parallelised `.montecarlo_cv()`
+- Parallelised `.estimate_lv()`
+- Parallelised `.mb_vip_permtest()`
+
+## v1.0.3
+**New Features** 
+- *k*-fold cross-validation implemented as a method `.kfold_cv()` that can be used for model performance evaluation. This method includes GroupKFold option.
+- Monte Carlo cross-validaton (MCCV), also nown as 'random sampling cross-validation' implemented as a method `.montecarlo_cv()` that can be used for model performance evaluation.
+- `.estimate_lv()` method now allows to choose between *k*-fold CV and MC-CV using parameter `method`
+
+**Bug Fixes and Behavioural Changes**
+- Plot title for `.block_importance()` fixed.
+- For regression analysis, MSE metric changed to RMSE
+- For `.estimate_lv()` method, parameter `y_continuous=False` was replaced with `classification=True` 
+
+
+## v1.0.2
+**New Features**
+- New method 'MamsiPls.block_importance()': Calculate the block importance for each block in the multiblock PLS model and plot the results.
+
+**Minor Bug Fixes and Behaviour Changes**
+- Behavioural changes for `MamsiPls.mb_vip()`: The MB-VIP plot is now printed by default, scores are not returned by default. New default arguments (plot=True, get_scores=False).
+- Argument changes for `MamsiPls.estimate_lv()`: Old Arguments (no_folds, n_components) changed to (n_slplits, max_components) respectively. 
+- Plots: 'Verdana' is no longer the default font. The default font changed to Matplotlib default 'DejaVu Sans'.
+- Updates to `MamsiStructSearch` class to comply with future warnings - Pandas 3.0.
+
+
+## v1.0.1
+**Minor Bugs Update** 
+- Fixes instances where flattened correlation clusters were misaligned to structural clusters.
+- Readme licence badge links directly to GitHub licence file (URL).
+
+
+## v1.0.0
+**Initial Release**
+</details>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+    
+  </body>
+</html>
