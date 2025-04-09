@@ -92,7 +92,7 @@ class MamsiPls(MBPLS):
 
     def estimate_lv(self, x, y, groups=None, max_components=10, classification=True, metric='auc', 
                     method='kfold', n_splits=5, repeats=100, test_size=0.2, random_state=42, 
-                    plateau_threshold=0.01, increase_threshold=0.05, get_scores=False, savefig=False, n_jobs=1,  **kwargs):
+                    plateau_threshold=0.01, increase_threshold=0.05, get_scores=False, savefig=False, n_jobs=-1,  **kwargs):
         """A method to estimate the number of latent variables (LVs)/components in the MB-PLS model.
            The method is based on cross-validation (k-fold or Monte Carlo) and combined with an outer loop with increasing number of LVs.
            LV on which the model stabilises corresponds with the optimal number of LVs.
@@ -121,7 +121,7 @@ class MamsiPls(MBPLS):
             get_scores (bool, optional): Whether to retun measured mean scores. Defaults to False.
             savefig (bool, optional): Whether to save the plot as a figure. If True, argument `fname` has to be provided. Defaults to False.
             n_jobs(int, optional): Number of workers (CPU cores) for multiprocessing, -1 utilises all available cores on a system. 
-                Defaults to 1.
+                Defaults to -1.
             **kwargs: Additional keyword arguments to be passed to plt.savefig(), fname required to save .
 
         Raises:
@@ -342,7 +342,7 @@ class MamsiPls(MBPLS):
 
         return y_predicted
     
-    def kfold_cv(self, x, y, groups=None, classification=True, return_train=False, n_splits=5, n_jobs=1):
+    def kfold_cv(self, x, y, groups=None, classification=True, return_train=False, n_splits=5, n_jobs=-1):
         """
         Perform k-fold cross-validation for MB-PLS model.
 
@@ -356,7 +356,7 @@ class MamsiPls(MBPLS):
             return_train (bool, optional): Whether to return evaluation metrics for training set. Defaults to False.
             n_splits (int, optional): Number of splits for k-fold cross-validation. Defaults to 5.
             n_jobs (int, optional): Number of workers (CPU cores) for multiprocessing, -1 utilises all available cores on a system. 
-                Defaults to 1.
+                Defaults to -1.
 
         Returns:
             pandas.DataFrame: Evaluation metrics for each k-fold split.
@@ -510,7 +510,7 @@ class MamsiPls(MBPLS):
             return scores
 
 
-    def montecarlo_cv(self, x, y, groups=None, classification=True, return_train=False, test_size=0.2, repeats=10, random_state=42, n_jobs=1):
+    def montecarlo_cv(self, x, y, groups=None, classification=True, return_train=False, test_size=0.2, repeats=10, random_state=42, n_jobs=-1):
         """
         Evaluate MB-PLS model using Monte Carlo Cross-Validation (MCCV).
 
@@ -526,7 +526,7 @@ class MamsiPls(MBPLS):
             repeats (int, optional): Number of MCCV repeats. Defaults to 10.
             random_state (int, optional): Generates a sequence of random splits to control MCCV. Defaults to 42.
             n_jobs (int, optional): Number of workers (CPU cores) for multiprocessing, -1 utilises all available cores on a system. 
-                Defaults to 1.
+                Defaults to -1.
 
         Returns:
             pandas.DataFrame: Evaluation metrics for each MCCV repeat.
@@ -814,7 +814,7 @@ class MamsiPls(MBPLS):
             return block_importance
         
 
-    def mb_vip_permtest(self, x, y, n_permutations=1000, return_scores=False, n_jobs=1):
+    def mb_vip_permtest(self, x, y, n_permutations=1000, return_scores=False, n_jobs=-1):
         """
         Calculate empirical p-values for each feature by permuting the Y outcome variable `n_permutations` times and
         refitting the model. The p-values for each feature are calculated by counting the number of trials with
@@ -833,6 +833,8 @@ class MamsiPls(MBPLS):
             y (array): 1-dim or 2-dim array of reference values, either continuous or categorical variable.
             n_permutations (int, optional): Number of permutation tests. Defaults to 1000.
             return_scores (bool, optional): Whether to return MB-VIP scores for each permuted null model. Defaults to False.
+            n_jobs (int, optional): Number of workers (CPU cores) for multiprocessing, -1 utilises all available cores on a system. 
+                Defaults to -1.
 
         Returns:
             array: Returns an array of p-values for each feature. If `return_scores` is True, then a matrix of MB-VIP scores
