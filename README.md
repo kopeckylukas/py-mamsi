@@ -35,6 +35,7 @@ The documentation for this package is available at [https://kopeckylukas.github.
 - seaborn
 - networkx
 - pyvis
+- joblib
 
 ## User Installation 
 
@@ -193,6 +194,13 @@ The MAMSI publication is currently under the review process.
 # Version History
 <details>
 <summary>Read more</summary>
+
+## v1.0.4
+**New Features**
+- Parallelised `.kfold_cv()`
+- Parallelised `.montecarlo_cv()`
+- Parallelised `.estimate_lv()`
+- Parallelised `.mb_vip_permtest()`
 
 ## v1.0.3
 **New Features** 
