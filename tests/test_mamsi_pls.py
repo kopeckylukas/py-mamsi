@@ -90,7 +90,7 @@ def test_kfold_cv(request, data_fixture):
     x, y = request.getfixturevalue(data_fixture)
     model = MamsiPls(n_components=2)
     model.fit(x, y)
-    scores = model.kfold_cv(x, y, n_splits=3)
+    scores = model.kfold_cv(x, y, n_splits=3, n_jobs=1)
     assert not scores.empty
 
 ## test montecarlo_cv
@@ -99,7 +99,7 @@ def test_montecarlo_cv(request, data_fixture):
     x, y = request.getfixturevalue(data_fixture)
     model = MamsiPls(n_components=2)
     model.fit(x, y)
-    scores = model.montecarlo_cv(x, y, repeats=5)
+    scores = model.montecarlo_cv(x, y, repeats=5, n_jobs=1)
     assert not scores.empty
 
 # test montecarlo_cv with different number of repeats
@@ -108,7 +108,7 @@ def test_montecarlo_cv_repeats(sample_multiblock_data, repeats):
     x, y = sample_multiblock_data
     model = MamsiPls(n_components=2)
     model.fit(x, y)
-    scores = model.montecarlo_cv(x, y, repeats=repeats)
+    scores = model.montecarlo_cv(x, y, repeats=repeats, n_jobs=1)
     assert not scores.empty
 
 # test montecarlo_cv with different data sizes
@@ -121,7 +121,7 @@ def test_montecarlo_cv_data_sizes(data_size):
     x = [x1, x2]
     model = MamsiPls(n_components=2)
     model.fit(x, y)
-    scores = model.montecarlo_cv(x, y, repeats=5)
+    scores = model.montecarlo_cv(x, y, repeats=5, n_jobs=1)
     assert not scores.empty
 
 # test montecarlo_cv with empty data blocks
@@ -131,7 +131,7 @@ def test_montecarlo_cv_empty_data():
     model = MamsiPls(n_components=2)
     with pytest.raises(ValueError):
         model.fit(x, y)
-        model.montecarlo_cv(x, y, repeats=5)
+        model.montecarlo_cv(x, y, repeats=5, n_jobs=1)
 
 # test montecarlo_cv with different random states
 @pytest.mark.parametrize("random_state", [0, 42, 100])
@@ -139,8 +139,8 @@ def test_montecarlo_cv_random_state(sample_multiblock_data, random_state):
     x, y = sample_multiblock_data
     model = MamsiPls(n_components=2)
     model.fit(x, y)
-    scores_1 = model.montecarlo_cv(x, y, repeats=5, random_state=random_state)
-    scores_2 = model.montecarlo_cv(x, y, repeats=5, random_state=random_state)
+    scores_1 = model.montecarlo_cv(x, y, repeats=5, random_state=random_state, n_jobs=1)
+    scores_2 = model.montecarlo_cv(x, y, repeats=5, random_state=random_state, n_jobs=1)
     assert scores_1.equals(scores_2)
 
 # test mb_vip_permtest with different number of permutations
@@ -149,7 +149,7 @@ def test_mb_vip_permtest_permutations(sample_multiblock_data, n_permutations):
     x, y = sample_multiblock_data
     model = MamsiPls(n_components=2)
     model.fit(x, y)
-    p_vals = model.mb_vip_permtest(x, y, n_permutations=n_permutations)
+    p_vals = model.mb_vip_permtest(x, y, n_permutations=n_permutations, n_jobs=1)
     assert p_vals is not None
     assert len(p_vals) == sum([block.shape[1] for block in x])
 
@@ -158,7 +158,7 @@ def test_mb_vip_permtest_return_scores(sample_multiblock_data):
     x, y = sample_multiblock_data
     model = MamsiPls(n_components=2)
     model.fit(x, y)
-    p_vals, vip_scores = model.mb_vip_permtest(x, y, n_permutations=100, return_scores=True)
+    p_vals, vip_scores = model.mb_vip_permtest(x, y, n_permutations=100, return_scores=True, n_jobs=1)
     assert p_vals is not None
     assert vip_scores is not None
     assert len(p_vals) == sum([block.shape[1] for block in x])
@@ -170,7 +170,7 @@ def test_mb_vip_permtest_data_formats(request, data_fixture):
     x, y = request.getfixturevalue(data_fixture)
     model = MamsiPls(n_components=2)
     model.fit(x, y)
-    p_vals = model.mb_vip_permtest(x, y, n_permutations=10)
+    p_vals = model.mb_vip_permtest(x, y, n_permutations=10, n_jobs=1)
     assert p_vals is not None
     assert len(p_vals) == sum([block.shape[1] for block in x])
 
@@ -180,6 +180,6 @@ def test_mb_vip_permtest_n_components(sample_multiblock_data, n_components):
     x, y = sample_multiblock_data
     model = MamsiPls(n_components=n_components)
     model.fit(x, y)
-    p_vals = model.mb_vip_permtest(x, y, n_permutations=10)
+    p_vals = model.mb_vip_permtest(x, y, n_permutations=10, n_jobs=1)
     assert p_vals is not None
     assert len(p_vals) == sum([block.shape[1] for block in x])
