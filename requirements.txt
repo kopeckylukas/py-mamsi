@@ -7,3 +7,4 @@ scikit-learn<=1.5.2
 seaborn
 networkx
 pyvis
+joblib

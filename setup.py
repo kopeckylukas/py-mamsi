@@ -48,6 +48,7 @@ setup(
         'seaborn',
         'networkx',
         'pyvis',
+        'joblib',
     ],
 
 )
