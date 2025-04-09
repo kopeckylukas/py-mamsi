@@ -35,6 +35,7 @@ Training materials including sample data can be found at [https://github.com/kop
 - seaborn
 - networkx
 - pyvis
+- joblib
 
 ## User Installation 
 ### Installing with Pip
@@ -124,6 +125,12 @@ The MAMSI publication is currently under the review process.
 
 # Version History
 
+## v1.0.4
+**New Features**
+- Parallelised `.kfold_cv()`
+- Parallelised `.montecarlo_cv()`
+- Parallelised `.estimate_lv()`
+- Parallelised `.mb_vip_permtest()`
 
 ## v1.0.3
 **New Features** 
