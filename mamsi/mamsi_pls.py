@@ -549,7 +549,7 @@ class MamsiPls(MBPLS):
         rng = np.random.RandomState(random_state)
         
         # Generate n random numbers
-        random_numbers = rng.randint(1, 4294967296, size=repeats)
+        random_numbers = rng.randint(1, 2_147_483_647, size=repeats)
 
         # Placeholder for MCCV scores
         scores = pd.DataFrame()
