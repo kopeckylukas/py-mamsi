@@ -40,8 +40,6 @@ The documentation for this package is available at [https://kopeckylukas.github.
 ## User Installation 
 
 ### Installing with Pip
-*`Note:` On some Windows-based machines error arises with handling int32 in `.montecarlo_cv()` method that will be fixed in v1.0.5. If you are using Windows-based system, install MAMSI from source code.*
-
 You can install MAMSI from PyPI using pip: 
 ```bash
 pip install mamsi
@@ -56,7 +54,7 @@ cd py-mamsi
 ```
 
 When you are in the cloned project folder, type the following code to install MAMSI and all dependencies: 
-```bahs
+```bash
 pip install .
 ```
 
@@ -196,6 +194,10 @@ The MAMSI publication is currently under the review process.
 # Version History
 <details>
 <summary>Read more</summary>
+
+## v1.0.5
+**Minor Bug Fixes**
+- Update randint high in `.montecarlo_cv()` from 4_294_967_296 to 2_147_483_647 to comply with systems where Windows defaults to stricter 32-bit behaviour.
 
 ## v1.0.4
 **New Features**

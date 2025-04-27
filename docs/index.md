@@ -56,7 +56,7 @@ cd py-mamsi
 ```
 
 When you are in the cloned project folder, type the following code to install MAMSI and all dependencies: 
-```bahs
+```bash
 pip install .
 ```
 
@@ -110,6 +110,7 @@ The MAMSI publication is currently under the review process.
 [2] C. Wieder *et al.*, "PathIntegrate: Multivariate modelling approaches for pathway-based multi-omics data integration," *PLOS Comput. Biol.*, vol. 20, no. 3, p. e1011814, Mar 2024, doi: [10.1371/journal.pcbi.1011814](https://pubmed.ncbi.nlm.nih.gov/38527092/).
 
 [3] S. Lovestone *et al.*, "AddNeuroMed—The European Collaboration for the Discovery of Novel Biomarkers for Alzheimer's Disease," *Ann. N. Y. Acad. Sci*, vol. 1180, no. 1, pp. 36-46, 2009, doi: [10.1111/j.1749-6632.2009.05064.x](https://nyaspubs.onlinelibrary.wiley.com/doi/10.1111/j.1749-6632.2009.05064.x).
+
 [4] A. M. Wolfer *et al.*, "peakPantheR, an R package for large-scale targeted extraction and integration of annotated metabolic features in LC–MS profiling datasets," *Bioinformatics*, vol. 37, no. 24, pp. 4886-4888, 2021, doi: [10.1093/bioinformatics/btab433](https://academic.oup.com/bioinformatics/article/37/24/4886/6298587).
 
 [5] S. Misra *et al.*, "Systematic screening for monogenic diabetes in people of South Asian and African Caribbean ethnicity: Preliminary results from the My Diabetes study," presented at the *Diabet. Med.*, Mar 2018.
@@ -124,6 +125,11 @@ The MAMSI publication is currently under the review process.
 [def]: /images/MAMSI_logo.png
 
 # Version History
+
+## v1.0.5
+**Minor Bug Fixes**
+
+- Update randint high in `.montecarlo_cv()` from 4_294_967_296 to 2_147_483_647 to comply with systems where Windows defaults to stricter 32-bit behaviour.
 
 ## v1.0.4
 **New Features**
