@@ -163,22 +163,23 @@ The authors of this package would like to acknowledge the authors of the [mbpls]
 Further, we would like to thank Prof Simon Lovestone and Dr Shivani Misra for allowing us to use their data, AddNeuroMed [[3](#references)] and MY Diabetes [[5](#references)] respectively, for the development of this package. 
 
 # Citing us
-If you use MAMSI in a scientific publication, we would appreciate citations. 
+If you use MAMSI in a scientific publication, we would appreciate citations. The MAMSI publication is available Open Access from [https://pubs.acs.org/doi/abs/10.1021/acs.analchem.5c01327](https://pubs.acs.org/doi/abs/10.1021/acs.analchem.5c01327)
 
-## Release
+You can cite this article as: 
+
 ```
-@misc{MAMSI2024,
-  author       = {Lukas Kopecky, Elizabeth J Want, Timothy MD Ebbels},
-  title        = {MAMSI: Multi-Assay Mass Spectrometry Integration},
-  year         = 2024,
-  url          = {https://doi.org/10.5281/zenodo.13619607},
-  note         = {Zenodo. Version 1.0.0},
-  doi          = {10.5281/zenodo.13619607}
+@article{MAMSI2025,
+   author = {Kopecky, Lukas and Sands, Caroline J. and Gómez-Romero, María and Misra, Shivani and Want, Elizabeth J. and Ebbels, Timothy M. D.},
+   title = {MAMSI: Integration of Multiassay Liquid Chromatography–Mass Spectrometry Metabolomics Data Using Multiview Machine Learning},
+   journal = {Analytical Chemistry},
+   note = {doi: 10.1021/acs.analchem.5c01327},
+   ISSN = {0003-2700},
+   DOI = {10.1021/acs.analchem.5c01327},
+   url = {https://pubs.acs.org/doi/abs/10.1021/acs.analchem.5c01327},
+   year = {2025},
+   type = {Journal Article}
 }
 ```
-
-## Publication
-The MAMSI publication is currently under the review process. 
 
 # References
 [1] A. Baum and L. Vermue, "Multiblock PLS: Block dependent prediction modeling for Python," *J. Open Source Softw.*, vol. 4, no. 34, 2019, doi: [10.21105/joss.01190](https://joss.theoj.org/papers/10.21105/joss.01190).
