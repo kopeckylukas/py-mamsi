@@ -19,6 +19,7 @@ from sklearn.utils.validation import check_array, check_is_fitted
 import matplotlib.pyplot as plt
 from scipy import stats
 from joblib import Parallel, delayed
+from tqdm import tqdm
 
 class MamsiPls(MBPLS):
     """
@@ -814,7 +815,7 @@ class MamsiPls(MBPLS):
             return block_importance
         
 
-    def mb_vip_permtest(self, x, y, n_permutations=1000, return_scores=False, n_jobs=-1):
+    def mb_vip_permtest(self, x, y, n_permutations=1000, return_scores=False, progress_bar=True, n_jobs=-1):
         """
         Calculate empirical p-values for each feature by permuting the Y outcome variable `n_permutations` times and
         refitting the model. The p-values for each feature are calculated by counting the number of trials with
@@ -825,6 +826,7 @@ class MamsiPls(MBPLS):
             y (array): 1-dim or 2-dim array of reference values, either continuous or categorical variable.
             n_permutations (int, optional): Number of permutation tests. Defaults to 1000.
             return_scores (bool, optional): Whether to return MB-VIP scores for each permuted null model. Defaults to False.
+            progress_bar (bool, optional): Whether to show progress bar during permutation testing. Defaults to True.
             n_jobs (int, optional): Number of workers (CPU cores) for multiprocessing, -1 utilises all available cores on a system. 
                 Defaults to -1.
 
@@ -855,7 +857,15 @@ class MamsiPls(MBPLS):
             self.fit(x, y_perm)
             return self.mb_vip(plot=False, get_scores=True)
 
-        _vip_null = Parallel(n_jobs=n_jobs)(delayed(_fit_permute)(_x, _y) for _ in range(n_permutations))
+        if progress_bar:
+            try:
+                _vip_null = Parallel(n_jobs=n_jobs)(delayed(_fit_permute)(_x, _y) for _ in tqdm(range(n_permutations), desc="Permutation testing"))
+            except ImportError:
+                print("tqdm not available, running without progress bar")
+                _vip_null = Parallel(n_jobs=n_jobs)(delayed(_fit_permute)(_x, _y) for _ in range(n_permutations))
+        else:
+            _vip_null = Parallel(n_jobs=n_jobs)(delayed(_fit_permute)(_x, _y) for _ in range(n_permutations))
+            
         vip_null = np.stack(_vip_null, axis=1)
 
         # Calculate empirical p-values

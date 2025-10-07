@@ -8,3 +8,4 @@ seaborn
 networkx
 pyvis
 joblib
+tqdm

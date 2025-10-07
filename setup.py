@@ -49,6 +49,7 @@ setup(
         'networkx',
         'pyvis',
         'joblib',
+        'tqdm',
     ],
 
 )
