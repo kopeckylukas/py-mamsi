@@ -11,7 +11,7 @@ import numpy as np
 import re
 import warnings
 import matplotlib.pyplot as plt
-import pkg_resources
+from importlib.resources import files
 from scipy.cluster.hierarchy import dendrogram, linkage, fcluster
 from scipy.spatial.distance import squareform
 import seaborn as sns
@@ -326,23 +326,11 @@ class MamsiStructSearch:
             pandas.DataFrame: DataFrame with m/z and hypothetical neutral masses for given adducts.
         """
         
-        # Load all files with "all" adducts
-        if adducts == 'all':
-            stream_all_adducts_pos = pkg_resources.resource_stream(__name__, 'Data/Adducts/all_adducts_pos.csv')
+        # Determine which adduct set to use
+        adduct_type = 'all' if adducts == 'all' else 'common'
 
-            adducts_positive = pd.read_csv(stream_all_adducts_pos)
-            
-            stream_all_adducts_neg = pkg_resources.resource_stream(__name__, 'Data/Adducts/all_adducts_neg.csv')
-            adducts_negative = pd.read_csv(stream_all_adducts_neg)
-
-        # Load files with the "most common" adducts
-        else:
-            # Load external adduct files
-            stream_common_adducts_pos = pkg_resources.resource_stream(__name__, 'Data/Adducts/common_adducts_pos.csv')
-            adducts_positive = pd.read_csv(stream_common_adducts_pos)
-            
-            stream_common_adducts_neg = pkg_resources.resource_stream(__name__, 'Data/Adducts/common_adducts_neg.csv')
-            adducts_negative = pd.read_csv(stream_common_adducts_neg)
+        adducts_positive = pd.read_csv(files(__package__).joinpath(f'Data/Adducts/{adduct_type}_adducts_pos.csv'))
+        adducts_negative = pd.read_csv(files(__package__).joinpath(f'Data/Adducts/{adduct_type}_adducts_neg.csv'))    
 
         df = features.copy()  # Copy features data frame
         df.reset_index(inplace=True, drop=True)
@@ -517,39 +505,29 @@ class MamsiStructSearch:
             frame = frame.copy()
                 
             if roi is None:
-                if frame.loc[0, 'Assay'] == 'HPOS':
-                    roi_stream = pkg_resources.resource_stream(__name__, 'Data/ROI/HPOS_ROI_V_3_2_1.csv')
-                    roi = pd.read_csv(roi_stream, encoding='windows-1252')
+                # Mapping of assays to their CSV files
+                ASSAY_ROI_MAP = {
+                    'HPOS': 'Data/ROI/HPOS_ROI_V_3_2_1.csv',
+                    'UHPOS': 'Data/ROI/HPOS_ROI_V_3_2_1.csv',
+                    'SHPOS': 'Data/ROI/HPOS_ROI_V_3_2_1.csv',
+                    'LPOS': 'Data/ROI/LPOS_ROI_V_5_1_2.csv',
+                    'LNEG': 'Data/ROI/LNEG_ROI_V_5_1_1.csv',
+                    'RPOS': 'Data/ROI/RPOS_ROI_V_3_2_0.csv',
+                    'RNEG': 'Data/ROI/RNEG_ROI_V_3_2_0.csv',
+                }
 
-                elif frame.loc[0, 'Assay'] == 'UHPOS':
-                    roi_stream = pkg_resources.resource_stream(__name__, 'Data/ROI/HPOS_ROI_V_3_2_1.csv')
-                    roi = pd.read_csv(roi_stream, encoding='windows-1252')
+                assay = frame.loc[0, 'Assay']
 
-                elif frame.loc[0, 'Assay'] == 'SHPOS':
-                    roi_stream = pkg_resources.resource_stream(__name__, 'Data/ROI/HPOS_ROI_V_3_2_1.csv')
-                    roi = pd.read_csv(roi_stream, encoding='windows-1252')
+                if assay not in ASSAY_ROI_MAP:
+                    raise Exception(
+                        "ANNOTATION ERROR - Assay has not been recognised. Please ensure that assay name "
+                        "matches naming convention of the National Phenome Centre (NPC) or run structural "
+                        "search without annotation. For more information on NPC assay naming convention please "
+                        "visit https://github.com/phenomecentre/npc-open-lcms"
+                    )
 
-                elif frame.loc[0, 'Assay'] == 'LPOS':
-                    roi_stream = pkg_resources.resource_stream(__name__, 'Data/ROI/LPOS_ROI_V_5_1_2.csv')
-                    roi = pd.read_csv(roi_stream, encoding='windows-1252')
-
-                elif frame.loc[0, 'Assay'] == 'LNEG':
-                    roi_stream = pkg_resources.resource_stream(__name__, 'Data/ROI/LNEG_ROI_V_5_1_1.csv')
-                    roi = pd.read_csv(roi_stream, encoding='windows-1252')
-
-                elif frame.loc[0, 'Assay'] == 'RPOS':
-                    roi_stream = pkg_resources.resource_stream(__name__, 'Data/ROI/RPOS_ROI_V_3_2_0.csv')
-                    roi = pd.read_csv(roi_stream, encoding='windows-1252')
-
-                elif frame.loc[0, 'Assay'] == 'RNEG':
-                    roi_stream = pkg_resources.resource_stream(__name__, 'Data/ROI/RNEG_ROI_V_3_2_0.csv')
-                    roi = pd.read_csv(roi_stream, encoding='windows-1252')
-
-                else:
-                    raise Exception("ANNOTATION ERROR - Assay has not been recognised. Please ensure that assay name "
-                                    "matches naming convention of the National Phenome Centre (NPC) or run structural "
-                                    "search without annotation. For more information on NPC assay naming convention please "
-                                    "visit https://github.com/phenomecentre/npc-open-lcms")
+                roi_file = files(__package__).joinpath(ASSAY_ROI_MAP[assay])
+                roi = pd.read_csv(roi_file, encoding='windows-1252')
 
             else:
                 roi = roi
