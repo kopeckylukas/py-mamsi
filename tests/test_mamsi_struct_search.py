@@ -35,6 +35,19 @@ def test_load_lcms(sample_data_lcms):
     assert searcher.intensities.equals(sample_data_lcms)
     assert searcher.feature_metadata is not None
     assert searcher.assay_links is not None
+    assert sample_data_lcms.shape[1] == searcher.intensities.shape[1]
+    assert len(searcher.feature_metadata) == searcher.intensities.shape[1]
+
+    # Check column data types
+    expected_dtypes = {
+        'Feature': 'object',
+        'Assay': 'object',
+        'RT': np.float64,
+        'm/z': np.float64
+    }
+    assert searcher.feature_metadata[list(expected_dtypes.keys())].dtypes.to_dict() == expected_dtypes
+
+
 
 def test_load_msi(sample_data_msi):
     searcher = MamsiStructSearch()
@@ -42,6 +55,19 @@ def test_load_msi(sample_data_msi):
     assert searcher.intensities.equals(sample_data_msi)
     assert searcher.feature_metadata is not None
     assert searcher.assay_links is not None
+    assert len(searcher.feature_metadata) == searcher.intensities.shape[1]
+    assert sample_data_msi.shape[1] == searcher.intensities.shape[1]
+
+    # Check column data types
+    expected_dtypes = {
+        'Feature': 'object',
+        'Assay': 'object',
+        'RT': np.float64,
+        'm/z': np.float64
+    }
+    assert searcher.feature_metadata[list(expected_dtypes.keys())].dtypes.to_dict() == expected_dtypes
+
+
 
 # def test_structural_search_msi(sample_data_msi):
 #     searcher = MamsiStructSearch(ppm=10)

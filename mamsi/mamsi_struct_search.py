@@ -74,7 +74,7 @@ class MamsiStructSearch:
             line = pd.DataFrame({
                 'Feature': name,
                 'Assay': assay,
-                'RT': 1,
+                'RT': 1.0,
                 'm/z': mz
             }, index=[0]
             )
