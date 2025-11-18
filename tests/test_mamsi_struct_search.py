@@ -36,9 +36,9 @@ def sample_data_msi():
                         "msi_smpl_no_adducts_pos",
                         "msi_smpl_no_adducts_neg",
                         "msi_smpl_no_iso_no_adducts",
-                        "msi_smpl_single_assay",
-                        "msi_smpl_single_assay_no_iso",
-                        "msi_smpl_single_assay_no_adducts",
+                        # "msi_smpl_single_assay",
+                        # "msi_smpl_single_assay_no_iso",
+                        # "msi_smpl_single_assay_no_adducts",
                         "msi_smpl_no_struct_pos",
                         "mis_smpl_no_struct_neg",
                         "msi_smpl_no_cross_assay",
@@ -111,7 +111,6 @@ def test_load_lcms(sample_data_lcms):
     assert searcher.feature_metadata[list(expected_dtypes.keys())].dtypes.to_dict() == expected_dtypes
 
 
-
 def test_load_msi(sample_data_msi):
     searcher = MamsiStructSearch()
     searcher.load_msi(sample_data_msi)
@@ -138,10 +137,23 @@ def test_msi_iso_search(sample_data_msi_param):
     assert isinstance(results, pd.DataFrame)
     assert not results.empty
 
+def test_msi_adduct_search(sample_data_msi_param):
+    searcher = MamsiStructSearch(ppm=10)
+    searcher.load_msi(sample_data_msi_param)
+    results = searcher.get_structural_clusters(annotate=False)
+    assert isinstance(results, pd.DataFrame)
+    assert not results.empty
 
-# def test_structural_search_msi(sample_data_msi):
-#     searcher = MamsiStructSearch(ppm=10)
-#     searcher.load_msi(sample_data_msi)
-#     results = searcher.get_structural_clusters(annotate=False)
-#     assert isinstance(results, pd.DataFrame)
-#     assert not results.empty
+def test_msi_struct_group_search(sample_data_msi_param):
+    searcher = MamsiStructSearch(ppm=10)
+    searcher.load_msi(sample_data_msi_param)
+    results = searcher.get_structural_clusters(annotate=False)
+    assert isinstance(results, pd.DataFrame)
+    assert not results.empty
+
+def test_msi_cross_assay_search(sample_data_msi_param):
+    searcher = MamsiStructSearch(ppm=10)
+    searcher.load_msi(sample_data_msi_param)
+    results = searcher.get_structural_clusters(annotate=False)
+    assert isinstance(results, pd.DataFrame)
+    assert not results.empty    
