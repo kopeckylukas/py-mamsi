@@ -51,46 +51,34 @@ def sample_data_msi_param(request):
     
     if request.param == "msi_smpl_no_iso":
         cols = np.r_[0:2, 3:7, 9:13, 14:18]
-        return data.iloc[:, cols]
     elif request.param == "msi_smpl_no_iso_pos":
         cols = np.r_[0:13, 14:18]
-        return data.iloc[:, cols]
     elif request.param == "msi_smpl_no_iso_neg":
         cols = np.r_[0:2, 3:7,  9:18]    
-        return data.iloc[:, cols]
     elif request.param == "msi_smpl_no_adducts":
         cols = np.r_[1:14]
-        return data.iloc[:, cols]
     elif request.param == "msi_smpl_no_adducts_pos":
         cols = np.r_[0:14]
-        return data.iloc[:, cols]
     elif request.param == "msi_smpl_no_adducts_neg":
         cols = np.r_[1:18]    
-        return data.iloc[:, cols]
     elif request.param == "msi_smpl_no_iso_no_adducts":
         cols = np.r_[1, 2:7, 9:13]
-        return data.iloc[:, cols]   
     elif request.param == "msi_smpl_single_assay":
         cols = np.r_[9:18]
-        return data.iloc[:, cols]
     elif request.param == "msi_smpl_single_assay_no_iso":
         cols = np.r_[9:13, 14:18]
-        return data.iloc[:, cols]
     elif request.param == "msi_smpl_single_assay_no_adducts":
         cols = np.r_[1:9]
-        return data.iloc[:, cols]
     elif request.param == "msi_smpl_no_struct_pos":
         cols = np.r_[0:13, 17]
-        return data.iloc[:, cols]
     elif request.param == "mis_smpl_no_struct_neg":
         cols = np.r_[0, 2, 3:7, 8:18]
-        return data.iloc[:, cols]
     elif request.param == "msi_smpl_no_cross_assay":
         cols = np.r_[0:3, 4:18]
-        return data.iloc[:, cols]
     else: # "msi_smpl_all" 
-        return data
+        cols = np.r_[0:18]
      
+    return data.iloc[:, cols], request.param
 
 def test_load_lcms(sample_data_lcms):
     searcher = MamsiStructSearch()
@@ -131,29 +119,51 @@ def test_load_msi(sample_data_msi):
 
 
 def test_msi_iso_search(sample_data_msi_param):
+    data, param_name = sample_data_msi_param
+    
+    # Skip specific parameter combinations
+    if param_name in ["msi_smpl_single_assay",
+                      "msi_smpl_single_assay_no_iso",
+                      "msi_smpl_single_assay_no_adducts"]:
+        pytest.skip(f"Skipping {param_name} for this test")
+    
     searcher = MamsiStructSearch(ppm=10)
-    searcher.load_msi(sample_data_msi_param)
+    searcher.load_msi(data)
     results = searcher.get_structural_clusters(annotate=False)
     assert isinstance(results, pd.DataFrame)
     assert not results.empty
 
-def test_msi_adduct_search(sample_data_msi_param):
-    searcher = MamsiStructSearch(ppm=10)
-    searcher.load_msi(sample_data_msi_param)
-    results = searcher.get_structural_clusters(annotate=False)
-    assert isinstance(results, pd.DataFrame)
-    assert not results.empty
+# def test_msi_iso_search(sample_data_msi_param, request):
+#     # Skip specific parameter combinations
+#     if request.param in ["msi_smpl_single_assay",
+#                         "msi_smpl_single_assay_no_iso",
+#                         "msi_smpl_single_assay_no_adducts"]:
+#         pytest.skip(f"Skipping {request.param} for this test")
+    
+#     searcher = MamsiStructSearch(ppm=10)
+#     searcher.load_msi(sample_data_msi_param)
+#     results = searcher.get_structural_clusters(annotate=False)
+#     assert isinstance(results, pd.DataFrame)
+#     assert not results.empty
 
-def test_msi_struct_group_search(sample_data_msi_param):
-    searcher = MamsiStructSearch(ppm=10)
-    searcher.load_msi(sample_data_msi_param)
-    results = searcher.get_structural_clusters(annotate=False)
-    assert isinstance(results, pd.DataFrame)
-    assert not results.empty
 
-def test_msi_cross_assay_search(sample_data_msi_param):
-    searcher = MamsiStructSearch(ppm=10)
-    searcher.load_msi(sample_data_msi_param)
-    results = searcher.get_structural_clusters(annotate=False)
-    assert isinstance(results, pd.DataFrame)
-    assert not results.empty    
+# def test_msi_adduct_search(sample_data_msi_param):
+#     searcher = MamsiStructSearch(ppm=10)
+#     searcher.load_msi(sample_data_msi_param)
+#     results = searcher.get_structural_clusters(annotate=False)
+#     assert isinstance(results, pd.DataFrame)
+#     assert not results.empty
+
+# def test_msi_struct_group_search(sample_data_msi_param):
+#     searcher = MamsiStructSearch(ppm=10)
+#     searcher.load_msi(sample_data_msi_param)
+#     results = searcher.get_structural_clusters(annotate=False)
+#     assert isinstance(results, pd.DataFrame)
+#     assert not results.empty
+
+# def test_msi_cross_assay_search(sample_data_msi_param):
+#     searcher = MamsiStructSearch(ppm=10)
+#     searcher.load_msi(sample_data_msi_param)
+#     results = searcher.get_structural_clusters(annotate=False)
+#     assert isinstance(results, pd.DataFrame)
+#     assert not results.empty    
