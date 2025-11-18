@@ -77,6 +77,7 @@ def sample_data_msi_param(request):
         cols = np.r_[0:3, 4:18]
     else: # "msi_smpl_all" 
         cols = np.r_[0:18]
+
      
     return data.iloc[:, cols], request.param
 
@@ -122,9 +123,9 @@ def test_msi_iso_search(sample_data_msi_param):
     data, param_name = sample_data_msi_param
     
     # Skip specific parameter combinations
-    if param_name in ["msi_smpl_single_assay",
-                      "msi_smpl_single_assay_no_iso",
-                      "msi_smpl_single_assay_no_adducts"]:
+    if param_name in [  "msi_smpl_no_iso", 
+                        "msi_smpl_no_iso_no_adducts",
+                        "msi_smpl_single_assay_no_iso"]:
         pytest.skip(f"Skipping {param_name} for this test")
     
     searcher = MamsiStructSearch(ppm=10)
@@ -133,37 +134,59 @@ def test_msi_iso_search(sample_data_msi_param):
     assert isinstance(results, pd.DataFrame)
     assert not results.empty
 
-# def test_msi_iso_search(sample_data_msi_param, request):
-#     # Skip specific parameter combinations
-#     if request.param in ["msi_smpl_single_assay",
-#                         "msi_smpl_single_assay_no_iso",
-#                         "msi_smpl_single_assay_no_adducts"]:
-#         pytest.skip(f"Skipping {request.param} for this test")
+    # Check if at least one not NaN value in results['Isotopologue group']
+    assert results['Isotopologue group'].notna().any()
     
-#     searcher = MamsiStructSearch(ppm=10)
-#     searcher.load_msi(sample_data_msi_param)
-#     results = searcher.get_structural_clusters(annotate=False)
-#     assert isinstance(results, pd.DataFrame)
-#     assert not results.empty
+
+@pytest.mark.skip(reason="Not implemented yet")
+def test_msi_adduct_search(sample_data_msi_param):
+    data, param_name = sample_data_msi_param
+    
+    # # Skip specific parameter combinations
+    # if param_name in [  "msi_smpl_no_iso", 
+    #                     "msi_smpl_no_iso_no_adducts",
+    #                     "msi_smpl_single_assay_no_iso"]:
+    #     pytest.skip(f"Skipping {param_name} for this test")
+    
+    searcher = MamsiStructSearch(ppm=10)
+    searcher.load_msi(data)
+    results = searcher.get_structural_clusters(annotate=False)
+    assert isinstance(results, pd.DataFrame)
+    assert not results.empty
+    assert False
 
 
-# def test_msi_adduct_search(sample_data_msi_param):
-#     searcher = MamsiStructSearch(ppm=10)
-#     searcher.load_msi(sample_data_msi_param)
-#     results = searcher.get_structural_clusters(annotate=False)
-#     assert isinstance(results, pd.DataFrame)
-#     assert not results.empty
 
-# def test_msi_struct_group_search(sample_data_msi_param):
-#     searcher = MamsiStructSearch(ppm=10)
-#     searcher.load_msi(sample_data_msi_param)
-#     results = searcher.get_structural_clusters(annotate=False)
-#     assert isinstance(results, pd.DataFrame)
-#     assert not results.empty
+@pytest.mark.skip(reason="Not implemented yet")
+def test_msi_struct_group_search(sample_data_msi_param):
+    data, param_name = sample_data_msi_param
+    
+    # Skip specific parameter combinations
+    if param_name in [  "msi_smpl_no_iso", 
+                        "msi_smpl_no_iso_no_adducts",
+                        "msi_smpl_single_assay_no_iso"]:
+        pytest.skip(f"Skipping {param_name} for this test")
+    
+    searcher = MamsiStructSearch(ppm=10)
+    searcher.load_msi(data)
+    results = searcher.get_structural_clusters(annotate=False)
+    assert isinstance(results, pd.DataFrame)
+    assert not results.empty
 
-# def test_msi_cross_assay_search(sample_data_msi_param):
-#     searcher = MamsiStructSearch(ppm=10)
-#     searcher.load_msi(sample_data_msi_param)
-#     results = searcher.get_structural_clusters(annotate=False)
-#     assert isinstance(results, pd.DataFrame)
-#     assert not results.empty    
+    
+@pytest.mark.skip(reason="Not implemented yet")
+def test_msi_cross_assay_search(sample_data_msi_param):
+    data, param_name = sample_data_msi_param
+    
+    # Skip specific parameter combinations
+    if param_name in [  "msi_smpl_no_iso", 
+                        "msi_smpl_no_iso_no_adducts",
+                        "msi_smpl_single_assay_no_iso"]:
+        pytest.skip(f"Skipping {param_name} for this test")
+    
+    searcher = MamsiStructSearch(ppm=10)
+    searcher.load_msi(data)
+    results = searcher.get_structural_clusters(annotate=False)
+    assert isinstance(results, pd.DataFrame)
+    assert not results.empty
+
