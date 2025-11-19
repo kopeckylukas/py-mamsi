@@ -62,7 +62,7 @@ def sample_data_msi_param(request):
     elif request.param == "msi_smpl_no_adducts_neg":
         cols = np.r_[1:18]    
     elif request.param == "msi_smpl_no_iso_no_adducts":
-        cols = np.r_[1, 2:7, 9:13]
+        cols = np.r_[0, 2:7, 9:13]
     elif request.param == "msi_smpl_single_assay":
         cols = np.r_[9:18]
     elif request.param == "msi_smpl_single_assay_no_iso":
@@ -82,6 +82,7 @@ def sample_data_msi_param(request):
     return data.iloc[:, cols], request.param
 
 def test_load_lcms(sample_data_lcms):
+    '''Test loading of LC-MS data import/loading'''
     searcher = MamsiStructSearch()
     searcher.load_lcms(sample_data_lcms)
     assert searcher.intensities.equals(sample_data_lcms)
@@ -101,6 +102,7 @@ def test_load_lcms(sample_data_lcms):
 
 
 def test_load_msi(sample_data_msi):
+    '''Test loading of MSI data import/loading'''
     searcher = MamsiStructSearch()
     searcher.load_msi(sample_data_msi)
     assert searcher.intensities.equals(sample_data_msi)
@@ -120,33 +122,43 @@ def test_load_msi(sample_data_msi):
 
 
 def test_msi_iso_search(sample_data_msi_param):
+    '''Test MSI isotopologue search functionality of structural searcher
+        Data without isotopologues should have NaN in 'Isotopologue group' column
+        Data with isotopologues should have at least two one not NaN value in 'Isotopologue group' column
+    '''
     data, param_name = sample_data_msi_param
-    
-    # Skip specific parameter combinations
-    if param_name in [  "msi_smpl_no_iso", 
-                        "msi_smpl_no_iso_no_adducts",
-                        "msi_smpl_single_assay_no_iso"]:
-        pytest.skip(f"Skipping {param_name} for this test")
-    
     searcher = MamsiStructSearch(ppm=10)
     searcher.load_msi(data)
     results = searcher.get_structural_clusters(annotate=False)
     assert isinstance(results, pd.DataFrame)
     assert not results.empty
-
-    # Check if at least one not NaN value in results['Isotopologue group']
-    assert results['Isotopologue group'].notna().any()
     
+    # Check data without isotopologues to have NaN in 'Isotopologue group'
+    if param_name in [  "msi_smpl_no_iso", 
+                        "msi_smpl_no_iso_no_adducts",
+                        "msi_smpl_single_assay_no_iso",
+                        ]:
+        assert results['Isotopologue group'].isna().all(), \
+            f"Expected all NaN in 'Isotopologue group' for {param_name}"
+
+
+    # Check all other data combinations for isotopologue groups     
+    else: 
+        # Check if at least one not NaN value in results['Isotopologue group']
+        assert results['Isotopologue group'].notna().any()
+        # Check if at least two not NaN values in results['Isotopologue group']
+        assert results['Isotopologue group'].notna().sum() >= 2, \
+            f"Expected at least two not NaN  (M and M+1) in 'Isotopologue group' for {param_name}"
+        # Check that all rows where Isotopologue Group has a value also have Isotopologue Pattern
+        rows_with_group = results[results['Isotopologue group'].notna()]
+        assert rows_with_group['Isotopologue pattern'].notna().all(), \
+            "All rows with Isotopologue Group must have Isotopologue Pattern"
+        
+
 
 @pytest.mark.skip(reason="Not implemented yet")
 def test_msi_adduct_search(sample_data_msi_param):
     data, param_name = sample_data_msi_param
-    
-    # # Skip specific parameter combinations
-    # if param_name in [  "msi_smpl_no_iso", 
-    #                     "msi_smpl_no_iso_no_adducts",
-    #                     "msi_smpl_single_assay_no_iso"]:
-    #     pytest.skip(f"Skipping {param_name} for this test")
     
     searcher = MamsiStructSearch(ppm=10)
     searcher.load_msi(data)
@@ -154,6 +166,12 @@ def test_msi_adduct_search(sample_data_msi_param):
     assert isinstance(results, pd.DataFrame)
     assert not results.empty
     assert False
+
+        # # Skip specific parameter combinations
+    # if param_name in [  "msi_smpl_no_iso", 
+    #                     "msi_smpl_no_iso_no_adducts",
+    #                     "msi_smpl_single_assay_no_iso"]:
+    #     pytest.skip(f"Skipping {param_name} for this test")
 
 
 
@@ -190,3 +208,11 @@ def test_msi_cross_assay_search(sample_data_msi_param):
     assert isinstance(results, pd.DataFrame)
     assert not results.empty
 
+# @pytest.mark.xfail(reason="Should fail but doesn't")
+# def test_unexpectedly_works():
+#     assert True  # This passes, but we expected it to fail!
+
+# # With strict=True, XPASS becomes a failure
+# @pytest.mark.xfail(strict=True)
+# def test_must_fail():
+#     assert True  # This will cause the test suite to fail
