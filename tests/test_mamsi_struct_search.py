@@ -38,11 +38,11 @@ def sample_data_msi():
                         "msi_smpl_no_adducts_pos",
                         "msi_smpl_no_adducts_neg",
                         "msi_smpl_no_struct",
-                        # "msi_smpl_single_assay",
-                        # "msi_smpl_single_assay_no_iso",
-                        # "msi_smpl_single_assay_no_adducts",
+                        "msi_smpl_single_assay",
+                        "msi_smpl_single_assay_no_iso",
+                        "msi_smpl_single_assay_no_adducts",
                         "msi_smpl_no_struct_pos",
-                        "mis_smpl_no_struct_neg",
+                        "msi_smpl_no_struct_neg",
                         "msi_smpl_no_cross_assay",
                         "msi_smpl_all"
                         ])
@@ -73,7 +73,7 @@ def sample_data_msi_param(request):
         cols = np.r_[1:9]
     elif request.param == "msi_smpl_no_struct_pos":
         cols = np.r_[0:13, 17]
-    elif request.param == "mis_smpl_no_struct_neg":
+    elif request.param == "msi_smpl_no_struct_neg":
         cols = np.r_[0, 2, 3:7, 8:18]
     elif request.param == "msi_smpl_no_cross_assay":
         cols = np.r_[0:3, 4:18]
@@ -194,15 +194,15 @@ def test_msi_adduct_search(sample_data_msi_param):
     else:
         # Check if at least one not NaN value exists
         assert results['Adduct group'].notna().any(), \
-            f"All values are NaN in 'Adduct group' in [{param_name}]"
+            f"'Adduct group' - all values are NaN in [{param_name}]"
         assert results['Expected neutral mass'].notna().any(), \
-            f"All values are NaN in 'Expected neutral mass' in [{param_name}]"
+            f"'Expected neutral mass' - all values are NaN in [{param_name}]"
         assert results['Observed neutral mass'].notna().any(), \
-            f"All values are NaN in 'Observed neutral mass' in [{param_name}]"
+            f"'Observed neutral mass' - all values are NaN in [{param_name}]"
         assert results['Neutral mass |difference ppm|'].notna().any(), \
-            f"All values are NaN in 'Neutral mass |difference ppm|' in [{param_name}]"
+            f"'Neutral mass |difference ppm|' - all values are NaN in [{param_name}]"
         assert results['Adduct'].notna().any(), \
-            f"All values are NaN in 'Adduct' in [{param_name}]"
+            f"'Adduct' - all values are NaN in [{param_name}]"
         
         # Test all rows where 'Adduct group' has a value
         rows_with_adduct_group = results[results['Adduct group'].notna()]
@@ -260,18 +260,30 @@ def test_msi_struct_group_search(sample_data_msi_param):
             f"'Isotopologue' or 'Adduct' - no corresponding 'Structural cluster' value in [{param_name}]"
 
 
-@pytest.mark.skip(reason="Not implemented yet")
 def test_msi_cross_assay_search(sample_data_msi_param):
     data, param_name = sample_data_msi_param
-    
-    # Skip specific parameter combinations
-    if param_name in [  "msi_smpl_no_iso", 
-                        "msi_smpl_no_struct",
-                        "msi_smpl_single_assay_no_iso"]:
-        pytest.skip(f"Skipping {param_name} for this test")
-    
+
     searcher = MamsiStructSearch(ppm=10)
     searcher.load_msi(data)
     results = searcher.get_structural_clusters(annotate=False)
     assert isinstance(results, pd.DataFrame)
     assert not results.empty
+    
+    # Fixtures wiht cross-assay links not expected
+    if param_name in [  "msi_smpl_no_cross_assay", 
+                        "msi_smpl_no_adducts",
+                        "msi_smpl_no_adducts_pos",
+                        "msi_smpl_no_struct",
+                        "msi_smpl_single_assay",
+                        "msi_smpl_single_assay_no_iso",
+                        "msi_smpl_single_assay_no_adducts",
+                        "msi_smpl_no_struct_pos"    
+                        ]:
+        assert results['Cross-assay link'].isna().all(), \
+            f"Expected all NaN in 'Cross-assay link' for [{param_name}]"
+    
+    # Fixtrues with corss-assay links expected  
+    else:
+        # Check if at least one not NaN value in 'Cross-assay link'
+        assert results['Cross-assay link'].notna().any(), \
+            f"'Cross-assay link' - all values are NaN in [{param_name}]"
