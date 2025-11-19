@@ -37,7 +37,7 @@ def sample_data_msi():
                         "msi_smpl_no_adducts",
                         "msi_smpl_no_adducts_pos",
                         "msi_smpl_no_adducts_neg",
-                        "msi_smpl_no_iso_no_adducts",
+                        "msi_smpl_no_struct",
                         # "msi_smpl_single_assay",
                         # "msi_smpl_single_assay_no_iso",
                         # "msi_smpl_single_assay_no_adducts",
@@ -63,7 +63,7 @@ def sample_data_msi_param(request):
         cols = np.r_[0:14]
     elif request.param == "msi_smpl_no_adducts_neg":
         cols = np.r_[1:18]    
-    elif request.param == "msi_smpl_no_iso_no_adducts":
+    elif request.param == "msi_smpl_no_struct":
         cols = np.r_[0, 2:7, 9:13]
     elif request.param == "msi_smpl_single_assay":
         cols = np.r_[9:18]
@@ -140,7 +140,7 @@ def test_msi_iso_search(sample_data_msi_param):
     
     # Check data without isotopologues to have NaN in 'Isotopologue group'
     if param_name in [  "msi_smpl_no_iso", 
-                        "msi_smpl_no_iso_no_adducts",
+                        "msi_smpl_no_struct",
                         "msi_smpl_single_assay_no_iso",
                         ]:
         assert results['Isotopologue group'].isna().all(), \
@@ -166,8 +166,8 @@ def test_msi_adduct_search(sample_data_msi_param):
     2. Data with adducts should have at least one not NaN value in adduct-related columns
     3. Check consitency between all attributes of present adduct groups
     '''
+
     data, param_name = sample_data_msi_param
-    
     searcher = MamsiStructSearch(ppm=10)
     searcher.load_msi(data)
     results = searcher.get_structural_clusters(annotate=False)
@@ -176,7 +176,7 @@ def test_msi_adduct_search(sample_data_msi_param):
 
     # Data that do not contain any adducts - test that all values are NaN
     if param_name in [  "msi_smpl_no_adducts", 
-                        "msi_smpl_no_iso_no_adducts",
+                        "msi_smpl_no_struct",
                         "msi_smpl_single_assay_no_adducts"]:
         # Test that all values are NaN
         assert results['Adduct group'].isna().all(), \
@@ -227,30 +227,46 @@ def test_msi_adduct_search(sample_data_msi_param):
             f"'Adduct' - no corresponding 'Adduct group' value in [{param_name}]"
 
 
-@pytest.mark.skip(reason="Not implemented yet")
 def test_msi_struct_group_search(sample_data_msi_param):
+    '''
+    Test MSI structural group search functionality of structural searcher
+    '''
     data, param_name = sample_data_msi_param
-    
-    # Skip specific parameter combinations
-    if param_name in [  "msi_smpl_no_iso", 
-                        "msi_smpl_no_iso_no_adducts",
-                        "msi_smpl_single_assay_no_iso"]:
-        pytest.skip(f"Skipping {param_name} for this test")
-    
     searcher = MamsiStructSearch(ppm=10)
     searcher.load_msi(data)
     results = searcher.get_structural_clusters(annotate=False)
     assert isinstance(results, pd.DataFrame)
     assert not results.empty
-
     
+    # Fixtures with no structural groups
+    if param_name == "msi_smpl_no_struct":
+        assert results['Structural cluster'].isna().all(), \
+            f"Expected all NaN in 'Structural cluster' for [{param_name}]"
+    
+    # Fixtures with any kind of structural groups (isotopologues/adducts/other)
+    else:
+        # Groups that have at least one not NaN value in Isotopologue group or Adduct group
+        rows_with_iso_adduct_gr = results[
+            results['Isotopologue group'].notna() | results['Adduct group'].notna()
+        ]
+        assert rows_with_iso_adduct_gr['Structural cluster'].notna().any(), \
+            f"'Isotopologue' or 'Adduct group' - no corresponding 'Structural cluster' value in [{param_name}]"
+        
+        # Groups that have at least one not NaN value in Isotopologue group or Adduct group
+        rows_with_iso_adduct = results[
+            results['Isotopologue group'].notna() | results['Adduct'].notna()
+        ]
+        assert rows_with_iso_adduct['Structural cluster'].notna().any(), \
+            f"'Isotopologue' or 'Adduct' - no corresponding 'Structural cluster' value in [{param_name}]"
+
+
 @pytest.mark.skip(reason="Not implemented yet")
 def test_msi_cross_assay_search(sample_data_msi_param):
     data, param_name = sample_data_msi_param
     
     # Skip specific parameter combinations
     if param_name in [  "msi_smpl_no_iso", 
-                        "msi_smpl_no_iso_no_adducts",
+                        "msi_smpl_no_struct",
                         "msi_smpl_single_assay_no_iso"]:
         pytest.skip(f"Skipping {param_name} for this test")
     
@@ -259,12 +275,3 @@ def test_msi_cross_assay_search(sample_data_msi_param):
     results = searcher.get_structural_clusters(annotate=False)
     assert isinstance(results, pd.DataFrame)
     assert not results.empty
-
-# @pytest.mark.xfail(reason="Should fail but doesn't")
-# def test_unexpectedly_works():
-#     assert True  # This passes, but we expected it to fail!
-
-# # With strict=True, XPASS becomes a failure
-# @pytest.mark.xfail(strict=True)
-# def test_must_fail():
-#     assert True  # This will cause the test suite to fail
