@@ -22,11 +22,13 @@ def sample_data_lcms():
     data_path = Path(__file__).parent / "test_data" / "lcms_sample.csv"
     return pd.read_csv(data_path)
 
+
 @pytest.fixture
 def sample_data_msi():
     """Load test data CSV"""
     data_path = Path(__file__).parent / "test_data" / "msi_sample.csv"
     return pd.read_csv(data_path)
+
 
 @pytest.fixture(params=[
                         "msi_smpl_no_iso", 
@@ -75,11 +77,10 @@ def sample_data_msi_param(request):
         cols = np.r_[0, 2, 3:7, 8:18]
     elif request.param == "msi_smpl_no_cross_assay":
         cols = np.r_[0:3, 4:18]
-    else: # "msi_smpl_all" 
+    else:               # "msi_smpl_all" 
         cols = np.r_[0:18]
-
-     
     return data.iloc[:, cols], request.param
+
 
 def test_load_lcms(sample_data_lcms):
     '''Test loading of LC-MS data import/loading'''
@@ -122,9 +123,13 @@ def test_load_msi(sample_data_msi):
 
 
 def test_msi_iso_search(sample_data_msi_param):
-    '''Test MSI isotopologue search functionality of structural searcher
-        Data without isotopologues should have NaN in 'Isotopologue group' column
-        Data with isotopologues should have at least two one not NaN value in 'Isotopologue group' column
+    '''
+    Test MSI isotopologue search functionality of structural searcher
+    1. Data without isotopologues should have NaN in 'Isotopologue group' column
+    2. Data with isotopologues should have at least two one not NaN value in 'Isotopologue group' column
+    3. All rows with 'Isotopologue group' value should also have 'Isotopologue pattern' value
+    4. Different data combinations should be tested
+    5. Results should be a non-empty DataFrame
     '''
     data, param_name = sample_data_msi_param
     searcher = MamsiStructSearch(ppm=10)
@@ -141,7 +146,6 @@ def test_msi_iso_search(sample_data_msi_param):
         assert results['Isotopologue group'].isna().all(), \
             f"Expected all NaN in 'Isotopologue group' for {param_name}"
 
-
     # Check all other data combinations for isotopologue groups     
     else: 
         # Check if at least one not NaN value in results['Isotopologue group']
@@ -154,10 +158,14 @@ def test_msi_iso_search(sample_data_msi_param):
         assert rows_with_group['Isotopologue pattern'].notna().all(), \
             "All rows with Isotopologue Group must have Isotopologue Pattern"
         
-
-
-@pytest.mark.skip(reason="Not implemented yet")
+    
 def test_msi_adduct_search(sample_data_msi_param):
+    '''
+    Test MSI adduct search functionality of structural searcher
+    1. Data without adducts should have NaN in adduct-related columns
+    2. Data with adducts should have at least one not NaN value in adduct-related columns
+    3. Check consitency between all attributes of present adduct groups
+    '''
     data, param_name = sample_data_msi_param
     
     searcher = MamsiStructSearch(ppm=10)
@@ -165,14 +173,58 @@ def test_msi_adduct_search(sample_data_msi_param):
     results = searcher.get_structural_clusters(annotate=False)
     assert isinstance(results, pd.DataFrame)
     assert not results.empty
-    assert False
 
-        # # Skip specific parameter combinations
-    # if param_name in [  "msi_smpl_no_iso", 
-    #                     "msi_smpl_no_iso_no_adducts",
-    #                     "msi_smpl_single_assay_no_iso"]:
-    #     pytest.skip(f"Skipping {param_name} for this test")
+    # Data that do not contain any adducts - test that all values are NaN
+    if param_name in [  "msi_smpl_no_adducts", 
+                        "msi_smpl_no_iso_no_adducts",
+                        "msi_smpl_single_assay_no_adducts"]:
+        # Test that all values are NaN
+        assert results['Adduct group'].isna().all(), \
+            f"Expected all NaN in 'Adduct group' for [{param_name}]"
+        assert results['Expected neutral mass'].isna().all(), \
+            f"Expected all NaN in 'Expected neutral mass' for [{param_name}]"
+        assert results['Observed neutral mass'].isna().all(), \
+            f"Expected all NaN in 'Observed neutral mass' for [{param_name}]"
+        assert results['Neutral mass |difference ppm|'].isna().all(), \
+            f"Expected all NaN in 'Neutral mass |difference ppm|' for [{param_name}]"
+        assert results['Adduct'].isna().all(), \
+            f"Expected all NaN in 'Adduct' for [{param_name}]"
+        
+    # Data that countain adducts - test that at least one not NaN value exists
+    else:
+        # Check if at least one not NaN value exists
+        assert results['Adduct group'].notna().any(), \
+            f"All values are NaN in 'Adduct group' in [{param_name}]"
+        assert results['Expected neutral mass'].notna().any(), \
+            f"All values are NaN in 'Expected neutral mass' in [{param_name}]"
+        assert results['Observed neutral mass'].notna().any(), \
+            f"All values are NaN in 'Observed neutral mass' in [{param_name}]"
+        assert results['Neutral mass |difference ppm|'].notna().any(), \
+            f"All values are NaN in 'Neutral mass |difference ppm|' in [{param_name}]"
+        assert results['Adduct'].notna().any(), \
+            f"All values are NaN in 'Adduct' in [{param_name}]"
+        
+        # Test all rows where 'Adduct group' has a value
+        rows_with_adduct_group = results[results['Adduct group'].notna()]
+        assert rows_with_adduct_group['Adduct'].notna().all(), \
+            f"'Adduct Group' - no corresponding 'Adduct' value in {param_name}"
+        assert rows_with_adduct_group['Expected neutral mass'].notna().all(), \
+            f"'Adduct Group' - no correspoinding 'Expected neutral mass' value in {param_name}"
+        assert rows_with_adduct_group['Observed neutral mass'].notna().all(), \
+            f"'Adduct Group' - no corresponding 'Observed neutral mass' value in {param_name}"
+        assert rows_with_adduct_group['Neutral mass |difference ppm|'].notna().all(), \
+            f"'Adduct Group' - no corresponding 'Neutral mass |difference ppm|' value in {param_name}" 
 
+        # Test all rows where 'Adduct' has a value
+        rows_with_adduct = results[results['Adduct'].notna()]
+        assert rows_with_adduct['Expected neutral mass'].notna().all(), \
+            f"'Adduct' - no corresponding 'Expected neutral mass' value in [{param_name}]"
+        assert rows_with_adduct['Observed neutral mass'].notna().all(), \
+            f"'Adduct' - no corresponding 'Observed neutral mass' value in [{param_name}]"
+        assert rows_with_adduct['Neutral mass |difference ppm|'].notna().all(), \
+            f"'Adduct' - no corresponding 'Neutral mass |difference ppm|' value in [{param_name}]"
+        assert rows_with_adduct['Adduct group'].notna().all(), \
+            f"'Adduct' - no corresponding 'Adduct group' value in [{param_name}]"
 
 
 @pytest.mark.skip(reason="Not implemented yet")
