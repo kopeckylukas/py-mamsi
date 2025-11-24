@@ -462,7 +462,13 @@ class MamsiStructSearch:
             frame_ = frame.copy()  # Copy the input pandas.DataFrame
 
             # Stack Isotopologue and adduct clusters into a single variable 'Structural cluster'
-            offset = frame_['Isotopologue group'].max()  # Get the highest number of iso group
+            # Get the highest number of 'Isotopologue group' to use as an offset for 'Adduct group'
+            offset = frame_['Isotopologue group'].max()  
+            # if no isotopologue groups found set offset to 0
+            if pd.isna(offset):
+                offset = 0
+            else:
+                offset = offset
             frame_['Adduct group'] = frame_['Adduct group'].apply(lambda x: x+offset)  # adduct clusters above iso
             adduct_frame = frame_.dropna(subset=['Adduct group'])  # Get only rows with non 0 clusters
             iso_frame = frame_.dropna(subset=['Isotopologue group'])  # Get only rows with non 0 clusters
