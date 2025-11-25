@@ -175,17 +175,14 @@ class MamsiStructSearch:
         if annotate:
             self._get_annotation()
 
-        data = self.assay_links
-
-        # PROCESS ASSAYS
+        # Harmonise structural goups' flag across assays
         assay_list = []
         iso_offset = 0
         adduct_offset = 0
         cluster_offset = 0
-        for frame in data:
+        for frame in self.assay_links:
 
-            working_frame = frame
-
+            working_frame = frame.copy()
             assay_list.append(working_frame)
 
             # Update offsets for isotopologue and adduct clusters
@@ -197,14 +194,14 @@ class MamsiStructSearch:
                 iso_offset = working_frame['Isotopologue group'].max()  # Update offset
             if not np.isnan(working_frame['Adduct group'].max()):
                 adduct_offset = working_frame['Adduct group'].max()
-            cluster_offset = working_frame['Structural cluster'].max()  # Update offset
-   
+            if not np.isnan(working_frame['Structural cluster'].max()):
+                cluster_offset = working_frame['Structural cluster'].max()
         # Combine all modalities/assays into a single DataFrame
         self.structural_links = pd.DataFrame(np.vstack(assay_list), columns=assay_list[0].columns)            
 
         # Get cross-assay links
         self._get_cross_assay_links()
-        
+    
         return  self.structural_links    
 
     def _get_isotopologue_groups(self):
