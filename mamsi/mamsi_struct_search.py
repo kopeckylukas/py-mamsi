@@ -200,10 +200,7 @@ class MamsiStructSearch:
             cluster_offset = working_frame['Structural cluster'].max()  # Update offset
    
         # Combine all modalities/assays into a single DataFrame
-        if len(assay_list) == 1: 
-            self.structural_links = assay_list[0]
-        else:   
-            self.structural_links = pd.DataFrame(np.vstack(assay_list), columns=assay_list[1].columns)
+        self.structural_links = pd.DataFrame(np.vstack(assay_list), columns=assay_list[0].columns)            
 
         # Get cross-assay links
         self._get_cross_assay_links()
