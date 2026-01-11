@@ -196,6 +196,14 @@ You can cite this article as:
 <details>
 <summary>Read more</summary>
 
+## v1.0.6
+**Minor Bug Fixes**
+- Update sinlge assay hangling. The MAMSI Struct Search tool is now able to handle a single assay only. 
+- Update harmonising of structural clusters. 
+
+Further, this version of MAMSI changed handling of external files from depracted pkg_resources to importlib_resoureces.
+Unit tests for structural search added
+
 ## v1.0.5
 **Minor Bug Fixes**
 - Update randint high in `.montecarlo_cv()` from 4_294_967_296 to 2_147_483_647 to comply with systems where Windows defaults to stricter 32-bit behaviour.
