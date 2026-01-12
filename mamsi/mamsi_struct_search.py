@@ -927,7 +927,7 @@ class MamsiStructSearch:
 
         master['Node'] = master['Feature']  # Create a node column
 
-        # Create a network graph
+        # Create a NetworkX graph
         G = nx.Graph()
         for index, row in master.iterrows():
             G.add_node(row['Node'], 
@@ -965,7 +965,8 @@ class MamsiStructSearch:
         correlation_clusters = set(nx.get_node_attributes(G, 'Correlation_cluster').values())
         colour_map = {cluster: plt.cm.tab10(i) for i, cluster in enumerate(correlation_clusters)}
 
-        # Chose plot option between NetworkX and pyvis.network 
+        # Chose plot option between NetworkX and 
+        # pyvis.network (Interactive plot)
         if  interactive:
             iG = G.copy()
             # create vis network
@@ -996,10 +997,23 @@ class MamsiStructSearch:
                 else:
                     node['title'] = f"Feature: {node['id']}"
                     node['label'] = f"{node['id']}"
+
+            # Change node shape based on 'Assay' label
+            assay_shapes = {}
+            # shapes = ['square', 'star', 'dot', 'triangle', 'diamond', 'hexagon', 'ellipse']
+            shapes = ['dot', 'triangle', 'square', 'star', 'diamond', 'hexagon', 'ellipse']
+            for i, assay in enumerate(set(nx.get_node_attributes(iG, 'Assay').values())):
+                assay_shapes[assay] = shapes[i % len(shapes)]
+            for node in net.nodes:
+                assay = iG.nodes[node['id']]['Assay']
+                node['shape'] = assay_shapes.get(assay, 'dot')
+            # Show the network
+
    
             net.show(output_file)
-            display(IFrame(output_file, width="100%", height="600px"))
+            display(IFrame(output_file, width="100%", height="900px"))
 
+        # NetworkX and Matplotlib (static) plot
         else:
             pos = nx.spring_layout(G,  threshold=0.015)
             node_colors = [colour_map[G.nodes[node]['Correlation_cluster']] for node in G.nodes()]
