@@ -972,6 +972,31 @@ class MamsiStructSearch:
             net = Network(notebook=True, cdn_resources='remote')
             # load the NetworkX graph
             net.from_nx(iG)
+            # Color nodes by correlation cluster
+            for node in net.nodes:
+                correlation_cluster = iG.nodes[node['id']]['Correlation_cluster']
+                if pd.notna(correlation_cluster):
+                    color = '#{:02x}{:02x}{:02x}'.format(
+                        int(colour_map[correlation_cluster][0] * 255),
+                        int(colour_map[correlation_cluster][1] * 255),
+                        int(colour_map[correlation_cluster][2] * 255)
+                    )
+                    node['color'] = color
+            
+            # Set edge colors to default (not colored by correlation cluster)
+            for edge in net.edges:
+                edge['color'] = 'gray'
+
+            # Add additional label (adduct)
+            for node in net.nodes:
+                adduct = iG.nodes[node['id']]['Adduct']
+                if pd.notna(adduct):
+                    node['title'] = f"Feature: {node['id']}\nAdduct: {adduct}"
+                    node['label'] = f"{node['id']}\n{adduct}"
+                else:
+                    node['title'] = f"Feature: {node['id']}"
+                    node['label'] = f"{node['id']}"
+   
             net.show(output_file)
             display(IFrame(output_file, width="100%", height="600px"))
 
