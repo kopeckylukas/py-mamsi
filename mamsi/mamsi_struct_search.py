@@ -1007,11 +1007,21 @@ class MamsiStructSearch:
             for node in net.nodes:
                 assay = iG.nodes[node['id']]['Assay']
                 node['shape'] = assay_shapes.get(assay, 'dot')
+            # Show different edge types with different styles
+            for edge in net.edges:
+                if edge['type'] == 1:
+                    edge['width'] = 3  # Isotopologue links as thicker solid lines
+                elif edge['type'] == 5:
+                    edge['width'] = 3  # Adduct links as thick lines
+                    edge['dashes'] = [1, 5]  # Short dash pattern (dotted)
+                    
+                elif edge['type'] == 10:
+                    edge['width'] = 1  # Cross-assay links as thin lines
+                    edge['dashes'] = [10, 10]  # Long dash pattern (dashes far apart)
+                    edge['color'] = 'lightgray'  # Lighter color for cross-assay links
             # Show the network
-
-   
             net.show(output_file)
-            display(IFrame(output_file, width="100%", height="900px"))
+            display(IFrame(output_file, width="100%", height="100%"))
 
         # NetworkX and Matplotlib (static) plot
         else:
