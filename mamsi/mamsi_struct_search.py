@@ -1000,7 +1000,6 @@ class MamsiStructSearch:
 
             # Change node shape based on 'Assay' label
             assay_shapes = {}
-            # shapes = ['square', 'star', 'dot', 'triangle', 'diamond', 'hexagon', 'ellipse']
             shapes = ['dot', 'triangle', 'square', 'star', 'diamond', 'hexagon', 'ellipse']
             for i, assay in enumerate(set(nx.get_node_attributes(iG, 'Assay').values())):
                 assay_shapes[assay] = shapes[i % len(shapes)]
