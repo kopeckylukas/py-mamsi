@@ -1025,7 +1025,7 @@ class MamsiStructSearch:
 
         # NetworkX and Matplotlib (static) plot
         else:
-            pos = nx.spring_layout(G,  threshold=0.015)
+            pos = nx.spring_layout(G,  threshold=0.0115)
             node_colors = [colour_map[G.nodes[node]['Correlation_cluster']] for node in G.nodes()]
             nx.draw(G, pos, with_labels=labels, font_size=6, node_color=node_colors, node_size=300, edge_color='gray')
             plt.title("Structural Network")
