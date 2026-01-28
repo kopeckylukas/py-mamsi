@@ -168,7 +168,8 @@ class MamsiStructSearch:
 
         # Get isotopologue and adduct clusters
         self._get_isotopologue_groups()
-        self._get_adduct_groups()
+        return self._get_adduct_groups(adducts=adducts)
+
         self._get_unified_struct_groups()
 
         # Get annotation from ROI files (NPC)
@@ -260,6 +261,135 @@ class MamsiStructSearch:
             self.assay_links[index] = frame
 
     def _get_adduct_groups(self, adducts='all'):
+        """
+        Private method.
+        Search for adduct grouping signatures within significant features. 
+        The method uses a ppm window to search for adducts. 
+
+        Args:
+            adducts (str, optional): _description_. Defaults to 'all'.
+        """
+        
+        temp = []
+
+        for index, frame in enumerate(self.assay_links):
+
+            frame_ = frame.copy()
+
+            # Detect isotopologues within one loop
+
+            # Get neutral masses for all adducts
+            neutral_masses = self._get_neutral_mass(features=frame_, adducts=adducts)
+
+            # Reshape DataFrame from wide to long format
+            metadata_cols = ['Feature', 'Assay', 'RT', 'm/z', 'Isotopologue group', 'Isotopologue pattern']
+            adduct_cols = [col for col in neutral_masses.columns if col not in metadata_cols]
+            flattened_neutral_masses = neutral_masses.melt(
+                id_vars=metadata_cols,
+                value_vars=adduct_cols,
+                var_name='Adduct',
+                value_name='Neutral_Mass'
+            )
+
+            # Match neutral masses
+            adduct_pairs = self._get_adduct_pairs(flattened_neutral_masses)
+
+            
+            temp.append(adduct_pairs)
+        return temp
+
+
+
+            # # Search for adducts in current DataFrame
+            # data_clusters_frame = self._search_main_adduct(neutral_masses)
+
+            # # Combine isotopologue and adduct clusters into one DataFrame
+            # frame_2 = neutral_masses.iloc[:, :6]
+            # working_frame = frame_2.merge(data_clusters_frame.iloc[:, [0, 7, 2, 3, 4, 5]], on='Feature', how='left')
+
+            # # Merge overlapping adduct clusters
+
+            # non_unique_features = working_frame['Feature'][working_frame['Feature'].duplicated(keep=False)].unique()
+            # for item in non_unique_features:
+            #     # For all non-unique features, find all clusters they belong too
+            #     fr_ = working_frame[working_frame['Feature'] == item].loc[:, ['Feature', 'Adduct group', 'Adduct']]
+            #     combined_adduct = '/'.join(fr_['Adduct'])
+            #     fr_['Adduct'] = combined_adduct
+
+            #     #
+            #     working_frame.reset_index(inplace=True, drop=True)
+            #     fr_.reset_index(inplace=True, drop=True)
+            #     for i in range(len(fr_)):
+            #         working_frame.loc[working_frame['Feature'] ==
+            #                           fr_.loc[i, 'Feature'], 'Adduct'] = fr_.loc[i, 'Adduct']
+
+            #     # unify all overlapping cluster by assigning the lowest cluster values to all clusters
+            #     for i in range(len(fr_) - 1):
+            #         working_frame['Adduct group'] = working_frame['Adduct group'].replace({fr_.iloc[i + 1, 1]: fr_.iloc[0, 1]})
+
+            #     working_frame = working_frame.drop_duplicates(subset='Feature')  # Delete non unique Features
+
+            # self.assay_links[index] = working_frame
+            # # now load data below in the main loop as nothing is returned
+
+    
+
+    def _get_adduct_pairs(self, neutral_masses):
+        """
+        Private method.
+        Match neutral masses within a given ppm and RT window.
+
+        Args:
+            neutral_masses (pandas.DataFrame): DataFrame containing neutral masses.
+
+        Returns:
+            pandas.DataFrame: DataFrame with matched neutral masses.
+        """
+
+        matches = []
+
+        n_rows = len(neutral_masses)
+        for i in range(n_rows):
+            for j in range(i+1, n_rows):
+                
+                row1 = neutral_masses.iloc[i]
+                row2 = neutral_masses.iloc[j]
+                
+                # Skip if same feature (we want matches between different features)
+                if row1['Feature'] == row2['Feature']:
+                    continue
+                
+                # Check RT tolerance
+                rt_diff = abs(row1['RT'] - row2['RT'])
+                if rt_diff > self.rt_win:
+                    continue
+                
+                # Check ppm tolerance
+                ppm_diff = self._mean_ppm_diff(row1['Neutral_Mass'], row2['Neutral_Mass'])
+                if ppm_diff > self.ppm:
+                    continue
+                
+                # If we get here, we have a match!
+                matches.append({
+                    'Feature1': row1['Feature'],
+                    'Feature2': row2['Feature'],
+                    'Adduct1': row1['Adduct'],
+                    'Adduct2': row2['Adduct'],
+                    'RT1': row1['RT'],
+                    'RT2': row2['RT'],
+                    'RT_diff': rt_diff,
+                    'Neutral_Mass1': row1['Neutral_Mass'],
+                    'Neutral_Mass2': row2['Neutral_Mass'],
+                    'ppm_diff': ppm_diff,
+                    'mz1': row1['m/z'],
+                    'mz2': row2['m/z']
+                })
+        
+        return matches
+
+
+
+    def _get_adduct_groups_old(self, adducts='all'):
         """
         Private method.
         Search for adduct grouping signatures within significant features. 
