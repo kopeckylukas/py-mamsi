@@ -815,7 +815,7 @@ class MamsiPls(MBPLS):
             return block_importance
         
 
-    def mb_vip_permtest(self, x, y, n_permutations=1000, return_scores=False, progress_bar=True, n_jobs=-1):
+    def mb_vip_permtest(self, x, y, n_permutations=1000, return_null_stats=True, progress_bar=True, n_jobs=-1, **kwargs):
         """
         Calculate empirical p-values for each feature by permuting the Y outcome variable `n_permutations` times and
         refitting the model. The p-values for each feature are calculated by counting the number of trials with
@@ -825,19 +825,25 @@ class MamsiPls(MBPLS):
             x (array or list[array]): All blocks of predictors x1, x2, ..., xn. Rows are observations, columns are features/variables.
             y (array): 1-dim or 2-dim array of reference values, either continuous or categorical variable.
             n_permutations (int, optional): Number of permutation tests. Defaults to 1000.
-            return_scores (bool, optional): Whether to return MB-VIP scores for each permuted null model. Defaults to False.
+            return_null_stats (bool, optional): Whether to return statistics of MB-VIP for all permuted null models for each feature. Defaults to True.
             progress_bar (bool, optional): Whether to show progress bar during permutation testing. Defaults to True.
             n_jobs (int, optional): Number of workers (CPU cores) for multiprocessing, -1 utilises all available cores on a system. 
                 Defaults to -1.
 
         Returns:
-            array: Returns an array of p-values for each feature. If `return_scores` is True, then a matrix of MB-VIP scores
-            for each permuted null model is returned as well.
+            array: Returns an array of p-values for each feature. If `return_null_stats` is True, tstatistics of MB-VIP for all permuted null models for each feature.
         """
 
 
         # Check is model is fitted
         check_is_fitted(self, 'beta_')
+
+        # Check for depracted argument name
+        if 'return_scores' in kwargs:
+            raise TypeError(
+                "'return_scores' has been renamed to 'return_null_stats'. "
+                "Please update your code accordingly."
+            )
 
         # Validation of data inputs
         _x = deepcopy.deepcopy(x)  # deepcopy to prevent data leakage
@@ -872,9 +878,31 @@ class MamsiPls(MBPLS):
         vip_greater = np.sum(vip_null >= vip_obs, axis=1)
         p_vals = vip_greater/n_permutations
 
+        null_stats = {
+                'feature': pd.concat(_x).columns.to_numpy(),
+                'p_value': p_vals,
+                'observed_vip': _vip,
+                'n_permutations': n_permutations,
+                'greater_than_observed': vip_greater,
+                'null_mean': np.mean(vip_null, axis=1),
+                'null_median': np.median(vip_null, axis=1),
+                'null_std': np.std(vip_null, axis=1, ddof=1), # ddof=1 for sample std dev
+                'null_min': np.min(vip_null, axis=1),
+                'null_max': np.max(vip_null, axis=1),
+                'null_perc_25': np.percentile(vip_null, 25, axis=1),
+                'null_perc_75': np.percentile(vip_null, 75, axis=1),
+                'null_perc_95': np.percentile(vip_null, 95, axis=1),
+                'null_perc_99': np.percentile(vip_null, 99, axis=1),
+                'null_skewness': stats.skew(vip_null, axis=1),
+                'null_kurtosis': stats.kurtosis(vip_null, axis=1),
+        }
+
+        # store null stats in the model object for visualisation reference
+        self.null_stats = pd.DataFrame(null_stats)
+
         # Return p-vales and MB-PLS scores for null models
-        if return_scores:
-            return p_vals, vip_null
+        if return_null_stats:
+            return pd.DataFrame(null_stats)
         else:
             return p_vals
 
@@ -922,7 +950,7 @@ class MamsiPls(MBPLS):
         return pd.DataFrame(results)
 
     @staticmethod
-    def group_train_test_split(x, y, gropus=None, test_size=0.2, random_state=42):
+    def group_train_test_split(x, y, groups=None, test_size=0.2, random_state=42):
         """
         Static Method
 
