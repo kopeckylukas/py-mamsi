@@ -39,12 +39,13 @@ setup(
     ],
 
     install_requires=[
-        'mbpls==1.0.4',
+        # 'mbpls==1.0.4',
+        'multiblock-pls',
         'pandas',
         'numpy',
         'matplotlib',
         'scipy',
-        'scikit-learn<=1.5.2',
+        'scikit-learn',
         'seaborn',
         'networkx',
         'pyvis',
