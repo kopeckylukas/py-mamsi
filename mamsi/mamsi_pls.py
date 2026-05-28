@@ -865,12 +865,12 @@ class MamsiPls(MBPLS):
 
         if progress_bar:
             try:
-                _vip_null = Parallel(n_jobs=n_jobs)(delayed(_fit_permute)(_x, _y) for _ in tqdm(range(n_permutations), desc="Permutation testing"))
+                _vip_null = Parallel(n_jobs=n_jobs)(delayed(_fit_permute)(_x, _y) for _ in tqdm(range(int(n_permutations)), desc="Permutation testing"))
             except ImportError:
                 print("tqdm not available, running without progress bar")
-                _vip_null = Parallel(n_jobs=n_jobs)(delayed(_fit_permute)(_x, _y) for _ in range(n_permutations))
+                _vip_null = Parallel(n_jobs=n_jobs)(delayed(_fit_permute)(_x, _y) for _ in range(int(n_permutations)))
         else:
-            _vip_null = Parallel(n_jobs=n_jobs)(delayed(_fit_permute)(_x, _y) for _ in range(n_permutations))
+            _vip_null = Parallel(n_jobs=n_jobs)(delayed(_fit_permute)(_x, _y) for _ in range(int(n_permutations)))
             
         vip_null = np.stack(_vip_null, axis=1)
 
@@ -898,7 +898,7 @@ class MamsiPls(MBPLS):
         }
 
         # store null stats in the model object for visualisation reference
-        self.null_stats = pd.DataFrame(null_stats)
+        # self.null_stats = pd.DataFrame(null_stats)
 
         # Return p-vales and MB-PLS scores for null models
         if return_null_stats:
