@@ -223,8 +223,16 @@ class MamsiPls(MBPLS):
         # Percentage for printed statements below
         increase = increase_threshold * 100
 
-        # Plot the results
-        perf_scores.plot.line(x='Number of Components', marker='.', figsize=(8, 6), grid=False)
+        # Plot the results; reorder columns here to control plot order.
+        order = ['training_precision', 'precision',
+                 'training_recall', 'recall',
+                    'training_specificity', 'specificity',
+                    'training_f1', 'f1',
+                    'training_roc_auc', 'roc_auc',
+                    'training_accuracy', 'accuracy'
+                ]
+        plot_columns = ['Number of Components'] + [c for c in order if c != 'Number of Components']
+        perf_scores.loc[:, plot_columns].plot.line(x='Number of Components', marker='.', figsize=(6, 6), grid=False, cmap='Paired')
         plt.xlim(0, max_components + 1)
         plt.xticks(np.arange(1, max_components + 1, 1.0))
         try:
@@ -251,7 +259,7 @@ class MamsiPls(MBPLS):
         else:
             title = 'Latent Variable Estimation' + ' (Monte Carlo) ' 
         plt.title(title)
-        plt.legend()
+        plt.legend(loc='lower right')
 
         if savefig:
             plt.savefig(**kwargs)
