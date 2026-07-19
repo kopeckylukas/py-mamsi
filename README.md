@@ -26,7 +26,7 @@ The documentation for this package is available at [https://kopeckylukas.github.
 
 # Installation 
 ### Dependencies
-- mbpls==1.0.4
+- multiblock-pls
 - pandas
 - numpy
 - matplotlib
@@ -195,6 +195,14 @@ You can cite this article as:
 # Version History
 <details>
 <summary>Read more</summary>
+
+# v1.0.7
+**This version of MAMSI brings several bug fixes and improvements:**
+- Switched the dependency from the original `mbpls` package (no longer maintained) to its actively maintained fork, `multiblock-pls`. This also enables support for `scikit-learn` versions higher than 1.5.2.
+- Updated colours for LV estimation plots, ensuring colours are not repeated.
+- The interactive structural grouping plot is now coloured by flattened hierarchical correlation clusters. Different modalities are shown as different node shapes, and different structural relationships are now shown using different edge styles rather than edge width.
+- The permutation test function now returns a Pandas DataFrame instead of a list of p-values. This DataFrame contains p-values, feature names, observed MB-VIP values, and parameters describing the null MB-VIP distribution. These distributions can be visualised with the new `.plot_null_distribution()` function, available in the newly created `plots.py` file.
+
 
 ## v1.0.6
 **Minor Bug Fixes**

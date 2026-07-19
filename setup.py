@@ -5,7 +5,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="mamsi",
-    version="1.0.6",
+    version="1.0.7",
     packages=find_packages(),
     url="https://github.com/kopeckylukas/py-mamsi",
     license="BSD 3-Clause License",
@@ -39,7 +39,6 @@ setup(
     ],
 
     install_requires=[
-        # 'mbpls==1.0.4',
         'multiblock-pls',
         'pandas',
         'numpy',
