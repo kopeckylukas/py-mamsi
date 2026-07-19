@@ -887,7 +887,7 @@ class MamsiPls(MBPLS):
         p_vals = vip_greater/n_permutations
 
         null_stats = {
-                'feature': pd.concat(_x).columns.to_numpy(),
+                'feature': np.array([col for df in _x for col in df.columns]),
                 'p_value': p_vals,
                 'observed_vip': _vip,
                 'n_permutations': n_permutations,
