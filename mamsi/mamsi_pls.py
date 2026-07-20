@@ -232,7 +232,7 @@ class MamsiPls(MBPLS):
                     'training_accuracy', 'accuracy'
                 ]
         plot_columns = ['Number of Components'] + [c for c in order if c != 'Number of Components']
-        perf_scores.loc[:, plot_columns].plot.line(x='Number of Components', marker='.', figsize=(6, 6), grid=False, cmap='Paired')
+        perf_scores.loc[:, plot_columns].plot.line(x='Number of Components', marker='.', grid=False, cmap='Paired')
         plt.xlim(0, max_components + 1)
         plt.xticks(np.arange(1, max_components + 1, 1.0))
         try:
