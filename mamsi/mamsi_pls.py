@@ -224,13 +224,16 @@ class MamsiPls(MBPLS):
         increase = increase_threshold * 100
 
         # Plot the results; reorder columns here to control plot order.
-        order = ['training_precision', 'precision',
-                 'training_recall', 'recall',
-                    'training_specificity', 'specificity',
-                    'training_f1', 'f1',
-                    'training_roc_auc', 'roc_auc',
-                    'training_accuracy', 'accuracy'
-                ]
+        if classification:
+            order = ['training_precision', 'precision',
+                    'training_recall', 'recall',
+                        'training_specificity', 'specificity',
+                        'training_f1', 'f1',
+                        'training_roc_auc', 'roc_auc',
+                        'training_accuracy', 'accuracy'
+                    ]
+        else:
+            order = ['r2', 'q2']
         plot_columns = ['Number of Components'] + [c for c in order if c != 'Number of Components']
         perf_scores.loc[:, plot_columns].plot.line(x='Number of Components', marker='.', grid=False, cmap='Paired')
         plt.xlim(0, max_components + 1)
