@@ -196,6 +196,10 @@ You can cite this article as:
 <details>
 <summary>Read more</summary>
 
+# v1.0.8
+**Minor Bug Fixes**
+- Fix rendering of `.estimate_lv()` method for regression modelling. 
+
 # v1.0.7
 **This version of MAMSI brings several bug fixes and improvements:**
 - Switched the dependency from the original `mbpls` package (no longer maintained) to its actively maintained fork, `multiblock-pls`. This also enables support for `scikit-learn` versions higher than 1.5.2.
